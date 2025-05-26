@@ -6,7 +6,7 @@
 #define CTRL_CLKSRC      (1U << 2)
 #define CTRL_COUNTFLAG   (1U << 16)
 
-void SysTickDelayMs(int delay)
+void hal_delay_ms(uint32_t delay)
 {
     /* Configure systick */
     /* Reload with number of clocks per millisecond */

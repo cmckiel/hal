@@ -1,4 +1,5 @@
 #include "stm32f4xx.h"
+#include "gpio.h"
 
 #define GPIOAEN (1U << 0)
 #define PIN5    (1U << 5)
@@ -7,7 +8,7 @@
 /**
  * @brief Initializes the LED GPIO to OUTPUT.
  */
-void gpio_init(void)
+HalStatus_t hal_gpio_init(void *config)
 {
 	// Enable the peripheral bus clock.
 	RCC->AHB1ENR |= GPIOAEN;
@@ -15,13 +16,15 @@ void gpio_init(void)
 	// Configure the GPIO.
 	GPIOA->MODER &=~ (1U << 11);
 	GPIOA->MODER |= (1U << 10);
+
+	return HAL_STATUS_OK;
 }
 
 /**
  * @brief Toggles @ref LED_PIN.
  */
-void toggle_led(void)
+HalStatus_t hal_gpio_toggle_led()
 {
 	GPIOA->ODR ^= LED_PIN;
+	return HAL_STATUS_OK;
 }
-

@@ -14,7 +14,7 @@ set(CMAKE_STRIP arm-none-eabi-strip)
 
 set(CMAKE_C_FLAGS "-mcpu=cortex-m4 --specs=nano.specs -fdata-sections -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wall")
 set(CMAKE_CXX_FLAGS "-mcpu=cortex-m4 --specs=nano.specs -fdata-sections -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wall")
-set(CMAKE_EXE_LINKER_FLAGS "-mcpu=cortex-m4 -T${PROJECT_SOURCE_DIR}/stm32f446re/STM32F446RETX_FLASH.ld")
+set(CMAKE_EXE_LINKER_FLAGS "-mcpu=cortex-m4 -T${PROJECT_SOURCE_DIR}/platforms/stm32f446re/sdk/STM32F446RETX_FLASH.ld")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nosys.specs -Wl,-Map=\"jays_uart.map\"")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections -static -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--start-group -lc -lm -Wl,--end-group")

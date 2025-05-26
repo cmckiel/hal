@@ -1,3 +1,4 @@
+#include "uart.h"
 #include "stm32f4xx.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -15,7 +16,7 @@
 #define SR_RXNE       (1UL << 5)
 
 void uart_init(void);
-void uart_write(int ch);
+HalStatus_t hal_uart_write(const uint8_t *data, size_t len);
 int uart_read(void);
 void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t periph_clk, uint32_t baud_rate);
 uint16_t compute_uart_bd(uint32_t periph_clk, uint32_t baud_rate);
@@ -25,14 +26,19 @@ uint16_t compute_uart_bd(uint32_t periph_clk, uint32_t baud_rate);
  */
 int __io_putchar(int ch)
 {
-	uart_write(ch);
+	uint8_t data[] = { 0 };
+	data[0] = ch;
+	size_t len = 1;
+
+	hal_uart_write(&data[0], len);
+
 	return ch;
 }
 
 /**
  * @brief Initialize the UART.
  */
-void uart_init(void)
+HalStatus_t hal_uart_init(void *config)
 {
 	/********************* GPIO Configure *********************/
 	// Enable Bus.
@@ -73,13 +79,22 @@ void uart_init(void)
 
 	// Enable the USART by writing the UE bit in USART_CR1 register to 1.
 	USART2->CR1 |= CR1_UE;
+
+	return HAL_STATUS_OK;
 }
 
 /**
  * @brief Writes data to UART2 register.
 */
-void uart_write(int ch)
+HalStatus_t hal_uart_write(const uint8_t *data, size_t len)
 {
+    // @todo fix this.
+    char ch = '0';
+    if (len > 0)
+    {
+        ch = data[0];
+    }
+
 	// Write the data to send in the USART_DR register (this clears the TXE bit.). Repeat this for
 	// each data to be transmitted in case of single buffer.
 	USART2->DR = ch & 0xFF;
@@ -88,18 +103,22 @@ void uart_write(int ch)
 	// transmission of the last frame is complete.
 	while ((USART2->SR & SR_TC) != SR_TC); // Wait for the TC bit high to indicate Transmission Complete.
 										   // Note to self, seems like the wrong way to wait for this.
+
+    return HAL_STATUS_OK;
 }
 
 /**
  * @brief Reads data from UART2 register.
 */
-int uart_read(void)
+HalStatus_t hal_uart_read(uint8_t *data, size_t len, uint32_t timeout_ms)
 {
 	// Wait for this bit to be set to indicate that data is received.
-	while ((USART2->SR & SR_RXNE) != SR_RXNE); 
+	while ((USART2->SR & SR_RXNE) != SR_RXNE);
 
-	int data = USART2->DR;
-	return data & 0xFF;
+	uint32_t reg_data = USART2->DR;
+	data[0] = (uint8_t)(reg_data & 0xFF);
+
+    return HAL_STATUS_OK;
 }
 
 /**

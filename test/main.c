@@ -1,9 +1,7 @@
-#include "stm32f4xx.h"
 #include <stdint.h>
 #include <stdio.h>
 #include "uart.h"
 #include "gpio.h"
-#include "adc.h"
 #include "systick.h"
 
 /**
@@ -14,18 +12,22 @@
  */
 int main(void)
 {
-	gpio_init();
-	uart_init();
+	hal_gpio_init(NULL);
+	hal_uart_init(NULL);
 
-	int count = 0;
 	while (1)
 	{
-		toggle_led();
-		printf("%d\r\n", count);
-		printf("\33[2J"); // Use VT100 escape codes
-		printf("\33[H");
-		count++;
-		SysTickDelayMs(50);
+		for (int i = 0; i < 6; i++)
+		{
+			hal_gpio_toggle_led();
+			hal_delay_ms(100);
+		}
+
+		for (int i = 0; i < 6; i++)
+		{
+			hal_gpio_toggle_led();
+			hal_delay_ms(300);
+		}
 	}
 
 	return 0;

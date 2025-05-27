@@ -13,7 +13,7 @@
 int main(void)
 {
 	hal_gpio_init(NULL);
-	hal_uart_init(NULL);
+	hal_uart_init(HAL_UART2, NULL);
 
 	while (1)
 	{
@@ -22,6 +22,8 @@ int main(void)
 			hal_gpio_toggle_led();
 			hal_delay_ms(100);
 		}
+
+		hal_delay_ms(200);
 
 		for (int i = 0; i < 6; i++)
 		{

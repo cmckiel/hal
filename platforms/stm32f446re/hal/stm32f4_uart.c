@@ -15,11 +15,15 @@
 #define SR_TC         (1UL << 6)
 #define SR_RXNE       (1UL << 5)
 
-void uart_init(void);
-HalStatus_t hal_uart_write(const uint8_t *data, size_t len);
-int uart_read(void);
 void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t periph_clk, uint32_t baud_rate);
 uint16_t compute_uart_bd(uint32_t periph_clk, uint32_t baud_rate);
+
+static HalStatus_t uart1_init(void *config);
+static HalStatus_t uart2_init(void *config);
+static HalStatus_t uart1_write(const uint8_t *data, size_t len);
+static HalStatus_t uart2_write(const uint8_t *data, size_t len);
+static HalStatus_t uart1_read(uint8_t *data, size_t len, uint32_t timeout_ms);
+static HalStatus_t uart2_read(uint8_t *data, size_t len, uint32_t timeout_ms);
 
 /**
  * @brief Redefine the putchar() function.
@@ -30,15 +34,87 @@ int __io_putchar(int ch)
 	data[0] = ch;
 	size_t len = 1;
 
-	hal_uart_write(&data[0], len);
+	hal_uart_write(HAL_UART2, &data[0], len);
 
 	return ch;
 }
 
+HalStatus_t hal_uart_init(HalUart_t uart, void *config)
+{
+	HalStatus_t hal_status = HAL_STATUS_ERROR;
+
+	if (uart == HAL_UART1)
+	{
+		uart1_init(config);
+	}
+	else if (uart == HAL_UART2)
+	{
+		uart2_init(config);
+	}
+	else if (uart == HAL_UART3)
+	{
+		// Not implemented.
+	}
+
+	return hal_status;
+}
+
+HalStatus_t hal_uart_write(HalUart_t uart, const uint8_t *data, size_t len)
+{
+	HalStatus_t hal_status = HAL_STATUS_ERROR;
+
+	if (uart == HAL_UART1)
+	{
+		hal_status = uart1_write(data, len);
+	}
+	else if (uart == HAL_UART2)
+	{
+		hal_status = uart2_write(data, len);
+	}
+	else if (uart == HAL_UART3)
+	{
+		// Not implemented.
+	}
+
+	return hal_status;
+}
+
+HalStatus_t hal_uart_read(HalUart_t uart, uint8_t *data, size_t len, uint32_t timeout_ms)
+{
+	HalStatus_t hal_status = HAL_STATUS_ERROR;
+
+	if (uart == HAL_UART1)
+	{
+		hal_status = uart1_read(data, len, timeout_ms);
+	}
+	else if (uart == HAL_UART2)
+	{
+		hal_status = uart2_read(data, len, timeout_ms);
+	}
+	else if (uart == HAL_UART3)
+	{
+		// Not implemented.
+	}
+
+	return hal_status;
+}
+
+// @todo implement
+static HalStatus_t uart1_init(void *config)
+{
+	// Enable the interrupt
+	NVIC_EnableIRQ(USART1_IRQn);
+
+	// Enable the clock for GPIOA.
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+
+	return HAL_STATUS_ERROR;
+}
+
 /**
- * @brief Initialize the UART.
+ * @brief Initialize the UART2. (Connected to the USB)
  */
-HalStatus_t hal_uart_init(void *config)
+static HalStatus_t uart2_init(void *config)
 {
 	/********************* GPIO Configure *********************/
 	// Enable Bus.
@@ -83,10 +159,16 @@ HalStatus_t hal_uart_init(void *config)
 	return HAL_STATUS_OK;
 }
 
+// @todo implement
+static HalStatus_t uart1_write(const uint8_t *data, size_t len)
+{
+	return HAL_STATUS_ERROR;
+}
+
 /**
  * @brief Writes data to UART2 register.
 */
-HalStatus_t hal_uart_write(const uint8_t *data, size_t len)
+static HalStatus_t uart2_write(const uint8_t *data, size_t len)
 {
     // @todo fix this.
     char ch = '0';
@@ -107,10 +189,16 @@ HalStatus_t hal_uart_write(const uint8_t *data, size_t len)
     return HAL_STATUS_OK;
 }
 
+// @todo implement
+static HalStatus_t uart1_read(uint8_t *data, size_t len, uint32_t timeout_ms)
+{
+	return HAL_STATUS_ERROR;
+}
+
 /**
  * @brief Reads data from UART2 register.
 */
-HalStatus_t hal_uart_read(uint8_t *data, size_t len, uint32_t timeout_ms)
+static HalStatus_t uart2_read(uint8_t *data, size_t len, uint32_t timeout_ms)
 {
 	// Wait for this bit to be set to indicate that data is received.
 	while ((USART2->SR & SR_RXNE) != SR_RXNE);

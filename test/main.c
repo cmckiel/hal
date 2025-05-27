@@ -23,13 +23,21 @@ int main(void)
 			hal_delay_ms(100);
 		}
 
-		hal_delay_ms(200);
+		// uint8_t data[] = { 'e' };
+		// size_t len = 1;
+		// hal_uart_write(HAL_UART2, data, len);
 
-		for (int i = 0; i < 6; i++)
-		{
-			hal_gpio_toggle_led();
-			hal_delay_ms(300);
-		}
+		// __io_putchar('x');
+		printf("IAmAlive");
+		fflush(stdout);
+
+		// hal_delay_ms(200);
+
+		// for (int i = 0; i < 6; i++)
+		// {
+		// 	hal_gpio_toggle_led();
+		// 	hal_delay_ms(300);
+		// }
 	}
 
 	return 0;

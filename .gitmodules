@@ -1,0 +1,3 @@
+[submodule "external/circular_buffer"]
+	path = external/circular_buffer
+	url = git@github.com:cmckiel/circular_buffer.git

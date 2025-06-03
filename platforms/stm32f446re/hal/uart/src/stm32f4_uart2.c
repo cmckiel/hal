@@ -1,5 +1,6 @@
 #include "stm32f4xx.h"
 #include "stm32f4_uart2.h"
+#include "circular_buffer.h"
 
 #define SYS_FREQ      16000000     // Default system frequency
 #define APB1_CLK      SYS_FREQ

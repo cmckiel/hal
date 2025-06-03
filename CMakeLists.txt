@@ -7,6 +7,7 @@ set(PROJECT_NAME "hal")
 project(${PROJECT_NAME} LANGUAGES C ASM CXX)
 
 add_subdirectory(hal_interface)
+add_subdirectory(external/circular_buffer)
 add_subdirectory(platforms)
 
 add_executable(

@@ -1,0 +1,6 @@
+{
+    "name": "HAL",
+    "build": {
+        "dockerfile": "../Dockerfile"
+    }
+}

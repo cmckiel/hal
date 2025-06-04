@@ -7,6 +7,9 @@
 #define APB1_CLK      SYS_FREQ
 #define UART_BAUDRATE 115200
 
+#define UART_BUFFER_RX_SIZE CIRCULAR_BUFFER_MAX_SIZE
+static circular_buffer_ctx rx_ctx;
+
 static void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t periph_clk, uint32_t baud_rate);
 static uint16_t compute_uart_bd(uint32_t periph_clk, uint32_t baud_rate);
 
@@ -15,7 +18,7 @@ void USART2_IRQHandler(void)
 	if (USART2->SR & USART_SR_RXNE)
 	{
 		uint8_t byte = USART2->DR & 0xFF;
-		hal_gpio_toggle_led();
+		circular_buffer_push(&rx_ctx, byte);
 	}
 }
 
@@ -24,6 +27,13 @@ void USART2_IRQHandler(void)
  */
 HalStatus_t stm32f4_uart2_init(void *config)
 {
+	/********************* Buffer Setup *********************/
+	// Init the rx buffer.
+	if (!circular_buffer_init(&rx_ctx, UART_BUFFER_RX_SIZE))
+	{
+		return HAL_STATUS_ERROR;
+	}
+
 	/********************* GPIO Configure *********************/
 	// Enable Bus.
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
@@ -78,11 +88,13 @@ HalStatus_t stm32f4_uart2_init(void *config)
 */
 HalStatus_t stm32f4_uart2_read(uint8_t *data, size_t len, uint32_t timeout_ms)
 {
-	// Wait for this bit to be set to indicate that data is received.
-	while ((USART2->SR & USART_SR_RXNE) != USART_SR_RXNE);
+	uint8_t byte = 0;
 
-	uint32_t reg_data = USART2->DR;
-	data[0] = (uint8_t)(reg_data & 0xFF);
+	size_t i = 0;
+	while (circular_buffer_pop(&rx_ctx, &byte) && i < len)
+	{
+		data[i] = byte;
+	}
 
     return HAL_STATUS_OK;
 }
@@ -92,21 +104,17 @@ HalStatus_t stm32f4_uart2_read(uint8_t *data, size_t len, uint32_t timeout_ms)
 */
 HalStatus_t stm32f4_uart2_write(const uint8_t *data, size_t len)
 {
-    // @todo fix this.
-    char ch = '0';
-    if (len > 0)
-    {
-        ch = data[0];
-    }
-
-	// Write the data to send in the USART_DR register (this clears the TXE bit.). Repeat this for
-	// each data to be transmitted in case of single buffer.
-	USART2->DR = ch & 0xFF;
+	for (size_t i = 0; i < len; i++)
+	{
+		while (!(USART2->SR & USART_SR_TXE)); // Wait for TXE
+		// Write the data to send in the USART_DR register (this clears the TXE bit). Repeat this for
+		// each data to be transmitted in case of single buffer.
+		USART2->DR = data[i];
+	}
 
 	// After writing the last data into the USART_DR register, wait until TC=1. This indicates that the
 	// transmission of the last frame is complete.
-	while ((USART2->SR & USART_SR_TC) != USART_SR_TC); // Wait for the TC bit high to indicate Transmission Complete.
-										               // Note to self, seems like the wrong way to wait for this.
+    while (!(USART2->SR & USART_SR_TC)); // Wait for last byte fully sent
 
     return HAL_STATUS_OK;
 }

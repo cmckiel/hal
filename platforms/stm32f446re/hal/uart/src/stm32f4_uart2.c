@@ -86,14 +86,15 @@ HalStatus_t stm32f4_uart2_init(void *config)
 /**
  * @brief Reads data from UART2 register.
 */
-HalStatus_t stm32f4_uart2_read(uint8_t *data, size_t len, uint32_t timeout_ms)
+HalStatus_t stm32f4_uart2_read(uint8_t *data, size_t len, size_t *bytes_read, uint32_t timeout_ms)
 {
 	uint8_t byte = 0;
 
-	size_t i = 0;
-	while (circular_buffer_pop(&rx_ctx, &byte) && i < len)
+	*bytes_read = 0;
+	while (circular_buffer_pop(&rx_ctx, &byte) && *bytes_read < len)
 	{
-		data[i] = byte;
+		data[*bytes_read] = byte;
+		*bytes_read = *bytes_read + 1;
 	}
 
     return HAL_STATUS_OK;

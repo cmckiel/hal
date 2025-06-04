@@ -1,6 +1,7 @@
 #include "stm32f4xx.h"
 #include "stm32f4_uart2.h"
 #include "circular_buffer.h"
+#include "gpio.h"
 
 #define SYS_FREQ      16000000     // Default system frequency
 #define APB1_CLK      SYS_FREQ
@@ -8,6 +9,15 @@
 
 static void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t periph_clk, uint32_t baud_rate);
 static uint16_t compute_uart_bd(uint32_t periph_clk, uint32_t baud_rate);
+
+void USART2_IRQHandler(void)
+{
+	if (USART2->SR & USART_SR_RXNE)
+	{
+		uint8_t byte = USART2->DR & 0xFF;
+		hal_gpio_toggle_led();
+	}
+}
 
 /**
  * @brief Initialize the UART2. (Connected to the USB)
@@ -53,6 +63,12 @@ HalStatus_t stm32f4_uart2_init(void *config)
 
 	// Enable the USART by writing the UE bit in USART_CR1 register to 1.
 	USART2->CR1 |= USART_CR1_UE;
+
+	// Enable RXNE Interrupt.
+	USART2->CR1 |= USART_CR1_RXNEIE;
+
+	// Enable NVIC Interrupt.
+	NVIC_EnableIRQ(USART2_IRQn);
 
 	return HAL_STATUS_OK;
 }

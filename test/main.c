@@ -17,21 +17,21 @@ int main(void)
 
 	while (1)
 	{
-		for (int i = 0; i < 6; i++)
-		{
-			hal_gpio_toggle_led();
-			hal_delay_ms(100);
-		}
+		// for (int i = 0; i < 6; i++)
+		// {
+		// 	hal_gpio_toggle_led();
+		// 	hal_delay_ms(100);
+		// }
 
 		// uint8_t data[] = { 'e' };
 		// size_t len = 1;
 		// hal_uart_write(HAL_UART2, data, len);
 
 		// __io_putchar('x');
-		printf("IAmAlive");
-		fflush(stdout);
+		// printf("CircularBufferIntegrated");
+		// fflush(stdout);
 
-		// hal_delay_ms(200);
+		hal_delay_ms(200);
 
 		// for (int i = 0; i < 6; i++)
 		// {

@@ -88,16 +88,34 @@ HalStatus_t stm32f4_uart2_init(void *config)
 */
 HalStatus_t stm32f4_uart2_read(uint8_t *data, size_t len, size_t *bytes_read, uint32_t timeout_ms)
 {
-	uint8_t byte = 0;
+	HalStatus_t res = HAL_STATUS_ERROR;
 
-	*bytes_read = 0;
-	while (circular_buffer_pop(&rx_ctx, &byte) && *bytes_read < len)
+	if (data && bytes_read)
 	{
-		data[*bytes_read] = byte;
-		*bytes_read = *bytes_read + 1;
+		*bytes_read = 0;
+		res = HAL_STATUS_OK;
+
+		uint8_t byte = 0;
+
+		// While there are still bytes in the buffer and we still have space to store them.
+		while (!circular_buffer_is_empty(&rx_ctx) && *bytes_read < len)
+		{
+			// Read a byte
+			if (circular_buffer_pop(&rx_ctx, &byte))
+			{
+				data[*bytes_read] = byte;
+				*bytes_read = *bytes_read + 1;
+			}
+			else
+			{
+				// Error
+				res = HAL_STATUS_ERROR;
+				break;
+			}
+		}
 	}
 
-    return HAL_STATUS_OK;
+    return res;
 }
 
 /**

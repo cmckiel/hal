@@ -1,5 +1,6 @@
 #include "stm32f4xx.h"
 #include "stm32f4_uart2.h"
+#include "stm32f4_hal.h"
 #include "circular_buffer.h"
 #include "gpio.h"
 
@@ -8,7 +9,10 @@
 #define UART_BAUDRATE 115200
 
 #define UART_BUFFER_RX_SIZE CIRCULAR_BUFFER_MAX_SIZE
+#define UART_BUFFER_TX_SIZE CIRCULAR_BUFFER_MAX_SIZE
+
 static circular_buffer_ctx rx_ctx;
+static circular_buffer_ctx tx_ctx;
 
 static void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t periph_clk, uint32_t baud_rate);
 static uint16_t compute_uart_bd(uint32_t periph_clk, uint32_t baud_rate);
@@ -17,8 +21,24 @@ void USART2_IRQHandler(void)
 {
 	if (USART2->SR & USART_SR_RXNE)
 	{
+		// A received byte is waiting in data register.
 		uint8_t byte = USART2->DR & 0xFF;
 		circular_buffer_push_with_overwrite(&rx_ctx, byte);
+	}
+
+	if (USART2->SR & USART_SR_TXE)
+	{
+		// Transmit register is empty. Ready for a new byte.
+		uint8_t byte = 0;
+		if (circular_buffer_pop(&tx_ctx, &byte))
+		{
+			USART2->DR = byte;
+		}
+		else
+		{
+			// Buffer empty — stop TXE interrupt to prevent ISR from firing again
+			USART2->CR1 &= ~USART_CR1_TXEIE;
+		}
 	}
 }
 
@@ -30,6 +50,12 @@ HalStatus_t stm32f4_uart2_init(void *config)
 	/********************* Buffer Setup *********************/
 	// Init the rx buffer.
 	if (!circular_buffer_init(&rx_ctx, UART_BUFFER_RX_SIZE))
+	{
+		return HAL_STATUS_ERROR;
+	}
+
+	// Init the tx buffer.
+	if (!circular_buffer_init(&tx_ctx, UART_BUFFER_TX_SIZE))
 	{
 		return HAL_STATUS_ERROR;
 	}
@@ -74,8 +100,12 @@ HalStatus_t stm32f4_uart2_init(void *config)
 	// Enable the USART by writing the UE bit in USART_CR1 register to 1.
 	USART2->CR1 |= USART_CR1_UE;
 
+	/********************* Interrupt Configure *********************/
 	// Enable RXNE Interrupt.
 	USART2->CR1 |= USART_CR1_RXNEIE;
+
+	// Enable TXE Interrupt.
+	USART2->CR1 |= USART_CR1_TXEIE;
 
 	// Enable NVIC Interrupt.
 	NVIC_EnableIRQ(USART2_IRQn);
@@ -123,19 +153,50 @@ HalStatus_t stm32f4_uart2_read(uint8_t *data, size_t len, size_t *bytes_read, ui
 */
 HalStatus_t stm32f4_uart2_write(const uint8_t *data, size_t len)
 {
-	for (size_t i = 0; i < len; i++)
+	HalStatus_t res = HAL_STATUS_ERROR;
+	size_t current_buffer_capacity = 0;
+	bool buffer_was_empty = circular_buffer_is_empty(&tx_ctx);
+
+	if (circular_buffer_get_current_capacity(&tx_ctx, &current_buffer_capacity) &&
+		0 < len && len <= current_buffer_capacity)
 	{
-		while (!(USART2->SR & USART_SR_TXE)); // Wait for TXE
-		// Write the data to send in the USART_DR register (this clears the TXE bit). Repeat this for
-		// each data to be transmitted in case of single buffer.
-		USART2->DR = data[i];
+		// The entirety of the data will fit.
+		// Put the data into buffer.
+		for (size_t i = 0; i < len; i++)
+		{
+			if (!circular_buffer_push_no_overwrite(&tx_ctx, data[i]))
+			{
+				// Something wen't wrong. We were unable to push despite
+				// there being capacity.
+				return HAL_STATUS_ERROR;
+			}
+		}
+
+		if (buffer_was_empty)
+		{
+			// We need to jumpstart the transmit process.
+			CRITICAL_SECTION_ENTER();
+
+			if (USART2->SR & USART_SR_TXE)
+			{
+				// Transmit hardware register is empty.
+				uint8_t first_byte = 0;
+				if (circular_buffer_pop(&tx_ctx, &first_byte))
+				{
+					// Put the first byte into the transmit register.
+					USART2->DR = first_byte;
+				}
+
+			}
+			USART2->CR1 |= USART_CR1_TXEIE;  // Enable TXE interrupt
+
+			CRITICAL_SECTION_EXIT();
+		}
+
+		res = HAL_STATUS_OK;
 	}
 
-	// After writing the last data into the USART_DR register, wait until TC=1. This indicates that the
-	// transmission of the last frame is complete.
-    while (!(USART2->SR & USART_SR_TC)); // Wait for last byte fully sent
-
-    return HAL_STATUS_OK;
+	return res;
 }
 
 /*

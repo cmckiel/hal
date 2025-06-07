@@ -18,7 +18,7 @@ void USART2_IRQHandler(void)
 	if (USART2->SR & USART_SR_RXNE)
 	{
 		uint8_t byte = USART2->DR & 0xFF;
-		circular_buffer_push(&rx_ctx, byte);
+		circular_buffer_push_with_overwrite(&rx_ctx, byte);
 	}
 }
 

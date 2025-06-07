@@ -104,9 +104,6 @@ HalStatus_t stm32f4_uart2_init(void *config)
 	// Enable RXNE Interrupt.
 	USART2->CR1 |= USART_CR1_RXNEIE;
 
-	// Enable TXE Interrupt.
-	USART2->CR1 |= USART_CR1_TXEIE;
-
 	// Enable NVIC Interrupt.
 	NVIC_EnableIRQ(USART2_IRQn);
 
@@ -130,8 +127,11 @@ HalStatus_t stm32f4_uart2_read(uint8_t *data, size_t len, size_t *bytes_read, ui
 		// While there are still bytes in the buffer and we still have space to store them.
 		while (!circular_buffer_is_empty(&rx_ctx) && *bytes_read < len)
 		{
-			// Read a byte
-			if (circular_buffer_pop(&rx_ctx, &byte))
+			CRITICAL_SECTION_ENTER();
+			bool popped = circular_buffer_pop(&rx_ctx, &byte);
+			CRITICAL_SECTION_EXIT();
+
+			if (popped)
 			{
 				data[*bytes_read] = byte;
 				*bytes_read = *bytes_read + 1;
@@ -155,46 +155,36 @@ HalStatus_t stm32f4_uart2_write(const uint8_t *data, size_t len)
 {
 	HalStatus_t res = HAL_STATUS_ERROR;
 	size_t current_buffer_capacity = 0;
+
+	CRITICAL_SECTION_ENTER();
+
 	bool buffer_was_empty = circular_buffer_is_empty(&tx_ctx);
 
 	if (circular_buffer_get_current_capacity(&tx_ctx, &current_buffer_capacity) &&
 		0 < len && len <= current_buffer_capacity)
 	{
+		res = HAL_STATUS_OK;
 		// The entirety of the data will fit.
 		// Put the data into buffer.
 		for (size_t i = 0; i < len; i++)
 		{
 			if (!circular_buffer_push_no_overwrite(&tx_ctx, data[i]))
 			{
-				// Something wen't wrong. We were unable to push despite
+				// Something went wrong. We were unable to push despite
 				// there being capacity.
-				return HAL_STATUS_ERROR;
+				res = HAL_STATUS_ERROR;
+				break;
 			}
 		}
 
-		if (buffer_was_empty)
+		if (res == HAL_STATUS_OK && buffer_was_empty)
 		{
-			// We need to jumpstart the transmit process.
-			CRITICAL_SECTION_ENTER();
-
-			if (USART2->SR & USART_SR_TXE)
-			{
-				// Transmit hardware register is empty.
-				uint8_t first_byte = 0;
-				if (circular_buffer_pop(&tx_ctx, &first_byte))
-				{
-					// Put the first byte into the transmit register.
-					USART2->DR = first_byte;
-				}
-
-			}
 			USART2->CR1 |= USART_CR1_TXEIE;  // Enable TXE interrupt
-
-			CRITICAL_SECTION_EXIT();
 		}
 
-		res = HAL_STATUS_OK;
 	}
+
+	CRITICAL_SECTION_EXIT();
 
 	return res;
 }

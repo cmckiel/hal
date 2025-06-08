@@ -6,18 +6,44 @@ set(PROJECT_NAME "hal")
 
 project(${PROJECT_NAME} LANGUAGES C ASM CXX)
 
-add_subdirectory(hal_interface)
+# Build options
+option(SIMULATION_BUILD "Build for desktop simulation" OFF)
+option(EMBEDDED_BUILD "Build for embedded target" OFF)
+
+# Ensure only one target build type is selected
+if(SIMULATION_BUILD AND EMBEDDED_BUILD)
+  message(FATAL_ERROR "Cannot enable both SIMULATION_BUILD and EMBEDDED_BUILD at the same time.")
+endif()
+
+# Default to simulation build if nothing specified
+if(NOT SIMULATION_BUILD AND NOT EMBEDDED_BUILD)
+  message(STATUS "No build type specified -- defaulting to SIMULATION_BUILD")
+  set(SIMULATION_BUILD ON)
+endif()
+
+# This is where you wire in the correct platform
+if(SIMULATION_BUILD)
+    message(STATUS "Building desktop simulation...")
+    add_subdirectory(simulations)
+endif()
+
+if(EMBEDDED_BUILD)
+    message(STATUS "Building embedded target...")
+    add_subdirectory(platforms)
+    add_subdirectory(hal_interface)
+
+    add_executable(
+        ${PROJECT_NAME}.elf
+        test/main.c
+    )
+
+    target_link_libraries(${PROJECT_NAME}.elf stm32f4_hal)
+
+    add_custom_target(${PROJECT_NAME}.bin ALL
+        arm-none-eabi-objcopy -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin
+        DEPENDS ${PROJECT_NAME}.elf
+    )
+endif()
+
 add_subdirectory(external/circular_buffer)
-add_subdirectory(platforms)
 
-add_executable(
-    ${PROJECT_NAME}.elf
-    test/main.c
-)
-
-target_link_libraries(${PROJECT_NAME}.elf stm32f4_hal)
-
-add_custom_target(${PROJECT_NAME}.bin ALL
-    arm-none-eabi-objcopy -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin
-    DEPENDS ${PROJECT_NAME}.elf
-)

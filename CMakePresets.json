@@ -1,0 +1,70 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "desktop-debug",
+            "displayName": "Desktop Simulation (Debug)",
+            "description": "Build for desktop simulation with debug info",
+            "binaryDir": "${sourceDir}/build/desktop-debug",
+            "cacheVariables": {
+                "SIMULATION_BUILD": "ON",
+                "EMBEDDED_BUILD": "OFF",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_STANDARD": "14"
+            },
+            "condition": {
+                "type": "inList",
+                "string": "${hostSystemName}",
+                "list": ["Linux", "Darwin", "Windows"]
+            }
+        },
+        {
+            "name": "embedded-debug",
+            "displayName": "STM32 Embedded (Debug)",
+            "description": "Build for STM32F446 target with debug info",
+            "binaryDir": "${sourceDir}/build/embedded-debug",
+            "toolchainFile": "${sourceDir}/cmake/toolchain/CMakeToolChain.stm32f446.cmake",
+            "cacheVariables": {
+                "EMBEDDED_BUILD": "ON",
+                "SIMULATION_BUILD": "OFF",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "embedded-release",
+            "displayName": "STM32 Embedded (Release)",
+            "description": "Build for STM32F446 target optimized",
+            "binaryDir": "${sourceDir}/build/embedded-release",
+            "toolchainFile": "${sourceDir}/cmake/toolchain/CMakeToolChain.stm32f446.cmake",
+            "cacheVariables": {
+                "EMBEDDED_BUILD": "ON",
+                "SIMULATION_BUILD": "OFF",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "desktop-debug",
+            "displayName": "Build Desktop (Debug)",
+            "configurePreset": "desktop-debug"
+        },
+        {
+            "name": "embedded-debug",
+            "displayName": "Build Embedded (Debug)",
+            "configurePreset": "embedded-debug"
+        },
+        {
+            "name": "embedded-release",
+            "displayName": "Build Embedded (Release)",
+            "configurePreset": "embedded-release"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "desktop-debug",
+            "displayName": "Test Desktop (Debug)",
+            "configurePreset": "desktop-debug"
+        }
+    ]
+}

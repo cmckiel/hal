@@ -15,21 +15,13 @@ if(NOT SIMULATION_BUILD AND NOT EMBEDDED_BUILD)
   set(EMBEDDED_BUILD ON)
 endif()
 
-# Set toolchain file BEFORE project() call
-if(EMBEDDED_BUILD)
-  message(STATUS "Building embedded target...")
-  set(CMAKE_TOOLCHAIN_FILE "./cmake/toolchain/CMakeToolChain.stm32f446.cmake")
-endif()
-
-if(SIMULATION_BUILD)
-  message(STATUS "Building desktop simulation...")
-endif()
-
 set(PROJECT_NAME "hal")
 
 project(${PROJECT_NAME} LANGUAGES C ASM CXX)
 
 if(SIMULATION_BUILD)
+  message(STATUS "Building desktop simulation...")
+
   set(CMAKE_CXX_STANDARD 14)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -39,6 +31,8 @@ if(SIMULATION_BUILD)
 endif()
 
 if(EMBEDDED_BUILD)
+  message(STATUS "Building embedded target...")
+
   add_subdirectory(platforms)
   add_subdirectory(hal_interface)
 

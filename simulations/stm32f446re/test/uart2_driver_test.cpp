@@ -53,3 +53,54 @@ TEST_F(UartDriverTest, SimulateTxInterrupt) {
 
     EXPECT_EQ(Sim_USART2.DR, 'B');
 }
+
+TEST_F(UartDriverTest, WriteEnablesTXEInterruptForEmptyBuffer)
+{
+    stm32f4_uart2_init(nullptr);
+
+    // Assert the interrupt is not enabled.
+    ASSERT_EQ(Sim_USART2.CR1 & USART_CR1_TXEIE, 0);
+
+    // Write data.
+    uint8_t data[4] = { 0, 1, 2, 3 };
+    ASSERT_EQ(stm32f4_uart2_write(&data[0], sizeof(data)), HAL_STATUS_OK);
+
+    // Assert the interrupt is enabled.
+    ASSERT_EQ((Sim_USART2.CR1 & USART_CR1_TXEIE), USART_CR1_TXEIE);
+}
+
+TEST_F(UartDriverTest, ISRDisablesTXEInterruptForEmptyBuffer)
+{
+    /******* SETUP **********/
+    stm32f4_uart2_init(nullptr);
+
+    // Assert the interrupt is not enabled.
+    ASSERT_EQ(Sim_USART2.CR1 & USART_CR1_TXEIE, 0);
+
+    // Write data.
+    uint8_t data[4] = { 0, 1, 2, 3 };
+    ASSERT_EQ(stm32f4_uart2_write(&data[0], sizeof(data)), HAL_STATUS_OK);
+
+    // Assert the interrupt is enabled.
+    ASSERT_EQ((Sim_USART2.CR1 & USART_CR1_TXEIE), USART_CR1_TXEIE);
+
+    /******* TEST **********/
+    // Hardware becomes available for transmit.
+    Sim_USART2.SR |= USART_SR_TXE;
+
+    USART2_IRQHandler();
+    ASSERT_EQ(Sim_USART2.DR, 0);
+
+    USART2_IRQHandler();
+    ASSERT_EQ(Sim_USART2.DR, 1);
+
+    USART2_IRQHandler();
+    ASSERT_EQ(Sim_USART2.DR, 2);
+
+    USART2_IRQHandler();
+    ASSERT_EQ(Sim_USART2.DR, 3);
+
+    USART2_IRQHandler();
+    // Assert the interrupt is not enabled.
+    ASSERT_EQ(Sim_USART2.CR1 & USART_CR1_TXEIE, 0);
+}

@@ -1,11 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
 
-set(CMAKE_TOOLCHAIN_FILE "./cmake/toolchain/CMakeToolChain.stm32f446.cmake")
-
-set(PROJECT_NAME "hal")
-
-project(${PROJECT_NAME} LANGUAGES C ASM CXX)
-
 # Build options
 option(SIMULATION_BUILD "Build for desktop simulation" OFF)
 option(EMBEDDED_BUILD "Build for embedded target" OFF)
@@ -17,33 +11,44 @@ endif()
 
 # Default to simulation build if nothing specified
 if(NOT SIMULATION_BUILD AND NOT EMBEDDED_BUILD)
-  message(STATUS "No build type specified -- defaulting to SIMULATION_BUILD")
-  set(SIMULATION_BUILD ON)
+  message(STATUS "No build type specified -- defaulting to EMBEDDED_BUILD")
+  set(EMBEDDED_BUILD ON)
 endif()
 
-# This is where you wire in the correct platform
+# set(CMAKE_TOOLCHAIN_FILE "./cmake/toolchain/CMakeToolChain.stm32f446.cmake")
+
+set(PROJECT_NAME "hal")
+
+project(${PROJECT_NAME} LANGUAGES C ASM CXX)
+
 if(SIMULATION_BUILD)
-    message(STATUS "Building desktop simulation...")
-    add_subdirectory(simulations)
+  message(STATUS "Building desktop simulation...")
+
+  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+  add_subdirectory(simulations)
+  include(CTest)
+  enable_testing()
 endif()
 
 if(EMBEDDED_BUILD)
-    message(STATUS "Building embedded target...")
-    add_subdirectory(platforms)
-    add_subdirectory(hal_interface)
+  message(STATUS "Building embedded target...")
 
-    add_executable(
-        ${PROJECT_NAME}.elf
-        test/main.c
-    )
+  add_subdirectory(platforms)
+  add_subdirectory(hal_interface)
 
-    target_link_libraries(${PROJECT_NAME}.elf stm32f4_hal)
+  add_executable(
+      ${PROJECT_NAME}.elf
+      test/main.c
+  )
 
-    add_custom_target(${PROJECT_NAME}.bin ALL
-        arm-none-eabi-objcopy -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin
-        DEPENDS ${PROJECT_NAME}.elf
-    )
+  target_link_libraries(${PROJECT_NAME}.elf stm32f4_hal)
+
+  add_custom_target(${PROJECT_NAME}.bin ALL
+      arm-none-eabi-objcopy -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin
+      DEPENDS ${PROJECT_NAME}.elf
+  )
 endif()
 
 add_subdirectory(external/circular_buffer)
-

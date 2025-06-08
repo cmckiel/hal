@@ -52,6 +52,7 @@ extern USART_TypeDef Sim_USART2;
 // USART flags (copy from stm32f4xx.h)
 #define USART_SR_RXNE (1U << 5)
 #define USART_SR_TXE  (1U << 7)
+#define USART_CR1_M   (1U << 12)
 #define USART_CR1_UE  (1U << 13)
 #define USART_CR1_TE  (1U << 3)
 #define USART_CR1_RE  (1U << 2)

@@ -1,8 +1,13 @@
+#ifdef SIMULATION_BUILD
+#include "registers.h"
+#include "nvic.h"
+#else
 #include "stm32f4xx.h"
+#endif
+
 #include "stm32f4_uart2.h"
 #include "stm32f4_hal.h"
 #include "circular_buffer.h"
-#include "gpio.h"
 
 #define SYS_FREQ      16000000     // Default system frequency
 #define APB1_CLK      SYS_FREQ

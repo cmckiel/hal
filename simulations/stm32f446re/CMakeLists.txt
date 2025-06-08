@@ -1,32 +1,64 @@
-enable_testing()
-
 # Mock stm32f4 hardware.
-add_library(stm32f4_mock
+add_library(
+    stm32f4_mock
     stm32f4_mocks/src/registers.c
 )
 
-target_include_directories(stm32f4_mock PUBLIC stm32f4_mocks/include)
+target_include_directories(
+    stm32f4_mock
+    PUBLIC
+    stm32f4_mocks/include
+)
 
 # The real hardware driver compiled for desktop.
-add_library(uart2_driver
+add_library(
+    uart2_driver
     ../../platforms/stm32f446re/hal/uart/src/stm32f4_uart2.c
 )
 
-target_compile_definitions(uart2_driver PRIVATE SIMULATION_BUILD)
+target_compile_definitions(
+    uart2_driver
+    PRIVATE
+    SIMULATION_BUILD
+)
 
-# GTest
-find_package(GTest REQUIRED)
+target_include_directories(
+    uart2_driver
+    PUBLIC
+    ../../platforms/stm32f446re/hal/uart/include
+    ../../hal_interface/include
+    ../../platforms/stm32f446re/hal/include
+)
 
-add_executable(uart2_driver_test
+target_link_libraries(
+    uart2_driver
+    PRIVATE
+    stm32f4_mock
+    circular_buffer
+)
+
+include(FetchContent)
+
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/heads/main.zip
+)
+
+FetchContent_MakeAvailable(googletest)
+
+add_executable(
+    uart2_driver_test
     test/uart2_driver_test.cpp
     test/main.cpp
 )
 
-target_link_libraries(uart2_driver_test
+target_link_libraries(
+    uart2_driver_test
     uart2_driver
     stm32f4_mock
-    GTest::GTest
-    GTest::Main
+    GTest::gtest
+    GTest::gtest_main
 )
 
-add_test(NAME uart2_driver_test COMMAND uart2_driver_test)
+include(GoogleTest)
+gtest_discover_tests(uart2_driver_test)

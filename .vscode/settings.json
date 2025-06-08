@@ -1,4 +1,5 @@
 {
     "cmake.useCMakePresets": "always",
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "cmake.options.statusBarVisibility": "visible"
 }

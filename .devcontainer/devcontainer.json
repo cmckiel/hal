@@ -2,5 +2,19 @@
     "name": "HAL",
     "build": {
         "dockerfile": "../Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cmake-tools",
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "twxs.cmake"
+            ],
+            "settings": {
+                "cmake.useCMakePresets": "always",
+                "cmake.configureOnOpen": false
+            }
+        }
     }
 }

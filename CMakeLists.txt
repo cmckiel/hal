@@ -25,9 +25,16 @@ if(SIMULATION_BUILD)
   set(CMAKE_CXX_STANDARD 14)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+  cmake_policy(SET CMP0135 NEW)
+  include(FetchContent)
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/heads/main.zip
+  )
+  FetchContent_MakeAvailable(googletest)
+
   add_subdirectory(simulations)
   include(CTest)
-  enable_testing()
 endif()
 
 if(EMBEDDED_BUILD)

@@ -37,15 +37,6 @@ target_link_libraries(
     circular_buffer
 )
 
-include(FetchContent)
-
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/heads/main.zip
-)
-
-FetchContent_MakeAvailable(googletest)
-
 add_executable(
     uart2_driver_test
     test/uart2_driver_test.cpp
@@ -59,6 +50,8 @@ target_link_libraries(
     GTest::gtest
     GTest::gtest_main
 )
+
+enable_testing()
 
 include(GoogleTest)
 gtest_discover_tests(uart2_driver_test)

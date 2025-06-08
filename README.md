@@ -1,6 +1,7 @@
 # HAL (Hardware Abstraction Layer) for STM32
 
 > ⚠️ Work in Progress ⚠️
+
 This project is under active development and not yet complete. Expect breaking changes and incomplete features.
 
 ## Overview

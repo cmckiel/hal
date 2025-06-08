@@ -9,21 +9,27 @@ if(SIMULATION_BUILD AND EMBEDDED_BUILD)
   message(FATAL_ERROR "Cannot enable both SIMULATION_BUILD and EMBEDDED_BUILD at the same time.")
 endif()
 
-# Default to simulation build if nothing specified
+# Default to embedded build if nothing specified
 if(NOT SIMULATION_BUILD AND NOT EMBEDDED_BUILD)
   message(STATUS "No build type specified -- defaulting to EMBEDDED_BUILD")
   set(EMBEDDED_BUILD ON)
 endif()
 
-# set(CMAKE_TOOLCHAIN_FILE "./cmake/toolchain/CMakeToolChain.stm32f446.cmake")
+# Set toolchain file BEFORE project() call
+if(EMBEDDED_BUILD)
+  message(STATUS "Building embedded target...")
+  set(CMAKE_TOOLCHAIN_FILE "./cmake/toolchain/CMakeToolChain.stm32f446.cmake")
+endif()
+
+if(SIMULATION_BUILD)
+  message(STATUS "Building desktop simulation...")
+endif()
 
 set(PROJECT_NAME "hal")
 
 project(${PROJECT_NAME} LANGUAGES C ASM CXX)
 
 if(SIMULATION_BUILD)
-  message(STATUS "Building desktop simulation...")
-
   set(CMAKE_CXX_STANDARD 14)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -33,8 +39,6 @@ if(SIMULATION_BUILD)
 endif()
 
 if(EMBEDDED_BUILD)
-  message(STATUS "Building embedded target...")
-
   add_subdirectory(platforms)
   add_subdirectory(hal_interface)
 

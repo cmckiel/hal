@@ -27,6 +27,13 @@ int main(void)
 		bytes_read = 0;
 		hal_uart_read(HAL_UART2, &rx_data[0], sizeof(rx_data), &bytes_read, 0);
 
+		// Solves a weird newline issue.
+		if (rx_data[bytes_read-1] == '\r')
+		{
+			rx_data[bytes_read] = '\n';
+			bytes_read += 1;
+		}
+
 		hal_uart_write(HAL_UART2, &rx_data[0], bytes_read);
 	}
 

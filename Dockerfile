@@ -10,10 +10,6 @@ RUN apt-get update && apt-get install -y \
     gcc-arm-none-eabi \
     gdb-arm-none-eabi
 
-# Install dependencies required by submodule
-# Example:
-# RUN apt-get install -y libfoo-dev libbar-dev
-
 # Set working directory
 WORKDIR /workspace
 

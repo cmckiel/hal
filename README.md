@@ -34,7 +34,8 @@ This repository contains an experimental Hardware Abstraction Layer (HAL) target
 
 More specific instructions will be provided as the project matures, but for now:
 - Have docker installed
-- Clone the repo.
+- Clone the repo
+- Update the submodules (`git submodule update --init`)
 - Use VSCode to open and build the Dev Container
 - Select a CMake configure preset:
   - Embedded Target

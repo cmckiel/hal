@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
     libgtest-dev \
     gcc-arm-none-eabi \
     gdb-arm-none-eabi \
-    clang
+    clang \
+    clang-tidy
 
 # Set working directory
 WORKDIR /workspace

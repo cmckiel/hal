@@ -10,7 +10,27 @@
                 "SIMULATION_BUILD": "ON",
                 "EMBEDDED_BUILD": "OFF",
                 "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_CXX_STANDARD": "14"
+            }
+        },
+        {
+            "name": "static-analysis",
+            "displayName": "Static Analysis",
+            "description": "Static analysis of production C code using clang-tidy",
+            "binaryDir": "${sourceDir}/build/static-analysis",
+            "cacheVariables": {
+                "STATIC_ANALYSIS_BUILD": "ON",
+                "EMBEDDED_BUILD": "OFF",
+                "SIMULATION_BUILD": "OFF",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_C_FLAGS": "",
+                "CMAKE_EXE_LINKER_FLAGS": "",
+                "CMAKE_TRY_COMPILE_TARGET_TYPE": "STATIC_LIBRARY",
+                "CMAKE_C_CLANG_TIDY": "clang-tidy;--config-file=${sourceDir}/.clang-tidy;--header-filter=^(?!.*(gtest|gmock|third_party|build/_deps|\\.conan|/sdk/)).*platforms/.*/hal/.*\\.(h|c)$"
             }
         },
         {
@@ -22,7 +42,8 @@
             "cacheVariables": {
                 "EMBEDDED_BUILD": "ON",
                 "SIMULATION_BUILD": "OFF",
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
         },
         {
@@ -34,7 +55,8 @@
             "cacheVariables": {
                 "EMBEDDED_BUILD": "ON",
                 "SIMULATION_BUILD": "OFF",
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
         }
     ],
@@ -43,6 +65,11 @@
             "name": "desktop-debug",
             "displayName": "Build Desktop (Debug)",
             "configurePreset": "desktop-debug"
+        },
+        {
+            "name": "static-analysis",
+            "displayName": "Run Static Analysis",
+            "configurePreset": "static-analysis"
         },
         {
             "name": "embedded-debug",

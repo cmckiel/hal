@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 3.20)
 
+set(STM32F4_HAL_SOURCES
+    platforms/stm32f446re/hal/stm32f4_gpio.c
+    platforms/stm32f446re/hal/stm32f4_systick.c
+    platforms/stm32f446re/hal/uart/src/stm32f4_uart.c
+    platforms/stm32f446re/hal/uart/src/stm32f4_uart1.c
+    platforms/stm32f446re/hal/uart/src/stm32f4_uart2.c
+)
+
 # Build options
 option(SIMULATION_BUILD "Build for desktop simulation" OFF)
 option(EMBEDDED_BUILD "Build for embedded target" OFF)
@@ -11,8 +19,8 @@ endif()
 
 # Default to embedded build if nothing specified
 if(NOT SIMULATION_BUILD AND NOT EMBEDDED_BUILD)
-  message(STATUS "No build type specified -- defaulting to EMBEDDED_BUILD")
-  set(EMBEDDED_BUILD ON)
+  message(STATUS "No build type specified -- defaulting to STATIC_ANALYSIS_BUILD")
+  set(STATIC_ANALYSIS_BUILD ON)
 endif()
 
 set(PROJECT_NAME "hal")
@@ -34,6 +42,7 @@ if(SIMULATION_BUILD)
   FetchContent_MakeAvailable(googletest)
 
   add_subdirectory(simulations)
+  add_subdirectory(external/circular_buffer)
   include(CTest)
 endif()
 
@@ -42,6 +51,7 @@ if(EMBEDDED_BUILD)
 
   add_subdirectory(platforms)
   add_subdirectory(hal_interface)
+  add_subdirectory(external/circular_buffer)
 
   add_executable(
       ${PROJECT_NAME}.elf
@@ -56,4 +66,33 @@ if(EMBEDDED_BUILD)
   )
 endif()
 
-add_subdirectory(external/circular_buffer)
+if(STATIC_ANALYSIS_BUILD)
+  add_subdirectory(simulations/stm32f446re/stm32f4_mocks)
+  add_subdirectory(external/circular_buffer)
+
+  add_library(
+    ${PROJECT_NAME}_static_analysis_target
+    ${STM32F4_HAL_SOURCES}
+  )
+
+  target_link_libraries(
+    ${PROJECT_NAME}_static_analysis_target
+    stm32f4_mock
+    circular_buffer
+  )
+
+  target_include_directories(
+    ${PROJECT_NAME}_static_analysis_target
+    PUBLIC
+    hal_interface/include
+    platforms/stm32f446re/hal/include
+    platforms/stm32f446re/hal/uart/include
+  )
+
+  target_compile_definitions(
+    ${PROJECT_NAME}_static_analysis_target
+    PRIVATE
+    SIMULATION_BUILD
+  )
+endif()
+

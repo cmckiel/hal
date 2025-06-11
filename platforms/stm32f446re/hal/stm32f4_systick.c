@@ -1,4 +1,8 @@
+#ifdef SIMULATION_BUILD
+#include "registers.h"
+#else
 #include "stm32f4xx.h"
+#endif
 #include "systick.h"
 
 #define SYSTICK_LOAD_VAL 16000

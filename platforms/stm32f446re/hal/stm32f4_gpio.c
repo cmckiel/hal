@@ -1,4 +1,8 @@
+#ifdef SIMULATION_BUILD
+#include "registers.h"
+#else
 #include "stm32f4xx.h"
+#endif
 #include "gpio.h"
 
 #define GPIOAEN (1U << 0)

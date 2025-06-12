@@ -85,7 +85,8 @@ WarningsAsErrors: >
   bugprone-sizeof-expression,
   bugprone-suspicious-memory-comparison,
   bugprone-infinite-loop,
-  bugprone-macro-parentheses
+  bugprone-macro-parentheses,
+  readability-magic-numbers
 
 # Target embedded C code, exclude vendor SDK and external dependencies
 HeaderFilterRegex: '.*(hal_interface|platforms/stm32f446re/hal)/.*\.(h|c)$'

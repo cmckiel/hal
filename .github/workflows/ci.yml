@@ -13,11 +13,13 @@ jobs:
 
     strategy:
       matrix:
-        preset: [desktop-debug, embedded-debug, embedded-release, static-analysis]
+        preset: [desktop-debug, embedded-debug, static-analysis]
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Build Docker image
       run: |

@@ -1,5 +1,5 @@
 ---
-# Production-grade clang-tidy configuration for embedded C projects
+# clang-tidy configuration for embedded C projects
 # Focuses on MISRA C compliance, safety-critical requirements, and embedded systems best practices
 
 Checks: >

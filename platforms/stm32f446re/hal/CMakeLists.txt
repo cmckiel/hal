@@ -6,5 +6,13 @@ add_library(
     uart/src/stm32f4_uart1.c
     uart/src/stm32f4_uart2.c
 )
-target_link_libraries(stm32f4_hal PUBLIC hal_interface PRIVATE stm32f446re_sdk circular_buffer)
+
+# Link against the mocks for static analysis to avoid analyzing vendor sdk.
+if (STATIC_ANALYSIS_BUILD)
+    target_link_libraries(stm32f4_hal PUBLIC hal_interface PRIVATE stm32f4_mock circular_buffer)
+    target_compile_definitions(stm32f4_hal PRIVATE SIMULATION_BUILD)
+else()
+    target_link_libraries(stm32f4_hal PUBLIC hal_interface PRIVATE stm32f446re_sdk circular_buffer)
+endif()
+
 target_include_directories(stm32f4_hal PRIVATE ./uart/include ./include)

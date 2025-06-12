@@ -1,4 +1,9 @@
+#ifdef SIMULATION_BUILD
+#include "registers.h"
+#include "nvic.h"
+#else
 #include "stm32f4xx.h"
+#endif
 #include "stm32f4_uart1.h"
 
 // @todo implement

@@ -3,16 +3,23 @@ cmake_minimum_required(VERSION 3.20)
 # Build options
 option(SIMULATION_BUILD "Build for desktop simulation" OFF)
 option(EMBEDDED_BUILD "Build for embedded target" OFF)
+option(STATIC_ANALYSIS_BUILD "Build to run static analysis" OFF)
 
 # Ensure only one target build type is selected
 if(SIMULATION_BUILD AND EMBEDDED_BUILD)
   message(FATAL_ERROR "Cannot enable both SIMULATION_BUILD and EMBEDDED_BUILD at the same time.")
 endif()
+if(STATIC_ANALYSIS_BUILD AND EMBEDDED_BUILD)
+  message(FATAL_ERROR "Cannot enable both STATIC_ANALYSIS_BUILD and EMBEDDED_BUILD at the same time.")
+endif()
+if(STATIC_ANALYSIS_BUILD AND SIMULATION_BUILD)
+  message(FATAL_ERROR "Cannot enable both STATIC_ANALYSIS_BUILD and SIMULATION_BUILD at the same time.")
+endif()
 
-# Default to embedded build if nothing specified
-if(NOT SIMULATION_BUILD AND NOT EMBEDDED_BUILD)
-  message(STATUS "No build type specified -- defaulting to EMBEDDED_BUILD")
-  set(EMBEDDED_BUILD ON)
+# Default to static analysis build if nothing specified
+if(NOT SIMULATION_BUILD AND NOT EMBEDDED_BUILD AND NOT STATIC_ANALYSIS_BUILD)
+  message(STATUS "No build type specified -- defaulting to STATIC_ANALYSIS_BUILD")
+  set(STATIC_ANALYSIS_BUILD ON)
 endif()
 
 set(PROJECT_NAME "hal")
@@ -34,6 +41,7 @@ if(SIMULATION_BUILD)
   FetchContent_MakeAvailable(googletest)
 
   add_subdirectory(simulations)
+  add_subdirectory(external/circular_buffer)
   include(CTest)
 endif()
 
@@ -42,6 +50,7 @@ if(EMBEDDED_BUILD)
 
   add_subdirectory(platforms)
   add_subdirectory(hal_interface)
+  add_subdirectory(external/circular_buffer)
 
   add_executable(
       ${PROJECT_NAME}.elf
@@ -56,4 +65,12 @@ if(EMBEDDED_BUILD)
   )
 endif()
 
-add_subdirectory(external/circular_buffer)
+if(STATIC_ANALYSIS_BUILD)
+  message(STATUS "Building static analysis...")
+
+  add_subdirectory(hal_interface)
+  add_subdirectory(simulations/stm32f446re/stm32f4_mocks)
+  add_subdirectory(external/circular_buffer)
+  add_subdirectory(platforms/stm32f446re/hal)
+endif()
+

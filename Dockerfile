@@ -8,7 +8,9 @@ RUN apt-get update && apt-get install -y \
     valgrind \
     libgtest-dev \
     gcc-arm-none-eabi \
-    gdb-arm-none-eabi
+    gdb-arm-none-eabi \
+    clang \
+    clang-tidy
 
 # Set working directory
 WORKDIR /workspace

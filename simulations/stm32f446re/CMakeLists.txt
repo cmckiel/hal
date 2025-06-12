@@ -1,14 +1,4 @@
-# Mock stm32f4 hardware.
-add_library(
-    stm32f4_mock
-    stm32f4_mocks/src/registers.c
-)
-
-target_include_directories(
-    stm32f4_mock
-    PUBLIC
-    stm32f4_mocks/include
-)
+add_subdirectory(stm32f4_mocks)
 
 # The real hardware driver compiled for desktop.
 add_library(

@@ -49,6 +49,17 @@ typedef struct {
 extern USART_TypeDef Sim_USART2;
 #define USART2 (&Sim_USART2)
 
+typedef struct
+{
+  volatile uint32_t CTRL;                   /*!< Offset: 0x000 (R/W)  SysTick Control and Status Register */
+  volatile uint32_t LOAD;                   /*!< Offset: 0x004 (R/W)  SysTick Reload Value Register */
+  volatile uint32_t VAL;                    /*!< Offset: 0x008 (R/W)  SysTick Current Value Register */
+  volatile uint32_t CALIB;                  /*!< Offset: 0x00C (R/ )  SysTick Calibration Register */
+} SysTick_Type;
+
+extern SysTick_Type Sim_SysTick;
+#define SysTick (&Sim_SysTick)
+
 // USART flags (copy from stm32f4xx.h)
 #define USART_SR_RXNE (1U << 5)
 #define USART_SR_TXE  (1U << 7)

@@ -8,6 +8,8 @@ jobs:
   build:
     name: Build with ${{ matrix.preset }}
     runs-on: ubuntu-latest
+    container:
+      image: cmckiel/hal-build-environment:latest
 
     strategy:
       matrix:
@@ -19,16 +21,8 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Build Docker image
-      run: |
-        docker build -t cmake-ci-env -f Dockerfile .
+    - name: Configure (${{ matrix.preset }})
+      run: cmake --preset ${{ matrix.preset }}
 
-    - name: Run build in Docker container
-      run: |
-        docker run --rm \
-          -v ${{ github.workspace }}:/workspace \
-          -w /workspace \
-          cmake-ci-env \
-          bash -c "
-            cmake --preset ${{ matrix.preset }} &&
-            cmake --build --preset ${{ matrix.preset }}"
+    - name: Build (${{ matrix.preset }})
+      run: cmake --build --preset ${{ matrix.preset }}

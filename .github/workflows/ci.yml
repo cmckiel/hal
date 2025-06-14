@@ -26,3 +26,7 @@ jobs:
 
     - name: Build (${{ matrix.preset }})
       run: cmake --build --preset ${{ matrix.preset }}
+
+    - name: Desktop Unit Tests
+      if: matrix.preset == 'desktop-debug'
+      run: ctest --preset desktop-debug --output-on-failure

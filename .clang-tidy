@@ -86,6 +86,7 @@ WarningsAsErrors: >
   bugprone-suspicious-memory-comparison,
   bugprone-infinite-loop,
   bugprone-macro-parentheses,
+  clang-diagnostic-array-bounds,
   # readability-magic-numbers TODO: Uncomment this to enforce.
 
 # Target embedded C code, exclude vendor SDK and external dependencies

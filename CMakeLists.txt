@@ -26,6 +26,8 @@ set(PROJECT_NAME "hal")
 
 project(${PROJECT_NAME} LANGUAGES C ASM CXX)
 
+find_program(CPPCHECK_EXECUTABLE NAMES cppcheck REQUIRED)
+
 if(SIMULATION_BUILD)
   message(STATUS "Building desktop simulation...")
 
@@ -43,6 +45,15 @@ if(SIMULATION_BUILD)
   add_subdirectory(simulations)
   add_subdirectory(external/circular_buffer)
   include(CTest)
+
+  add_custom_target(cppcheck ALL
+      COMMAND ${CPPCHECK_EXECUTABLE}
+          --error-exitcode=1
+          --project=build/desktop-debug/compile_commands.json
+          -i_deps
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      COMMENT "Running cppcheck analysis..."
+  )
 endif()
 
 if(EMBEDDED_BUILD)
@@ -62,6 +73,14 @@ if(EMBEDDED_BUILD)
   add_custom_target(${PROJECT_NAME}.bin ALL
       arm-none-eabi-objcopy -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin
       DEPENDS ${PROJECT_NAME}.elf
+  )
+
+  add_custom_target(cppcheck ALL
+      COMMAND ${CPPCHECK_EXECUTABLE}
+          --error-exitcode=1
+          --project=build/embedded-debug/compile_commands.json
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      COMMENT "Running cppcheck analysis..."
   )
 endif()
 

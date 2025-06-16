@@ -10,7 +10,8 @@ RUN apt-get update && apt-get install -y \
     gcc-arm-none-eabi \
     gdb-arm-none-eabi \
     clang \
-    clang-tidy
+    clang-tidy \
+    cppcheck
 
 # Set working directory
 WORKDIR /workspace

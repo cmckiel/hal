@@ -1,0 +1,27 @@
+{
+  // VS Code debug configurations
+"version": "0.2.0",
+    "configurations": [
+        /* ───────────────────────────────────────────────────────────────
+            1.  “Run / debug the active CMake launch target”
+                Works best if you’re using the CMake Tools extension
+                (launch button, F5, or the Debug CodeLens above a test).
+            ───────────────────────────────────────────────────────────── */
+        {
+            "name": "Desktop Unit Tests: uart2_driver_test",
+            "type": "cppdbg",                 // use "cppvsdbg" if you’re on MSVC/Windows
+            "request": "launch",
+            "program": "${workspaceRoot}/build/desktop-debug/simulations/stm32f446re/uart2_driver_test",
+            //   "program": "${command:cmake.launchTargetPath}",  // auto-filled by CMake Tools
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb",                  // or "lldb" / "gdb"
+            "stopAtEntry": false,
+            //   "preLaunchTask": "build-desktop", // see sample task below
+            "externalConsole": false,
+            "args": ["--gtest_filter=*"],     // run all tests; change as you like
+            "environment": [
+            // Add LD_LIBRARY_PATH etc. here if your test exe needs it
+            ]
+        },
+    ],
+}

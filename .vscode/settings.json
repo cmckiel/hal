@@ -1,5 +1,6 @@
 {
     "cmake.useCMakePresets": "always",
     "cmake.configureOnOpen": false,
-    "cmake.options.statusBarVisibility": "visible"
+    "cmake.options.statusBarVisibility": "visible",
+    "cortex-debug.gdbPath": "/Users/cory/.bin/arm_toolchain/arm-gnu-toolchain-14.2.rel1-darwin-arm64-arm-none-eabi/bin/arm-none-eabi-gdb"
 }

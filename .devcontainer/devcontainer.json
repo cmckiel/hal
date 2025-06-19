@@ -9,7 +9,8 @@
                 "ms-vscode.cmake-tools",
                 "ms-vscode.cpptools",
                 "ms-vscode.cpptools-extension-pack",
-                "twxs.cmake"
+                "twxs.cmake",
+                "marus25.cortex-debug"
             ],
             "settings": {
                 "cmake.useCMakePresets": "always",

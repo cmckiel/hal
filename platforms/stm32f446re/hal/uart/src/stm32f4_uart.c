@@ -1,6 +1,38 @@
 #include "uart.h"
+#include "stm32f4xx.h"
 #include "stm32f4_uart1.h"
 #include "stm32f4_uart2.h"
+#include "circular_buffer.h"
+
+typedef struct {
+    USART_TypeDef *USARTx;
+    GPIO_TypeDef *GPIOx;
+    circular_buffer_ctx rx_ctx;
+    circular_buffer_ctx tx_ctx;
+	size_t GPIOxEN;
+	size_t USARTxEN;
+	size_t USARTx_IRQn;
+} stm32f4_uart_t;
+
+static stm32f4_uart_t uart1 = {
+	.USARTx = USART1,
+	.GPIOx = NULL, // @todo determine which gpio port.
+	.rx_ctx = {0},
+	.tx_ctx = {0},
+	.GPIOxEN = 0, // @todo fill in the clock enable for gpio port.
+	.USARTxEN = RCC_APB2ENR_USART1EN,
+	.USARTx_IRQn = USART1_IRQn,
+};
+
+static stm32f4_uart_t uart2 = {
+	.USARTx = USART2,
+	.GPIOx = GPIOA,
+	.rx_ctx = {0},
+	.tx_ctx = {0},
+	.GPIOxEN = RCC_AHB1ENR_GPIOAEN,
+	.USARTxEN = RCC_APB1ENR_USART2EN,
+	.USARTx_IRQn = USART2_IRQn,
+};
 
 /**
  * @brief Redefine the putchar() function.

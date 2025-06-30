@@ -1,5 +1,11 @@
-#include "uart.h"
+#ifdef SIMULATION_BUILD
+#include "registers.h"
+#include "nvic.h"
+#else
 #include "stm32f4xx.h"
+#endif
+
+#include "uart.h"
 #include "stm32f4_uart1.h"
 #include "stm32f4_uart2.h"
 #include "circular_buffer.h"

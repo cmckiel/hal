@@ -7,6 +7,7 @@
 
 #include "uart.h"
 #include "circular_buffer.h"
+#include "stm32f4_hal.h"
 // #include "stm32f4_uart1.h"
 // #include "stm32f4_uart2.h"
 
@@ -24,10 +25,10 @@ typedef struct {
 
 static stm32f4_uart_t uart1 = {
 	.USARTx = USART1,
-	.GPIOx = NULL, // @todo determine which gpio port.
+	.GPIOx = GPIOA, // @todo determine which gpio port.
 	.rx_ctx = {0},
 	.tx_ctx = {0},
-	.GPIOxEN = 0, // @todo fill in the clock enable for gpio port.
+	.GPIOxEN = RCC_AHB1ENR_GPIOAEN, // @todo fill in the clock enable for gpio port.
 	.USARTxEN = RCC_APB2ENR_USART1EN,
 	.USARTx_IRQn = USART1_IRQn,
 	.rx_buffer_size = CIRCULAR_BUFFER_MAX_SIZE,
@@ -48,19 +49,50 @@ static stm32f4_uart_t uart2 = {
 
 HalStatus_t hal_uart_init(HalUart_t uart, void *config)
 {
+	stm32f4_uart_t stm32f4_uart;
 	HalStatus_t hal_status = HAL_STATUS_OK;
 
-	if (!circular_buffer_init(&uart2.rx_ctx, uart2.rx_buffer_size))
+	// Select the right uart config.
+	switch (uart)
+	{
+		case HAL_UART1:
+			stm32f4_uart = uart1;
+			break;
+		case HAL_UART2:
+			stm32f4_uart = uart2;
+			break;
+		default:
+			hal_status = HAL_STATUS_ERROR;
+			break;
+	}
+
+	// Init RX Buffer
+	if (hal_status == HAL_STATUS_OK && !circular_buffer_init(&stm32f4_uart.rx_ctx, stm32f4_uart.rx_buffer_size))
 	{
 		hal_status = HAL_STATUS_ERROR;
 	}
 
-	if (!circular_buffer_init(&uart2.tx_ctx, uart2.tx_buffer_size))
+	// Init TX Buffer
+	if (hal_status == HAL_STATUS_OK && !circular_buffer_init(&stm32f4_uart.tx_ctx, stm32f4_uart.tx_buffer_size))
 	{
 		hal_status = HAL_STATUS_ERROR;
 	}
 
-	RCC->AHB1ENR |= uart2.GPIOxEN;
+	if (hal_status == HAL_STATUS_OK)
+	{
+		/********************* GPIO Configure *********************/
+
+		// Enable GPIO Bus
+		RCC->AHB1ENR |= stm32f4_uart.GPIOxEN; // @todo the bus is not generic.
+
+		// Set PA2 mode to alternate function.
+		stm32f4_uart.GPIOx->MODER &= ~BIT_4; // @todo uuuh, these pin mappings might not be generic..
+		stm32f4_uart.GPIOx->MODER |= BIT_5;
+
+		// Set PA3 mode to alternate function.
+		stm32f4_uart.GPIOx->MODER &= ~BIT_6;
+		stm32f4_uart.GPIOx->MODER |= BIT_7;
+	}
 
 	return hal_status;
 }

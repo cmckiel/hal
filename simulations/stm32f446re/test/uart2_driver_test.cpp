@@ -2,6 +2,7 @@
 
 extern "C" {
 #include "uart.h"
+#include "stm32f4_hal.h"
 #include "registers.h"
 #include "nvic.h"
 }
@@ -13,7 +14,7 @@ extern "C" void USART2_IRQHandler(void);
 extern "C" void _hal_uart_inject_rx_buffer_failure(HalUart_t);
 extern "C" void _hal_uart_inject_tx_buffer_failure(HalUart_t);
 
-class Uart2DriverTest : public ::testing::Test {
+class UartDriverTest : public ::testing::Test {
 protected:
     void SetUp() override {
         // Clear peripheral state before each test
@@ -23,14 +24,14 @@ protected:
     }
 };
 
-TEST_F(Uart2DriverTest, InitSuceeds)
+TEST_F(UartDriverTest, InitSuceeds)
 {
     HalStatus_t status;
     status = hal_uart_init(HAL_UART2, nullptr);
     ASSERT_EQ(status, HAL_STATUS_OK);
 }
 
-TEST_F(Uart2DriverTest, InitFailsForRxBufferInitFailure)
+TEST_F(UartDriverTest, InitFailsForRxBufferInitFailure)
 {
     HalStatus_t status;
 
@@ -44,7 +45,7 @@ TEST_F(Uart2DriverTest, InitFailsForRxBufferInitFailure)
     ASSERT_EQ(status, HAL_STATUS_ERROR);
 }
 
-TEST_F(Uart2DriverTest, InitFailsForTxBufferInitFailure)
+TEST_F(UartDriverTest, InitFailsForTxBufferInitFailure)
 {
     HalStatus_t status;
 
@@ -58,7 +59,7 @@ TEST_F(Uart2DriverTest, InitFailsForTxBufferInitFailure)
     ASSERT_EQ(status, HAL_STATUS_ERROR);
 }
 
-TEST_F(Uart2DriverTest, EnablesGpioClock)
+TEST_F(UartDriverTest, EnablesGpioClock)
 {
     HalStatus_t status;
 
@@ -71,6 +72,85 @@ TEST_F(Uart2DriverTest, EnablesGpioClock)
     // Assert
     ASSERT_EQ(status, HAL_STATUS_OK);
     ASSERT_EQ(Sim_RCC.AHB1ENR & RCC_AHB1ENR_GPIOAEN, RCC_AHB1ENR_GPIOAEN);
+}
+
+TEST_F(UartDriverTest, RejectsInvalidUART)
+{
+    HalStatus_t status;
+
+    // Arrange
+    status = hal_uart_init(HAL_UART1, nullptr);
+    ASSERT_EQ(status, HAL_STATUS_OK);
+
+    status = hal_uart_init(HAL_UART2, nullptr);
+    ASSERT_EQ(status, HAL_STATUS_OK);
+
+    // Act
+    status = hal_uart_init(HAL_UART3, nullptr);
+
+    // Assert
+    ASSERT_EQ(status, HAL_STATUS_ERROR);
+}
+
+TEST_F(UartDriverTest, InitializesCorrectUART2)
+{
+    HalStatus_t status;
+
+    // Arrange
+    _hal_uart_inject_rx_buffer_failure(HAL_UART1);
+
+    // Act
+    status = hal_uart_init(HAL_UART2, nullptr);
+
+    // Assert
+    ASSERT_EQ(status, HAL_STATUS_OK);
+}
+
+TEST_F(UartDriverTest, InitializesCorrectUART1)
+{
+    HalStatus_t status;
+
+    // Arrange
+    _hal_uart_inject_rx_buffer_failure(HAL_UART2);
+
+    // Act
+    status = hal_uart_init(HAL_UART1, nullptr);
+
+    // Assert
+    ASSERT_EQ(status, HAL_STATUS_OK);
+}
+
+TEST_F(UartDriverTest, SetsAlternativeFunctionModeForGpioPins)
+{
+    HalStatus_t status;
+
+    // Arrange
+    ASSERT_EQ(Sim_GPIOA.MODER, 0);
+
+    // Act
+    status = hal_uart_init(HAL_UART2, nullptr);
+
+    // Assert
+    ASSERT_EQ(status, HAL_STATUS_OK);
+
+    // PA2 in Alternate Function
+    ASSERT_EQ(Sim_GPIOA.MODER & BIT_4, 0);
+    ASSERT_EQ(Sim_GPIOA.MODER & BIT_5, BIT_5);
+
+    // PA3 in Alternate Function
+    ASSERT_EQ(Sim_GPIOA.MODER & BIT_6, 0);
+    ASSERT_EQ(Sim_GPIOA.MODER & BIT_7, BIT_7);
+}
+
+TEST_F(UartDriverTest, NoHardwareIsTouchedOnImproperUart)
+{
+    HalStatus_t status;
+    // Arrange
+    // Act
+    status = hal_uart_init(HAL_UART3, nullptr);
+
+    ASSERT_EQ(status, HAL_STATUS_ERROR);
+    ASSERT_EQ(Sim_RCC.AHB1ENR, 0);
 }
 
 // TEST_F(UartDriverTest, InitSetsRegistersCorrectly) {

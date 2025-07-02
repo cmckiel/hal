@@ -12,6 +12,11 @@
 // #include "stm32f4_uart2.h"
 
 typedef struct {
+	size_t low_bit;
+	size_t high_bit;
+} pin_alt_function_t;
+
+typedef struct {
     USART_TypeDef *USARTx;
     GPIO_TypeDef *GPIOx;
     circular_buffer_ctx rx_ctx;
@@ -21,18 +26,28 @@ typedef struct {
 	size_t USARTx_IRQn;
 	size_t rx_buffer_size;
 	size_t tx_buffer_size;
+	pin_alt_function_t rx_pin;
+	pin_alt_function_t tx_pin;
 } stm32f4_uart_t;
 
 static stm32f4_uart_t uart1 = {
 	.USARTx = USART1,
-	.GPIOx = GPIOA, // @todo determine which gpio port.
+	.GPIOx = GPIOA,
 	.rx_ctx = {0},
 	.tx_ctx = {0},
-	.GPIOxEN = RCC_AHB1ENR_GPIOAEN, // @todo fill in the clock enable for gpio port.
+	.GPIOxEN = RCC_AHB1ENR_GPIOAEN,
 	.USARTxEN = RCC_APB2ENR_USART1EN,
 	.USARTx_IRQn = USART1_IRQn,
 	.rx_buffer_size = CIRCULAR_BUFFER_MAX_SIZE,
 	.tx_buffer_size = CIRCULAR_BUFFER_MAX_SIZE,
+	.rx_pin = {
+		.low_bit = BIT_20,
+		.high_bit = BIT_21,
+	},
+	.tx_pin = {
+		.low_bit = BIT_18,
+		.high_bit = BIT_19,
+	},
 };
 
 static stm32f4_uart_t uart2 = {
@@ -45,6 +60,14 @@ static stm32f4_uart_t uart2 = {
 	.USARTx_IRQn = USART2_IRQn,
 	.rx_buffer_size = CIRCULAR_BUFFER_MAX_SIZE,
 	.tx_buffer_size = CIRCULAR_BUFFER_MAX_SIZE,
+	.rx_pin = {
+		.low_bit = BIT_6,
+		.high_bit = BIT_7,
+	},
+	.tx_pin = {
+		.low_bit = BIT_4,
+		.high_bit = BIT_5,
+	},
 };
 
 HalStatus_t hal_uart_init(HalUart_t uart, void *config)
@@ -83,15 +106,26 @@ HalStatus_t hal_uart_init(HalUart_t uart, void *config)
 		/********************* GPIO Configure *********************/
 
 		// Enable GPIO Bus
-		RCC->AHB1ENR |= stm32f4_uart.GPIOxEN; // @todo the bus is not generic.
+		if (uart == HAL_UART1)
+		{
+			RCC->AHB2ENR |= stm32f4_uart.GPIOxEN;
+		}
+		else if (uart == HAL_UART2)
+		{
+			RCC->AHB1ENR |= stm32f4_uart.GPIOxEN;
+		}
+		else
+		{
+			hal_status = HAL_STATUS_ERROR;
+		}
 
-		// Set PA2 mode to alternate function.
-		stm32f4_uart.GPIOx->MODER &= ~BIT_4; // @todo uuuh, these pin mappings might not be generic..
-		stm32f4_uart.GPIOx->MODER |= BIT_5;
+		// Set RX pin mode to alternate function.
+		stm32f4_uart.GPIOx->MODER &= ~stm32f4_uart.rx_pin.low_bit;
+		stm32f4_uart.GPIOx->MODER |= stm32f4_uart.rx_pin.high_bit;
 
-		// Set PA3 mode to alternate function.
-		stm32f4_uart.GPIOx->MODER &= ~BIT_6;
-		stm32f4_uart.GPIOx->MODER |= BIT_7;
+		// Set TX pin mode to alternate function.
+		stm32f4_uart.GPIOx->MODER &= ~stm32f4_uart.tx_pin.low_bit;
+		stm32f4_uart.GPIOx->MODER |= stm32f4_uart.tx_pin.high_bit;
 	}
 
 	return hal_status;

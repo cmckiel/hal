@@ -18,14 +18,14 @@ int main(void)
 	uint8_t rx_data[MAX_RX_BYTES] = { 0 };
 
 	hal_gpio_init(NULL);
-	hal_uart_init(HAL_UART2, NULL);
+	hal_uart_init(HAL_UART1, NULL);
 
 	while (1)
 	{
 		hal_delay_ms(100);
 
 		bytes_read = 0;
-		hal_uart_read(HAL_UART2, &rx_data[0], sizeof(rx_data), &bytes_read, 0);
+		hal_uart_read(HAL_UART1, &rx_data[0], sizeof(rx_data), &bytes_read, 0);
 
 		// Solves a weird newline issue.
 		if (rx_data[bytes_read-1] == '\r')
@@ -34,7 +34,7 @@ int main(void)
 			bytes_read += 1;
 		}
 
-		hal_uart_write(HAL_UART2, &rx_data[0], bytes_read);
+		hal_uart_write(HAL_UART1, &rx_data[0], bytes_read);
 	}
 
 	return 0;

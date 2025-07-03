@@ -1,12 +1,4 @@
-#ifdef SIMULATION_BUILD
-#include "registers.h"
-#include "nvic.h"
-#else
-#include "stm32f4xx.h"
-#endif
-
 #include "uart.h"
-#include "stm32f4_uart.h"
 #include "stm32f4_uart1.h"
 #include "stm32f4_uart2.h"
 
@@ -82,12 +74,4 @@ HalStatus_t hal_uart_read(HalUart_t uart, uint8_t *data, size_t len, size_t *byt
 	}
 
 	return hal_status;
-}
-
-/**
- * @brief Computes the BRR baudrate.
- */
-uint16_t stm32f4_hal_compute_uart_bd(uint32_t periph_clk, uint32_t baud_rate)
-{
-	return ((periph_clk + (baud_rate/2U)) / baud_rate);
 }

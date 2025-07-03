@@ -1,5 +1,5 @@
-#ifndef _STM32F4_UART_H
-#define _STM32F4_UART_H
+#ifndef _STM32F4_UART_UTIL_H
+#define _STM32F4_UART_UTIL_H
 
 #include <stdint.h>
 
@@ -9,4 +9,4 @@
 
 uint16_t stm32f4_hal_compute_uart_bd(uint32_t periph_clk, uint32_t baud_rate);
 
-#endif /* _STM32F4_UART_H */
+#endif /* _STM32F4_UART_UTIL_H */

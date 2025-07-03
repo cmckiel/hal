@@ -2,7 +2,7 @@
 
 extern "C" {
 #include "stm32f4_hal.h"
-#include "stm32f4_uart.h"
+#include "stm32f4_uart_util.h"
 #include "stm32f4_uart2.h"
 #include "registers.h"
 #include "nvic.h"
@@ -11,7 +11,7 @@ extern "C" {
 // Allow test to directly call the ISR
 extern "C" void USART2_IRQHandler(void);
 
-class UartDriverTest : public ::testing::Test {
+class Uart2DriverTest : public ::testing::Test {
 protected:
     void SetUp() override {
         // Clear peripheral state before each test
@@ -21,14 +21,14 @@ protected:
     }
 };
 
-TEST_F(UartDriverTest, InitSetsRegistersCorrectly) {
+TEST_F(Uart2DriverTest, InitSetsRegistersCorrectly) {
     ASSERT_EQ(stm32f4_uart2_init(nullptr), HAL_STATUS_OK);
     EXPECT_TRUE(Sim_USART2.CR1 & USART_CR1_UE);
     EXPECT_TRUE(Sim_USART2.CR1 & USART_CR1_RE);
     EXPECT_TRUE(Sim_USART2.CR1 & USART_CR1_TE);
 }
 
-TEST_F(UartDriverTest, SimulateRxInterrupt) {
+TEST_F(Uart2DriverTest, SimulateRxInterrupt) {
     stm32f4_uart2_init(nullptr);
 
     Sim_USART2.DR = 'A';
@@ -42,7 +42,7 @@ TEST_F(UartDriverTest, SimulateRxInterrupt) {
     EXPECT_EQ(buf[0], 'A');
 }
 
-TEST_F(UartDriverTest, SimulateTxInterrupt) {
+TEST_F(Uart2DriverTest, SimulateTxInterrupt) {
     stm32f4_uart2_init(nullptr);
 
     uint8_t data = 'B';
@@ -55,7 +55,7 @@ TEST_F(UartDriverTest, SimulateTxInterrupt) {
     EXPECT_EQ(Sim_USART2.DR, 'B');
 }
 
-TEST_F(UartDriverTest, WriteEnablesTXEInterruptForEmptyBuffer)
+TEST_F(Uart2DriverTest, WriteEnablesTXEInterruptForEmptyBuffer)
 {
     stm32f4_uart2_init(nullptr);
 
@@ -70,7 +70,7 @@ TEST_F(UartDriverTest, WriteEnablesTXEInterruptForEmptyBuffer)
     ASSERT_EQ((Sim_USART2.CR1 & USART_CR1_TXEIE), USART_CR1_TXEIE);
 }
 
-TEST_F(UartDriverTest, ISRDisablesTXEInterruptForEmptyBuffer)
+TEST_F(Uart2DriverTest, ISRDisablesTXEInterruptForEmptyBuffer)
 {
     /******* SETUP **********/
     stm32f4_uart2_init(nullptr);

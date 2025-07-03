@@ -6,7 +6,7 @@
 #endif
 
 #include "stm32f4_hal.h"
-#include "stm32f4_uart.h"
+#include "stm32f4_uart_util.h"
 #include "stm32f4_uart1.h"
 #include "circular_buffer.h"
 

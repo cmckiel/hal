@@ -5,6 +5,7 @@ add_library(
     uart/src/stm32f4_uart.c
     uart/src/stm32f4_uart1.c
     uart/src/stm32f4_uart2.c
+    uart/src/stm32f4_uart_util.c
 )
 
 # Link against the mocks for static analysis to avoid analyzing vendor sdk.

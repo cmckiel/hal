@@ -5,12 +5,11 @@
 #include "stm32f4xx.h"
 #endif
 
-#include "stm32f4_uart2.h"
 #include "stm32f4_hal.h"
+#include "stm32f4_uart.h"
+#include "stm32f4_uart2.h"
 #include "circular_buffer.h"
 
-#define SYS_FREQ      16000000     // Default system frequency
-#define APB1_CLK      SYS_FREQ
 #define UART_BAUDRATE 115200
 
 #define UART_BUFFER_RX_SIZE CIRCULAR_BUFFER_MAX_SIZE
@@ -19,8 +18,9 @@
 static circular_buffer_ctx rx_ctx;
 static circular_buffer_ctx tx_ctx;
 
-static void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t periph_clk, uint32_t baud_rate);
-static uint16_t compute_uart_bd(uint32_t periph_clk, uint32_t baud_rate);
+static void configure_gpio_pins();
+static void configure_uart();
+static void configure_interrupt();
 
 void USART2_IRQHandler(void)
 {
@@ -52,65 +52,15 @@ void USART2_IRQHandler(void)
  */
 HalStatus_t stm32f4_uart2_init(void *config)
 {
-	/********************* Buffer Setup *********************/
-	// Init the rx buffer.
-	if (!circular_buffer_init(&rx_ctx, UART_BUFFER_RX_SIZE))
+	if (!circular_buffer_init(&rx_ctx, UART_BUFFER_RX_SIZE) ||
+		!circular_buffer_init(&tx_ctx, UART_BUFFER_TX_SIZE))
 	{
 		return HAL_STATUS_ERROR;
 	}
 
-	// Init the tx buffer.
-	if (!circular_buffer_init(&tx_ctx, UART_BUFFER_TX_SIZE))
-	{
-		return HAL_STATUS_ERROR;
-	}
-
-	/********************* GPIO Configure *********************/
-	// Enable Bus.
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
-
-	// Set PA2 mode to alternate function.
-	GPIOA->MODER &= ~(1U << 4);
-	GPIOA->MODER |= (1U << 5);
-
-	// Set PA3 mode to alternate function.
-	GPIOA->MODER &= ~(1U << 6);
-	GPIOA->MODER |= (1U << 7);
-
-	// Set PA2 alternate function type to UART_TX (AF07)
-	GPIOA->AFR[0] &= ~(0b111100000000UL); // clear bits 11-8
-	GPIOA->AFR[0] |= 0b011100000000UL; // set bits 11-8 as 0111 aka AF07 for PA2.
-
-	// Set PA3 alternate function type to UART_RX (AF07)
-	GPIOA->AFR[0] &= ~(0b1111000000000000UL); // clear bits 15-12
-	GPIOA->AFR[0] |= 0b0111000000000000UL; // set bits 15-12 as 0111 aka AF07 for PA3.
-
-	/********************* UART Configure *********************/
-	// Enable the bus.
-	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
-
-	// Program the M bit in USART_CR1 to define the word length.
-	USART2->CR1 &= ~(USART_CR1_M);
-
-	// Select the desired baud rate using the USART_BRR register.
-	uart_set_baudrate(USART2, APB1_CLK, UART_BAUDRATE);
-
-	// Set the TE bit in USART_CR1 to send an idle frame as first transmission.
-	USART2->CR1 = USART_CR1_TE; // No OR, sets the UART to a default state.
-	USART2->CR1 |= USART_CR1_RE; // Enable receiver bit.
-
-	// Set the CR2 register to a default state.
-	USART2->CR2 = 0;
-
-	// Enable the USART by writing the UE bit in USART_CR1 register to 1.
-	USART2->CR1 |= USART_CR1_UE;
-
-	/********************* Interrupt Configure *********************/
-	// Enable RXNE Interrupt.
-	USART2->CR1 |= USART_CR1_RXNEIE;
-
-	// Enable NVIC Interrupt.
-	NVIC_EnableIRQ(USART2_IRQn);
+	configure_gpio_pins();
+	configure_uart();
+	configure_interrupt();
 
 	return HAL_STATUS_OK;
 }
@@ -194,18 +144,55 @@ HalStatus_t stm32f4_uart2_write(const uint8_t *data, size_t len)
 	return res;
 }
 
-/*
- * @brief Sets the UART baudrate.
- */
-static void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t periph_clk, uint32_t baud_rate)
+static void configure_gpio_pins()
 {
-	USARTx->BRR = compute_uart_bd(periph_clk, baud_rate);
+	// Enable Bus.
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+
+	// Set PA2 (usart2 tx pin) mode to alternate function.
+	GPIOA->MODER &= ~BIT_4;
+	GPIOA->MODER |= BIT_5;
+
+	// Set PA3 (usart2 rx pin) mode to alternate function.
+	GPIOA->MODER &= ~BIT_6;
+	GPIOA->MODER |= BIT_7;
+
+	// Set PA2 alternate function type to UART_TX (AF07)
+	GPIOA->AFR[0] &= ~(0xFF << (PIN_2 * AF_SHIFT_WIDTH)); // clear bits 11-8
+	GPIOA->AFR[0] |=  (AF7_MASK << (PIN_2 * AF_SHIFT_WIDTH)); // set bits 11-8 as 0111 aka AF07 for PA2.
+
+	// Set PA3 alternate function type to UART_RX (AF07)
+	GPIOA->AFR[0] &= ~(0xFF << (PIN_3 * AF_SHIFT_WIDTH)); // clear bits 15-12
+	GPIOA->AFR[0] |= (AF7_MASK << (PIN_3 * AF_SHIFT_WIDTH)); // set bits 15-12 as 0111 aka AF07 for PA3.
 }
 
-/**
- * @brief Computes the BRR baudrate.
- */
-static uint16_t compute_uart_bd(uint32_t periph_clk, uint32_t baud_rate)
+static void configure_uart()
 {
-	return ((periph_clk + (baud_rate/2U)) / baud_rate);
+	// Enable the bus.
+	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+
+	// Program the M bit in USART_CR1 to define the word length.
+	USART2->CR1 &= ~(USART_CR1_M);
+
+	// Select the desired baud rate using the USART_BRR register.
+	USART2->BRR = stm32f4_hal_compute_uart_bd(APB1_CLK, UART_BAUDRATE);
+
+	// Set the TE bit in USART_CR1 to send an idle frame as first transmission.
+	USART2->CR1 = USART_CR1_TE; // No OR, sets the UART to a default state.
+	USART2->CR1 |= USART_CR1_RE; // Enable receiver bit.
+
+	// Set the CR2 register to a default state.
+	USART2->CR2 = 0;
+
+	// Enable the USART by writing the UE bit in USART_CR1 register to 1.
+	USART2->CR1 |= USART_CR1_UE;
+}
+
+static void configure_interrupt()
+{
+	// Enable RXNE Interrupt.
+	USART2->CR1 |= USART_CR1_RXNEIE;
+
+	// Enable NVIC Interrupt.
+	NVIC_EnableIRQ(USART2_IRQn);
 }

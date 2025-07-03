@@ -3,6 +3,8 @@ add_subdirectory(stm32f4_mocks)
 # The real hardware driver compiled for desktop.
 add_library(
     uart2_driver
+    ../../platforms/stm32f446re/hal/uart/src/stm32f4_uart.c
+    ../../platforms/stm32f446re/hal/uart/src/stm32f4_uart1.c
     ../../platforms/stm32f446re/hal/uart/src/stm32f4_uart2.c
 )
 

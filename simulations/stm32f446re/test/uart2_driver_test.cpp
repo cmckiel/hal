@@ -1,8 +1,9 @@
 #include "gtest/gtest.h"
 
 extern "C" {
-#include "stm32f4_uart2.h"
 #include "stm32f4_hal.h"
+#include "stm32f4_uart.h"
+#include "stm32f4_uart2.h"
 #include "registers.h"
 #include "nvic.h"
 }

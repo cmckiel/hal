@@ -70,7 +70,7 @@ HalStatus_t hal_uart_read(HalUart_t uart, uint8_t *data, size_t len, size_t *byt
 
 	if (uart == HAL_UART1)
 	{
-		hal_status = stm32f4_uart1_read(data, len, timeout_ms);
+		hal_status = stm32f4_uart1_read(data, len, bytes_read, timeout_ms);
 	}
 	else if (uart == HAL_UART2)
 	{

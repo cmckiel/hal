@@ -46,6 +46,9 @@ typedef struct {
     volatile uint32_t GTPR;
 } USART_TypeDef;
 
+extern USART_TypeDef Sim_USART1;
+#define USART1 (&Sim_USART1)
+
 extern USART_TypeDef Sim_USART2;
 #define USART2 (&Sim_USART2)
 
@@ -71,6 +74,7 @@ extern SysTick_Type Sim_SysTick;
 #define USART_CR1_TXEIE  (1U << 7)
 #define RCC_AHB1ENR_GPIOAEN (1U << 0)
 #define RCC_APB1ENR_USART2EN (1U << 17)
+#define RCC_APB2ENR_USART1EN (1U << 4)
 
 #ifdef __cplusplus
 }

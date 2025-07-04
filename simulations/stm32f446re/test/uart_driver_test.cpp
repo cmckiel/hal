@@ -341,3 +341,151 @@ TEST_F(UartDriverTest, ReadOnEmptyReturnsZeroBytesRead)
     ASSERT_EQ(hal_uart_read(HAL_UART2, &data[0], DATA_LEN, &bytes_read, timeout_ms), HAL_STATUS_OK);
     ASSERT_EQ(bytes_read, 0);
 }
+
+TEST_F(UartDriverTest, ReadWithVeryLargeLengthRequest)
+{
+    const size_t HUGE_LEN = SIZE_MAX;  // or some very large number
+    uint8_t single_byte;
+    size_t bytes_read = 0;
+
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    // Put one byte in buffer
+    Sim_USART1.DR = 'A';
+    Sim_USART1.SR |= USART_SR_RXNE;
+    USART1_IRQHandler();
+
+    // Request way more than available - should only read what's there
+    ASSERT_EQ(hal_uart_read(HAL_UART1, &single_byte, HUGE_LEN, &bytes_read, 0), HAL_STATUS_OK);
+    ASSERT_EQ(bytes_read, 1);  // Only got what was available
+    ASSERT_EQ(single_byte, 'A');
+}
+
+TEST_F(UartDriverTest, ReadWithZeroLengthReturnsOK)
+{
+    uint8_t data[10] = {0};
+    size_t bytes_read = 999; // Initialize to non-zero to verify it gets set
+    uint32_t timeout_ms = 0;
+
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+
+    // Put some data in the buffer
+    Sim_USART1.DR = 'A';
+    Sim_USART1.SR |= USART_SR_RXNE;
+    USART1_IRQHandler();
+
+    Sim_USART2.DR = 'B';
+    Sim_USART2.SR |= USART_SR_RXNE;
+    USART2_IRQHandler();
+
+    // Request zero bytes - should return OK with bytes_read = 0
+    ASSERT_EQ(hal_uart_read(HAL_UART1, data, 0, &bytes_read, timeout_ms), HAL_STATUS_OK);
+    ASSERT_EQ(bytes_read, 0);
+    ASSERT_EQ(data[0], 0); // Buffer should be untouched
+
+    ASSERT_EQ(hal_uart_read(HAL_UART2, data, 0, &bytes_read, timeout_ms), HAL_STATUS_OK);
+    ASSERT_EQ(bytes_read, 0);
+}
+
+TEST_F(UartDriverTest, ReadWithInvalidUartEnum)
+{
+    uint8_t data[10] = {0};
+    size_t bytes_read = 0;
+    uint32_t timeout_ms = 0;
+
+    // Test various invalid UART enum values
+    ASSERT_EQ(hal_uart_read((HalUart_t)(-1), data, sizeof(data), &bytes_read, timeout_ms), HAL_STATUS_ERROR);
+    ASSERT_EQ(hal_uart_read(HAL_UART3, data, sizeof(data), &bytes_read, timeout_ms), HAL_STATUS_ERROR); // Not implemented
+    ASSERT_EQ(hal_uart_read((HalUart_t)(99), data, sizeof(data), &bytes_read, timeout_ms), HAL_STATUS_ERROR);
+    ASSERT_EQ(hal_uart_read((HalUart_t)(SIZE_MAX), data, sizeof(data), &bytes_read, timeout_ms), HAL_STATUS_ERROR);
+}
+
+TEST_F(UartDriverTest, Uart1ReadDuringSimulatedInterrupt)
+{
+    const size_t INITIAL_DATA_LEN = 5;
+    const size_t ADDITIONAL_DATA_LEN = 3;
+    uint8_t data[INITIAL_DATA_LEN + ADDITIONAL_DATA_LEN] = {0};
+    size_t bytes_read = 0;
+    uint32_t timeout_ms = 0;
+
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    // Put initial data in buffer via simulated interrupts
+    for (int i = 0; i < INITIAL_DATA_LEN; i++) {
+        Sim_USART1.DR = 'A' + i;  // A, B, C, D, E
+        Sim_USART1.SR |= USART_SR_RXNE;
+        USART1_IRQHandler();
+    }
+
+    // Start reading only part of the data
+    ASSERT_EQ(hal_uart_read(HAL_UART1, data, 3, &bytes_read, timeout_ms), HAL_STATUS_OK);
+    ASSERT_EQ(bytes_read, 3);
+    ASSERT_EQ(data[0], 'A');
+    ASSERT_EQ(data[1], 'B');
+    ASSERT_EQ(data[2], 'C');
+
+    // Simulate more data arriving via interrupt while buffer still has unread data
+    for (int i = 0; i < ADDITIONAL_DATA_LEN; i++) {
+        Sim_USART1.DR = 'X' + i;  // X, Y, Z
+        Sim_USART1.SR |= USART_SR_RXNE;
+        USART1_IRQHandler();
+    }
+
+    // Read the remaining data - should get original remainder + new data
+    ASSERT_EQ(hal_uart_read(HAL_UART1, &data[3], 5, &bytes_read, timeout_ms), HAL_STATUS_OK);
+    ASSERT_EQ(bytes_read, 5);  // D, E, X, Y, Z
+    ASSERT_EQ(data[3], 'D');   // Remaining original data
+    ASSERT_EQ(data[4], 'E');
+    ASSERT_EQ(data[5], 'X');   // New data
+    ASSERT_EQ(data[6], 'Y');
+    ASSERT_EQ(data[7], 'Z');
+}
+
+TEST_F(UartDriverTest, Uart2BufferStateConsistency)
+{
+    const size_t HALF_BUFFER = CIRCULAR_BUFFER_MAX_SIZE / 2;
+    uint8_t data[CIRCULAR_BUFFER_MAX_SIZE] = {0};
+    size_t bytes_read = 0;
+    uint32_t timeout_ms = 0;
+
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+
+    // Fill buffer to half capacity with known pattern
+    for (int i = 0; i < HALF_BUFFER; i++) {
+        Sim_USART2.DR = (uint8_t)(i & 0xFF);
+        Sim_USART2.SR |= USART_SR_RXNE;
+        USART2_IRQHandler();
+    }
+
+    // Read a quarter of the data
+    size_t quarter = HALF_BUFFER / 2;
+    ASSERT_EQ(hal_uart_read(HAL_UART2, data, quarter, &bytes_read, timeout_ms), HAL_STATUS_OK);
+    ASSERT_EQ(bytes_read, quarter);
+
+    // Verify we got the expected data (first quarter of pattern)
+    for (int i = 0; i < quarter; i++) {
+        ASSERT_EQ(data[i], (uint8_t)(i & 0xFF));
+    }
+
+    // Add more data to test buffer wrap-around behavior
+    for (int i = HALF_BUFFER; i < HALF_BUFFER + quarter; i++) {
+        Sim_USART2.DR = (uint8_t)(i & 0xFF);
+        Sim_USART2.SR |= USART_SR_RXNE;
+        USART2_IRQHandler();
+    }
+
+    // Read remaining data - should be in correct order
+    size_t remaining_expected = (HALF_BUFFER - quarter) + quarter;
+    ASSERT_EQ(hal_uart_read(HAL_UART2, &data[quarter], remaining_expected, &bytes_read, timeout_ms), HAL_STATUS_OK);
+    ASSERT_EQ(bytes_read, remaining_expected);
+
+    // Verify data integrity - should be sequential from where we left off
+    for (int i = 0; i < remaining_expected; i++) {
+        ASSERT_EQ(data[quarter + i], (uint8_t)((quarter + i) & 0xFF));
+    }
+
+    // Buffer should now be empty
+    ASSERT_EQ(hal_uart_read(HAL_UART2, data, 1, &bytes_read, timeout_ms), HAL_STATUS_OK);
+    ASSERT_EQ(bytes_read, 0);
+}

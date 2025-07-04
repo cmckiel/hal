@@ -489,3 +489,386 @@ TEST_F(UartDriverTest, Uart2BufferStateConsistency)
     ASSERT_EQ(hal_uart_read(HAL_UART2, data, 1, &bytes_read, timeout_ms), HAL_STATUS_OK);
     ASSERT_EQ(bytes_read, 0);
 }
+
+TEST_F(UartDriverTest, WriteFailsForNullData)
+{
+    size_t data_len = 10;
+
+    // UART1 test
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART1, nullptr, data_len), HAL_STATUS_ERROR);
+
+    // UART2 test
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART2, nullptr, data_len), HAL_STATUS_ERROR);
+}
+
+TEST_F(UartDriverTest, WriteFailsForZeroLength)
+{
+    uint8_t data[] = "Hello";
+
+    // UART1 test
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART1, data, 0), HAL_STATUS_ERROR);
+
+    // UART2 test
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART2, data, 0), HAL_STATUS_ERROR);
+}
+
+TEST_F(UartDriverTest, WriteFailsForInvalidUart)
+{
+    uint8_t data[] = "Test";
+    size_t data_len = sizeof(data) - 1;
+
+    ASSERT_EQ(hal_uart_write((HalUart_t)(-1), data, data_len), HAL_STATUS_ERROR);
+    ASSERT_EQ(hal_uart_write(HAL_UART3, data, data_len), HAL_STATUS_ERROR); // Not implemented
+    ASSERT_EQ(hal_uart_write((HalUart_t)(99), data, data_len), HAL_STATUS_ERROR);
+}
+
+TEST_F(UartDriverTest, Uart1WritesSingleByte)
+{
+    uint8_t data[] = {'A'};
+
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART1, data, 1), HAL_STATUS_OK);
+
+    // Verify TXE interrupt was enabled (buffer was empty before write)
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_TXEIE);
+
+    // Simulate TXE interrupt to verify data transmission
+    Sim_USART1.SR |= USART_SR_TXE;
+    USART1_IRQHandler();
+
+    // Verify data was written to DR register
+    ASSERT_EQ(Sim_USART1.DR, 'A');
+
+    // One final interrupt to disable TXE (happens when last byte finishes transmitting)
+    Sim_USART1.SR |= USART_SR_TXE;
+    USART1_IRQHandler();
+
+    // After buffer empties, TXE interrupt should be disabled
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_TXEIE);
+}
+
+TEST_F(UartDriverTest, Uart2WritesSingleByte)
+{
+    uint8_t data[] = {'A'};
+
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART2, data, 1), HAL_STATUS_OK);
+
+    // Verify TXE interrupt was enabled
+    ASSERT_TRUE(Sim_USART2.CR1 & USART_CR1_TXEIE);
+
+    // Simulate TXE interrupt
+    Sim_USART2.SR |= USART_SR_TXE;
+    USART2_IRQHandler();
+
+    ASSERT_EQ(Sim_USART2.DR, 'A');
+
+    // One final interrupt to disable TXE (happens when last byte finishes transmitting)
+    Sim_USART2.SR |= USART_SR_TXE;
+    USART2_IRQHandler();
+
+    ASSERT_FALSE(Sim_USART2.CR1 & USART_CR1_TXEIE);
+}
+
+TEST_F(UartDriverTest, Uart1WritesMultipleBytes)
+{
+    const size_t DATA_LEN = 10;
+    uint8_t data[DATA_LEN];
+
+    // Create test pattern
+    for (int i = 0; i < DATA_LEN; i++) {
+        data[i] = 'A' + i;
+    }
+
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART1, data, DATA_LEN), HAL_STATUS_OK);
+
+    // Verify TXE interrupt was enabled
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_TXEIE);
+
+    // Simulate transmission of all bytes
+    for (int i = 0; i < DATA_LEN; i++) {
+        Sim_USART1.SR |= USART_SR_TXE;
+        USART1_IRQHandler();
+        ASSERT_EQ(Sim_USART1.DR, 'A' + i);
+    }
+
+    // One final interrupt to disable TXE (happens when last byte finishes transmitting)
+    Sim_USART1.SR |= USART_SR_TXE;
+    USART1_IRQHandler();
+
+    // After all bytes transmitted, TXE interrupt should be disabled
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_TXEIE);
+}
+
+TEST_F(UartDriverTest, Uart2WritesMultipleBytes)
+{
+    const size_t DATA_LEN = 10;
+    uint8_t data[DATA_LEN];
+
+    for (int i = 0; i < DATA_LEN; i++) {
+        data[i] = 'A' + i;
+    }
+
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART2, data, DATA_LEN), HAL_STATUS_OK);
+
+    ASSERT_TRUE(Sim_USART2.CR1 & USART_CR1_TXEIE);
+
+    for (int i = 0; i < DATA_LEN; i++) {
+        Sim_USART2.SR |= USART_SR_TXE;
+        USART2_IRQHandler();
+        ASSERT_EQ(Sim_USART2.DR, 'A' + i);
+    }
+
+    // One final interrupt to disable TXE (happens when last byte finishes transmitting)
+    Sim_USART2.SR |= USART_SR_TXE;
+    USART2_IRQHandler();
+
+    ASSERT_FALSE(Sim_USART2.CR1 & USART_CR1_TXEIE);
+}
+
+TEST_F(UartDriverTest, Uart1WritesMaxBufferSize)
+{
+    const size_t DATA_LEN = CIRCULAR_BUFFER_MAX_SIZE;
+    uint8_t data[DATA_LEN];
+
+    for (int i = 0; i < DATA_LEN; i++) {
+        data[i] = (uint8_t)(i & 0xFF);
+    }
+
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART1, data, DATA_LEN), HAL_STATUS_OK);
+
+    // Simulate transmission of all bytes
+    for (int i = 0; i < DATA_LEN; i++) {
+        Sim_USART1.SR |= USART_SR_TXE;
+        USART1_IRQHandler();
+        ASSERT_EQ(Sim_USART1.DR, (uint8_t)(i & 0xFF));
+    }
+}
+
+TEST_F(UartDriverTest, Uart2WritesMaxBufferSize)
+{
+    const size_t DATA_LEN = CIRCULAR_BUFFER_MAX_SIZE;
+    uint8_t data[DATA_LEN];
+
+    for (int i = 0; i < DATA_LEN; i++) {
+        data[i] = (uint8_t)(i & 0xFF);
+    }
+
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART2, data, DATA_LEN), HAL_STATUS_OK);
+
+    for (int i = 0; i < DATA_LEN; i++) {
+        Sim_USART2.SR |= USART_SR_TXE;
+        USART2_IRQHandler();
+        ASSERT_EQ(Sim_USART2.DR, (uint8_t)(i & 0xFF));
+    }
+}
+
+TEST_F(UartDriverTest, Uart1WriteFailsWhenBufferFull)
+{
+    const size_t DATA_LEN = CIRCULAR_BUFFER_MAX_SIZE + 1; // One byte too many
+    uint8_t data[DATA_LEN];
+
+    for (int i = 0; i < DATA_LEN; i++) {
+        data[i] = 'X';
+    }
+
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    // This should fail because we're trying to write more than buffer capacity
+    ASSERT_EQ(hal_uart_write(HAL_UART1, data, DATA_LEN), HAL_STATUS_ERROR);
+
+    // TXE interrupt should NOT be enabled since write failed
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_TXEIE);
+}
+
+TEST_F(UartDriverTest, Uart2WriteFailsWhenBufferFull)
+{
+    const size_t DATA_LEN = CIRCULAR_BUFFER_MAX_SIZE + 1;
+    uint8_t data[DATA_LEN];
+
+    for (int i = 0; i < DATA_LEN; i++) {
+        data[i] = 'X';
+    }
+
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART2, data, DATA_LEN), HAL_STATUS_ERROR);
+    ASSERT_FALSE(Sim_USART2.CR1 & USART_CR1_TXEIE);
+}
+
+TEST_F(UartDriverTest, Uart1WritePartialThenComplete)
+{
+    const size_t FIRST_WRITE = CIRCULAR_BUFFER_MAX_SIZE / 2;
+    const size_t SECOND_WRITE = CIRCULAR_BUFFER_MAX_SIZE / 4;
+    uint8_t data1[FIRST_WRITE];
+    uint8_t data2[SECOND_WRITE];
+
+    // Prepare test data
+    for (int i = 0; i < FIRST_WRITE; i++) {
+        data1[i] = 'A';
+    }
+    for (int i = 0; i < SECOND_WRITE; i++) {
+        data2[i] = 'B';
+    }
+
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    // First write
+    ASSERT_EQ(hal_uart_write(HAL_UART1, data1, FIRST_WRITE), HAL_STATUS_OK);
+
+    // Partially transmit first write (transmit half)
+    for (int i = 0; i < FIRST_WRITE / 2; i++) {
+        Sim_USART1.SR |= USART_SR_TXE;
+        USART1_IRQHandler();
+        ASSERT_EQ(Sim_USART1.DR, 'A');
+    }
+
+    // Second write should succeed (there's still space)
+    ASSERT_EQ(hal_uart_write(HAL_UART1, data2, SECOND_WRITE), HAL_STATUS_OK);
+
+    // Complete transmission - should get remaining A's then B's
+    for (int i = 0; i < (FIRST_WRITE / 2); i++) {
+        Sim_USART1.SR |= USART_SR_TXE;
+        USART1_IRQHandler();
+        ASSERT_EQ(Sim_USART1.DR, 'A');
+    }
+
+    for (int i = 0; i < SECOND_WRITE; i++) {
+        Sim_USART1.SR |= USART_SR_TXE;
+        USART1_IRQHandler();
+        ASSERT_EQ(Sim_USART1.DR, 'B');
+    }
+
+    // One final interrupt to disable TXE (happens when last byte finishes transmitting)
+    Sim_USART1.SR |= USART_SR_TXE;
+    USART1_IRQHandler();
+
+    // TXE should be disabled after buffer empties
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_TXEIE);
+}
+
+TEST_F(UartDriverTest, Uart2WritePartialThenComplete)
+{
+    const size_t FIRST_WRITE = CIRCULAR_BUFFER_MAX_SIZE / 2;
+    const size_t SECOND_WRITE = CIRCULAR_BUFFER_MAX_SIZE / 4;
+    uint8_t data1[FIRST_WRITE];
+    uint8_t data2[SECOND_WRITE];
+
+    for (int i = 0; i < FIRST_WRITE; i++) {
+        data1[i] = 'A';
+    }
+    for (int i = 0; i < SECOND_WRITE; i++) {
+        data2[i] = 'B';
+    }
+
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+
+    ASSERT_EQ(hal_uart_write(HAL_UART2, data1, FIRST_WRITE), HAL_STATUS_OK);
+
+    for (int i = 0; i < FIRST_WRITE / 2; i++) {
+        Sim_USART2.SR |= USART_SR_TXE;
+        USART2_IRQHandler();
+        ASSERT_EQ(Sim_USART2.DR, 'A');
+    }
+
+    ASSERT_EQ(hal_uart_write(HAL_UART2, data2, SECOND_WRITE), HAL_STATUS_OK);
+
+    for (int i = 0; i < (FIRST_WRITE / 2); i++) {
+        Sim_USART2.SR |= USART_SR_TXE;
+        USART2_IRQHandler();
+        ASSERT_EQ(Sim_USART2.DR, 'A');
+    }
+
+    for (int i = 0; i < SECOND_WRITE; i++) {
+        Sim_USART2.SR |= USART_SR_TXE;
+        USART2_IRQHandler();
+        ASSERT_EQ(Sim_USART2.DR, 'B');
+    }
+
+    // One final interrupt to disable TXE (happens when last byte finishes transmitting)
+    Sim_USART2.SR |= USART_SR_TXE;
+    USART2_IRQHandler();
+
+    ASSERT_FALSE(Sim_USART2.CR1 & USART_CR1_TXEIE);
+}
+
+TEST_F(UartDriverTest, WriteDoesNotEnableTXEWhenBufferNotEmpty)
+{
+    uint8_t data1[] = {'A'};
+    uint8_t data2[] = {'B'};
+
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    // First write - should enable TXE
+    ASSERT_EQ(hal_uart_write(HAL_UART1, data1, 1), HAL_STATUS_OK);
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_TXEIE);
+
+    // Second write while buffer not empty - should NOT re-enable TXE
+    // (it's already enabled)
+    Sim_USART1.CR1 &= ~USART_CR1_TXEIE; // Clear flag to test
+    ASSERT_EQ(hal_uart_write(HAL_UART1, data2, 1), HAL_STATUS_OK);
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_TXEIE); // Should remain cleared
+}
+
+TEST_F(UartDriverTest, WriteHandlesRandomData)
+{
+    const size_t DATA_LEN = 50;
+    uint8_t data_sent[DATA_LEN];
+
+    // Generate random test data
+    for (int i = 0; i < DATA_LEN; i++) {
+        data_sent[i] = random_uint8();
+    }
+
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART1, data_sent, DATA_LEN), HAL_STATUS_OK);
+
+    // Verify all random data transmits correctly
+    for (int i = 0; i < DATA_LEN; i++) {
+        Sim_USART1.SR |= USART_SR_TXE;
+        USART1_IRQHandler();
+        ASSERT_EQ(Sim_USART1.DR, data_sent[i]);
+    }
+
+    // One final interrupt to disable TXE (happens when last byte finishes transmitting)
+    Sim_USART1.SR |= USART_SR_TXE;
+    USART1_IRQHandler();
+
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_TXEIE);
+}
+
+TEST_F(UartDriverTest, WriteHandlesSpecialByteValues)
+{
+    uint8_t special_bytes[] = {0x00, 0xFF, 0x7F, 0x80, 0x55, 0xAA};
+    size_t len = sizeof(special_bytes);
+
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART2, special_bytes, len), HAL_STATUS_OK);
+
+    for (int i = 0; i < len; i++) {
+        Sim_USART2.SR |= USART_SR_TXE;
+        USART2_IRQHandler();
+        ASSERT_EQ(Sim_USART2.DR, special_bytes[i]);
+    }
+}
+
+TEST_F(UartDriverTest, WriteWithExcessiveLengthRequest)
+{
+    const size_t HUGE_LEN = SIZE_MAX;
+    uint8_t single_byte = 'X';
+
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    // Should fail gracefully - can't fit SIZE_MAX bytes in buffer
+    ASSERT_EQ(hal_uart_write(HAL_UART1, &single_byte, HUGE_LEN), HAL_STATUS_ERROR);
+
+    // TXE interrupt should not be enabled
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_TXEIE);
+}

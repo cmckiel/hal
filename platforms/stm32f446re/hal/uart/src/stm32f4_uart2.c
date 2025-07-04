@@ -111,35 +111,38 @@ HalStatus_t stm32f4_uart2_write(const uint8_t *data, size_t len)
 	HalStatus_t res = HAL_STATUS_ERROR;
 	size_t current_buffer_capacity = 0;
 
-	CRITICAL_SECTION_ENTER();
-
-	bool buffer_was_empty = circular_buffer_is_empty(&tx_ctx);
-
-	if (circular_buffer_get_current_capacity(&tx_ctx, &current_buffer_capacity) &&
-		0 < len && len <= current_buffer_capacity)
+	if (data)
 	{
-		res = HAL_STATUS_OK;
-		// The entirety of the data will fit.
-		// Put the data into buffer.
-		for (size_t i = 0; i < len; i++)
+		CRITICAL_SECTION_ENTER();
+
+		bool buffer_was_empty = circular_buffer_is_empty(&tx_ctx);
+
+		if (circular_buffer_get_current_capacity(&tx_ctx, &current_buffer_capacity) &&
+			0 < len && len <= current_buffer_capacity)
 		{
-			if (!circular_buffer_push_no_overwrite(&tx_ctx, data[i]))
+			res = HAL_STATUS_OK;
+			// The entirety of the data will fit.
+			// Put the data into buffer.
+			for (size_t i = 0; i < len; i++)
 			{
-				// Something went wrong. We were unable to push despite
-				// there being capacity.
-				res = HAL_STATUS_ERROR;
-				break;
+				if (!circular_buffer_push_no_overwrite(&tx_ctx, data[i]))
+				{
+					// Something went wrong. We were unable to push despite
+					// there being capacity.
+					res = HAL_STATUS_ERROR;
+					break;
+				}
 			}
+
+			if (res == HAL_STATUS_OK && buffer_was_empty)
+			{
+				USART2->CR1 |= USART_CR1_TXEIE;  // Enable TXE interrupt
+			}
+
 		}
 
-		if (res == HAL_STATUS_OK && buffer_was_empty)
-		{
-			USART2->CR1 |= USART_CR1_TXEIE;  // Enable TXE interrupt
-		}
-
+		CRITICAL_SECTION_EXIT();
 	}
-
-	CRITICAL_SECTION_EXIT();
 
 	return res;
 }

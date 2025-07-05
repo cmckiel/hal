@@ -15,6 +15,8 @@
 #define UART_BUFFER_RX_SIZE CIRCULAR_BUFFER_MAX_SIZE
 #define UART_BUFFER_TX_SIZE CIRCULAR_BUFFER_MAX_SIZE
 
+static bool uart1_initialized = false;
+
 static circular_buffer_ctx rx_ctx;
 static circular_buffer_ctx tx_ctx;
 
@@ -49,6 +51,12 @@ void USART1_IRQHandler(void)
 
 HalStatus_t stm32f4_uart1_init(void *config)
 {
+	// Prevent multiple initialization
+    if (uart1_initialized)
+	{
+        return HAL_STATUS_ERROR;
+    }
+
 	if (!circular_buffer_init(&rx_ctx, UART_BUFFER_RX_SIZE) ||
 		!circular_buffer_init(&tx_ctx, UART_BUFFER_TX_SIZE))
 	{
@@ -59,14 +67,36 @@ HalStatus_t stm32f4_uart1_init(void *config)
 	configure_uart();
 	configure_interrupt();
 
+	uart1_initialized = true; // Mark as initialized only after success.
 	return HAL_STATUS_OK;
+}
+
+HalStatus_t stm32f4_uart1_deinit()
+{
+    if (!uart1_initialized)
+	{
+        return HAL_STATUS_ERROR;
+    }
+
+    // Disable interrupts
+    USART1->CR1 &= ~(USART_CR1_RXNEIE | USART_CR1_TXEIE);
+    NVIC_DisableIRQ(USART1_IRQn);
+
+    // Disable UART
+    USART1->CR1 &= ~USART_CR1_UE;
+
+    // Disable clocks
+    RCC->APB2ENR &= ~RCC_APB2ENR_USART1EN;
+
+    uart1_initialized = false;
+    return HAL_STATUS_OK;
 }
 
 HalStatus_t stm32f4_uart1_read(uint8_t *data, size_t len, size_t *bytes_read, uint32_t timeout_ms)
 {
 	HalStatus_t res = HAL_STATUS_ERROR;
 
-	if (data && bytes_read)
+	if (data && bytes_read && uart1_initialized)
 	{
 		*bytes_read = 0;
 		res = HAL_STATUS_OK;
@@ -102,7 +132,7 @@ HalStatus_t stm32f4_uart1_write(const uint8_t *data, size_t len)
 	HalStatus_t res = HAL_STATUS_ERROR;
 	size_t current_buffer_capacity = 0;
 
-	if (data)
+	if (data && uart1_initialized)
 	{
 		CRITICAL_SECTION_ENTER();
 

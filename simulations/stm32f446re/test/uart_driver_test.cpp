@@ -33,6 +33,11 @@ protected:
             seed_is_set = true;
         }
     }
+
+    void TearDown() override {
+        hal_uart_deinit(HAL_UART1);
+        hal_uart_deinit(HAL_UART2);
+    }
 };
 
 bool UartDriverTest::seed_is_set = false;
@@ -905,4 +910,209 @@ TEST_F(UartDriverTest, InitIgnoresConfigParameter)
 
     ASSERT_EQ(hal_uart_read(HAL_UART1, &data, data_len, &bytes_read, timeout_ms), HAL_STATUS_OK);
     ASSERT_EQ(data, 'A');
+}
+
+TEST_F(UartDriverTest, ReadFailsOnUninitializedUart)
+{
+    uint8_t data[10];
+    size_t bytes_read = 0;
+
+    // Don't call hal_uart_init
+    ASSERT_EQ(hal_uart_read(HAL_UART1, data, sizeof(data), &bytes_read, 0), HAL_STATUS_ERROR);
+    ASSERT_EQ(hal_uart_read(HAL_UART2, data, sizeof(data), &bytes_read, 0), HAL_STATUS_ERROR);
+}
+
+TEST_F(UartDriverTest, WriteFailsOnUninitializedUart)
+{
+    uint8_t data[] = "test";
+
+    // Don't call hal_uart_init
+    ASSERT_EQ(hal_uart_write(HAL_UART1, data, sizeof(data)-1), HAL_STATUS_ERROR);
+    ASSERT_EQ(hal_uart_write(HAL_UART2, data, sizeof(data)-1), HAL_STATUS_ERROR);
+}
+
+TEST_F(UartDriverTest, Uart1MultipleInitsFail)
+{
+    // First init should succeed
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    // Second init should fail
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_ERROR);
+
+    // Operations should still work after failed re-init
+    uint8_t data[] = "test";
+    ASSERT_EQ(hal_uart_write(HAL_UART1, data, sizeof(data)-1), HAL_STATUS_OK);
+}
+
+TEST_F(UartDriverTest, Uart2MultipleInitsFail)
+{
+    // First init should succeed
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+
+    // Second init should fail
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_ERROR);
+
+    // Operations should still work after failed re-init
+    uint8_t data[] = "test";
+    ASSERT_EQ(hal_uart_write(HAL_UART2, data, sizeof(data)-1), HAL_STATUS_OK);
+}
+
+TEST_F(UartDriverTest, ReinitAfterDeinitSucceeds)
+{
+    // Init -> Deinit -> Init should work
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_deinit(HAL_UART1), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_deinit(HAL_UART2), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+}
+
+TEST_F(UartDriverTest, Uart1DeinitRestoresHardwareToSafeState)
+{
+    // Initialize UART1 and verify it's configured correctly
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    // Verify initial configuration is correct (lock in expected state)
+    ASSERT_TRUE(Sim_RCC.APB2ENR & RCC_APB2ENR_USART1EN);     // Clock enabled
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_UE);              // UART enabled
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_TE);              // TX enabled
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_RE);              // RX enabled
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_RXNEIE);          // RX interrupt enabled
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_TXEIE);          // TX interrupt initially disabled
+    ASSERT_TRUE(NVIC_IsIRQEnabled(USART1_IRQn));             // NVIC interrupt enabled
+
+    // Add some data to buffers to verify they get cleared
+    uint8_t write_data[] = "test_data";
+    ASSERT_EQ(hal_uart_write(HAL_UART1, write_data, sizeof(write_data)-1), HAL_STATUS_OK);
+
+    // Simulate some received data
+    Sim_USART1.DR = 'A';
+    Sim_USART1.SR |= USART_SR_RXNE;
+    USART1_IRQHandler();
+
+    // Call deinit
+    ASSERT_EQ(hal_uart_deinit(HAL_UART1), HAL_STATUS_OK);
+
+    // ========== Verify Hardware State After Deinit ==========
+
+    // Critical interrupts should be disabled (safety requirement)
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_RXNEIE);         // RX interrupt disabled
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_TXEIE);          // TX interrupt disabled
+    ASSERT_FALSE(NVIC_IsIRQEnabled(USART1_IRQn));            // NVIC interrupt disabled
+
+    // UART should be disabled (prevents spurious activity)
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_UE);             // UART disabled
+
+    // Note: Clock may remain enabled - this is implementation-dependent
+    ASSERT_FALSE(Sim_RCC.APB2ENR & RCC_APB2ENR_USART1EN);
+    // GPIO pins will remain configured
+
+    // ========== Verify Software State After Deinit ==========
+
+    // Operations should fail after deinit
+    uint8_t read_data[10];
+    size_t bytes_read = 0;
+    uint8_t more_write_data[] = "fail";
+
+    ASSERT_EQ(hal_uart_read(HAL_UART1, read_data, sizeof(read_data), &bytes_read, 0),
+              HAL_STATUS_ERROR);
+    ASSERT_EQ(hal_uart_write(HAL_UART1, more_write_data, sizeof(more_write_data)-1),
+              HAL_STATUS_ERROR);
+
+    // Multiple deints should be safe (idempotent)
+    ASSERT_EQ(hal_uart_deinit(HAL_UART1), HAL_STATUS_ERROR); // Should fail gracefully
+}
+
+TEST_F(UartDriverTest, DeinitDoesNotAffectOtherUARTs)
+{
+    // Initialize both UARTs
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+
+    // Verify both are working
+    uint8_t test_data[] = "test";
+    ASSERT_EQ(hal_uart_write(HAL_UART1, test_data, sizeof(test_data)-1), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_write(HAL_UART2, test_data, sizeof(test_data)-1), HAL_STATUS_OK);
+
+    // Deinit only UART1
+    ASSERT_EQ(hal_uart_deinit(HAL_UART1), HAL_STATUS_OK);
+
+    // UART1 should be disabled
+    ASSERT_EQ(hal_uart_write(HAL_UART1, test_data, sizeof(test_data)-1), HAL_STATUS_ERROR);
+
+    // UART2 should still work normally
+    ASSERT_EQ(hal_uart_write(HAL_UART2, test_data, sizeof(test_data)-1), HAL_STATUS_OK);
+
+    // UART2 hardware should be unaffected
+    ASSERT_TRUE(Sim_USART2.CR1 & USART_CR1_UE);              // UART2 still enabled
+    ASSERT_TRUE(Sim_USART2.CR1 & USART_CR1_RXNEIE);          // UART2 RX interrupt still enabled
+    ASSERT_TRUE(NVIC_IsIRQEnabled(USART2_IRQn));             // UART2 NVIC still enabled
+}
+
+TEST_F(UartDriverTest, ReinitAfterDeinitRestoresFullFunctionality)
+{
+    // Initial setup and operation
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    uint8_t original_data[] = "original";
+    ASSERT_EQ(hal_uart_write(HAL_UART1, original_data, sizeof(original_data)-1), HAL_STATUS_OK);
+
+    // Deinit
+    ASSERT_EQ(hal_uart_deinit(HAL_UART1), HAL_STATUS_OK);
+
+    // Reinit should succeed
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    // Verify hardware is reconfigured correctly after reinit
+    ASSERT_TRUE(Sim_RCC.APB2ENR & RCC_APB2ENR_USART1EN);     // Clock enabled
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_UE);              // UART enabled
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_TE);              // TX enabled
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_RE);              // RX enabled
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_RXNEIE);          // RX interrupt enabled
+    ASSERT_TRUE(NVIC_IsIRQEnabled(USART1_IRQn));             // NVIC interrupt enabled
+
+    // Verify functionality is restored
+    uint8_t new_data[] = "reinit_test";
+    ASSERT_EQ(hal_uart_write(HAL_UART1, new_data, sizeof(new_data)-1), HAL_STATUS_OK);
+
+    // Verify read functionality
+    Sim_USART1.DR = 'R';
+    Sim_USART1.SR |= USART_SR_RXNE;
+    USART1_IRQHandler();
+
+    uint8_t read_data;
+    size_t bytes_read = 0;
+    ASSERT_EQ(hal_uart_read(HAL_UART1, &read_data, 1, &bytes_read, 0), HAL_STATUS_OK);
+    ASSERT_EQ(bytes_read, 1);
+    ASSERT_EQ(read_data, 'R');
+}
+
+TEST_F(UartDriverTest, DeinitClearsBufferState)
+{
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    // Fill buffers with data
+    uint8_t write_data[] = "buffer_data";
+    ASSERT_EQ(hal_uart_write(HAL_UART1, write_data, sizeof(write_data)-1), HAL_STATUS_OK);
+
+    // Add received data
+    for (int i = 0; i < 10; i++) {
+        Sim_USART1.DR = 'A' + i;
+        Sim_USART1.SR |= USART_SR_RXNE;
+        USART1_IRQHandler();
+    }
+
+    // Deinit should clear internal state
+    ASSERT_EQ(hal_uart_deinit(HAL_UART1), HAL_STATUS_OK);
+
+    // Reinit
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    // Buffers should be empty after reinit
+    uint8_t read_data[20];
+    size_t bytes_read = 0;
+    ASSERT_EQ(hal_uart_read(HAL_UART1, read_data, sizeof(read_data), &bytes_read, 0), HAL_STATUS_OK);
+    ASSERT_EQ(bytes_read, 0); // No data should remain from before deinit
 }

@@ -10,6 +10,7 @@ extern "C" {
 
 void NVIC_EnableIRQ(size_t interrupt_number);
 bool NVIC_IsIRQEnabled(size_t interrupt_number);
+void NVIC_DisableIRQ(size_t interrupt_number);
 
 #ifdef __cplusplus
 }

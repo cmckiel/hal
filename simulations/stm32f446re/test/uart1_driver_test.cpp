@@ -21,87 +21,69 @@ protected:
     }
 };
 
-TEST_F(Uart1DriverTest, InitSetsRegistersCorrectly) {
+TEST_F(Uart1DriverTest, Uart1InitializesAllRegistersCorrectly)
+{
+    // Call UART1 init directly to test low-level register configuration
     ASSERT_EQ(stm32f4_uart1_init(nullptr), HAL_STATUS_OK);
-    EXPECT_TRUE(Sim_USART1.CR1 & USART_CR1_UE);
-    EXPECT_TRUE(Sim_USART1.CR1 & USART_CR1_RE);
-    EXPECT_TRUE(Sim_USART1.CR1 & USART_CR1_TE);
-}
 
-TEST_F(Uart1DriverTest, SimulateRxInterrupt) {
-    stm32f4_uart1_init(nullptr);
+    // ========== GPIO Configuration Verification ==========
 
-    Sim_USART1.DR = 'A';
-    Sim_USART1.SR |= USART_SR_RXNE;
-    USART1_IRQHandler();  // simulate interrupt
+    // Verify GPIOA clock is enabled
+    ASSERT_TRUE(Sim_RCC.AHB1ENR & RCC_AHB1ENR_GPIOAEN);
 
-    uint8_t buf[1];
-    size_t bytes_read = 0;
-    ASSERT_EQ(stm32f4_uart1_read(buf, 1, &bytes_read, 0), HAL_STATUS_OK);
-    EXPECT_EQ(bytes_read, 1);
-    EXPECT_EQ(buf[0], 'A');
-}
+    // Verify PA9 (UART1 TX) is configured as alternate function
+    // MODER bits [19:18] should be 10 (alternate function mode)
+    ASSERT_FALSE(Sim_GPIOA.MODER & BIT_18);  // Bit 18 should be 0
+    ASSERT_TRUE(Sim_GPIOA.MODER & BIT_19);   // Bit 19 should be 1
 
-TEST_F(Uart1DriverTest, SimulateTxInterrupt) {
-    stm32f4_uart1_init(nullptr);
+    // Verify PA10 (UART1 RX) is configured as alternate function
+    // MODER bits [21:20] should be 10 (alternate function mode)
+    ASSERT_FALSE(Sim_GPIOA.MODER & BIT_20);  // Bit 20 should be 0
+    ASSERT_TRUE(Sim_GPIOA.MODER & BIT_21);   // Bit 21 should be 1
 
-    uint8_t data = 'B';
-    ASSERT_EQ(stm32f4_uart1_write(&data, 1), HAL_STATUS_OK);
+    // Verify PA9 alternate function is set to AF07 (UART)
+    // AFR[1] bits [7:4] should be 0111 (AF07)
+    uint32_t pa9_af = (Sim_GPIOA.AFR[1] >> (PIN_1 * AF_SHIFT_WIDTH)) & 0xF;
+    ASSERT_EQ(pa9_af, 0x7);  // AF07
 
-    // Simulate TXE interrupt trigger
-    Sim_USART1.SR |= USART_SR_TXE;
-    USART1_IRQHandler();
+    // Verify PA10 alternate function is set to AF07 (UART)
+    // AFR[1] bits [11:8] should be 0111 (AF07)
+    uint32_t pa10_af = (Sim_GPIOA.AFR[1] >> (PIN_2 * AF_SHIFT_WIDTH)) & 0xF;
+    ASSERT_EQ(pa10_af, 0x7);  // AF07
 
-    EXPECT_EQ(Sim_USART1.DR, 'B');
-}
+    // ========== UART Configuration Verification ==========
 
-TEST_F(Uart1DriverTest, WriteEnablesTXEInterruptForEmptyBuffer)
-{
-    stm32f4_uart1_init(nullptr);
+    // Verify USART1 clock is enabled
+    ASSERT_TRUE(Sim_RCC.APB2ENR & RCC_APB2ENR_USART1EN);
 
-    // Assert the interrupt is not enabled.
-    ASSERT_EQ(Sim_USART1.CR1 & USART_CR1_TXEIE, 0);
+    // Verify word length is 8 bits (M bit should be 0)
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_M);
 
-    // Write data.
-    uint8_t data[4] = { 0, 1, 2, 3 };
-    ASSERT_EQ(stm32f4_uart1_write(&data[0], sizeof(data)), HAL_STATUS_OK);
+    // Verify baud rate register is set correctly for 115200 baud
+    // This should match the computed value from stm32f4_hal_compute_uart_bd()
+    uint32_t expected_brr = stm32f4_hal_compute_uart_bd(APB2_CLK, 115200);
+    ASSERT_EQ(Sim_USART1.BRR, expected_brr);
 
-    // Assert the interrupt is enabled.
-    ASSERT_EQ((Sim_USART1.CR1 & USART_CR1_TXEIE), USART_CR1_TXEIE);
-}
+    // Verify transmitter is enabled
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_TE);
 
-TEST_F(Uart1DriverTest, ISRDisablesTXEInterruptForEmptyBuffer)
-{
-    /******* SETUP **********/
-    stm32f4_uart1_init(nullptr);
+    // Verify receiver is enabled
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_RE);
 
-    // Assert the interrupt is not enabled.
-    ASSERT_EQ(Sim_USART1.CR1 & USART_CR1_TXEIE, 0);
+    // Verify USART is enabled
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_UE);
 
-    // Write data.
-    uint8_t data[4] = { 0, 1, 2, 3 };
-    ASSERT_EQ(stm32f4_uart1_write(&data[0], sizeof(data)), HAL_STATUS_OK);
+    // Verify CR2 is set to default state (0)
+    ASSERT_EQ(Sim_USART1.CR2, 0);
 
-    // Assert the interrupt is enabled.
-    ASSERT_EQ((Sim_USART1.CR1 & USART_CR1_TXEIE), USART_CR1_TXEIE);
+    // ========== Interrupt Configuration Verification ==========
 
-    /******* TEST **********/
-    // Hardware becomes available for transmit.
-    Sim_USART1.SR |= USART_SR_TXE;
+    // Verify RXNE interrupt is enabled
+    ASSERT_TRUE(Sim_USART1.CR1 & USART_CR1_RXNEIE);
 
-    USART1_IRQHandler();
-    ASSERT_EQ(Sim_USART1.DR, 0);
+    // Verify TXE interrupt is initially disabled
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_TXEIE);
 
-    USART1_IRQHandler();
-    ASSERT_EQ(Sim_USART1.DR, 1);
-
-    USART1_IRQHandler();
-    ASSERT_EQ(Sim_USART1.DR, 2);
-
-    USART1_IRQHandler();
-    ASSERT_EQ(Sim_USART1.DR, 3);
-
-    USART1_IRQHandler();
-    // Assert the interrupt is not enabled.
-    ASSERT_EQ(Sim_USART1.CR1 & USART_CR1_TXEIE, 0);
+    // Verify NVIC interrupt for USART1 is enabled
+    ASSERT_TRUE(NVIC_IsIRQEnabled(USART1_IRQn));
 }

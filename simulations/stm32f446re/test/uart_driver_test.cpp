@@ -872,3 +872,37 @@ TEST_F(UartDriverTest, WriteWithExcessiveLengthRequest)
     // TXE interrupt should not be enabled
     ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_TXEIE);
 }
+
+// Interrupt timing edge cases
+TEST_F(UartDriverTest, HandlesTXEInterruptWithEmptyBuffer)
+{
+    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+
+    // Simulate spurious TXE interrupt (no data to send)
+    Sim_USART1.SR |= USART_SR_TXE;
+    USART1_IRQHandler();
+
+    // Should disable TXE interrupt
+    ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_TXEIE);
+}
+
+// Configuration parameter handling
+TEST_F(UartDriverTest, InitIgnoresConfigParameter)
+{
+    uint8_t data = 0;
+    size_t data_len = 1;
+    size_t bytes_read = 0;
+    uint32_t timeout_ms = 0;
+
+    uint32_t config_data = 0xDEADBEEF;
+    ASSERT_EQ(hal_uart_init(HAL_UART1, &config_data), HAL_STATUS_OK);
+
+    // Verify initialization proceeds normally regardless of config content
+    // Can read a byte.
+    Sim_USART1.DR = 'A';
+    Sim_USART1.SR |= USART_SR_RXNE;
+    USART1_IRQHandler();  // simulate interrupt
+
+    ASSERT_EQ(hal_uart_read(HAL_UART1, &data, data_len, &bytes_read, timeout_ms), HAL_STATUS_OK);
+    ASSERT_EQ(data, 'A');
+}

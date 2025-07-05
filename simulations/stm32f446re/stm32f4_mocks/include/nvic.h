@@ -2,11 +2,15 @@
 extern "C" {
 #endif
 
+#include "stdlib.h"
+#include "stdbool.h"
+
 #define USART2_IRQn 38
 #define USART1_IRQn 37
 
-// Very minimal NVIC simulation
-#define NVIC_EnableIRQ(x) ((void)(x))  // No-op
+void NVIC_EnableIRQ(size_t interrupt_number);
+bool NVIC_IsIRQEnabled(size_t interrupt_number);
+void NVIC_DisableIRQ(size_t interrupt_number);
 
 #ifdef __cplusplus
 }

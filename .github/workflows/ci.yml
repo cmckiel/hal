@@ -84,7 +84,6 @@ jobs:
         ctest --output-on-failure --verbose
 
     - name: Upload test results
-      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: unit-test-results-${{ github.sha }}
@@ -96,8 +95,10 @@ jobs:
     name: HIL Tests
     needs: build
     runs-on: [self-hosted, Linux, ARM64]
-    timeout-minutes: 1 # Temporarily small until commision of test bench.
-    # This will only run on runners with ALL these labels
+
+    # @todo: This timeout doesn't seem to work. Need a way
+    # to detect that the runner is offline to avoid wasting CI minutes.
+    timeout-minutes: 10
 
     steps:
     - name: Checkout repository
@@ -113,8 +114,6 @@ jobs:
 
     - name: Flash firmware to target
       run: |
-        # Flash the firmware - adjust this command for your programmer
-        # Example for ST-Link:
         st-flash write ./firmware/hal.bin 0x8000000 && st-flash reset
 
     - name: Wait for target to boot
@@ -127,7 +126,6 @@ jobs:
         echo "Test completed with exit code: $?"
 
     - name: Reset hardware (cleanup)
-      if: always()
       run: |
         # Reset the target to a known state
         st-flash reset

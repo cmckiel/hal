@@ -93,7 +93,7 @@ jobs:
         retention-days: 7
 
   hardware-test:
-    name: Hardware Test
+    name: HIL Tests
     needs: build
     runs-on: [self-hosted, linux, hardware-test, uart-rig]
     timeout-minutes: 1 # Temporarily small until commision of test bench.

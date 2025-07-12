@@ -27,6 +27,105 @@ jobs:
     - name: Build (${{ matrix.preset }})
       run: cmake --build --preset ${{ matrix.preset }}
 
-    - name: Test (${{ matrix.preset }})
+    # Upload artifacts for further testing
+    - name: Upload firmware artifact
+      if: matrix.preset == 'embedded-debug'
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware-${{ github.sha }}
+        path: |
+          build/embedded-debug/hal.bin
+          build/embedded-debug/hal.elf
+        retention-days: 7
+
+    - name: Create desktop test archive
       if: matrix.preset == 'desktop-debug'
-      run: ctest --preset desktop-debug --output-on-failure
+      run: |
+        # Create a tarball that preserves permissions
+        cd build/desktop-debug
+        tar -czf ../../desktop-tests.tar.gz .
+        cd ../..
+
+    - name: Upload desktop test archive
+      if: matrix.preset == 'desktop-debug'
+      uses: actions/upload-artifact@v4
+      with:
+        name: desktop-tests-${{ github.sha }}
+        path: desktop-tests.tar.gz
+        retention-days: 7
+
+  unit-tests:
+    name: Desktop Unit Tests
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: cmckiel/hal-build-environment:latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Download desktop test archive
+      uses: actions/download-artifact@v4
+      with:
+        name: desktop-tests-${{ github.sha }}
+        path: ./
+
+    - name: Extract desktop tests with permissions
+      run: |
+        mkdir -p build/desktop-debug
+        tar -xzf desktop-tests.tar.gz -C build/desktop-debug
+
+    - name: Run unit tests
+      run: |
+        cd build/desktop-debug
+        ctest --output-on-failure --verbose
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: unit-test-results-${{ github.sha }}
+        path: |
+          build/desktop-debug/Testing/
+        retention-days: 7
+
+  hardware-test:
+    name: HIL Tests
+    needs: build
+    runs-on: [self-hosted, Linux, ARM64]
+
+    # @todo: This timeout doesn't seem to work. Need a way
+    # to detect that the runner is offline to avoid wasting CI minutes.
+    timeout-minutes: 10
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Download firmware
+      uses: actions/download-artifact@v4
+      with:
+        name: firmware-${{ github.sha }}
+        path: ./firmware
+
+    - name: Flash firmware to target
+      run: |
+        st-flash write ./firmware/hal.bin 0x8000000 && st-flash reset
+
+    - name: Wait for target to boot
+      run: sleep 1
+
+    - name: Run hardware test
+      run: |
+        cd tests
+        python3 uart_test.py
+        echo "Test completed with exit code: $?"
+
+    - name: Reset hardware (cleanup)
+      run: |
+        # Reset the target to a known state
+        st-flash reset

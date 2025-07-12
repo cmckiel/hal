@@ -38,13 +38,20 @@ jobs:
           build/embedded-debug/hal.elf
         retention-days: 7
 
-    - name: Upload desktop test binaries
+    - name: Create desktop test archive
+      if: matrix.preset == 'desktop-debug'
+      run: |
+        # Create a tarball that preserves permissions
+        cd build/desktop-debug
+        tar -czf ../../desktop-tests.tar.gz .
+        cd ../..
+
+    - name: Upload desktop test archive
       if: matrix.preset == 'desktop-debug'
       uses: actions/upload-artifact@v4
       with:
         name: desktop-tests-${{ github.sha }}
-        path: |
-          build/desktop-debug/
+        path: desktop-tests.tar.gz
         retention-days: 7
 
   unit-tests:
@@ -60,15 +67,16 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Download desktop test binaries
+    - name: Download desktop test archive
       uses: actions/download-artifact@v4
       with:
         name: desktop-tests-${{ github.sha }}
-        path: ./build/desktop-debug/
+        path: ./
 
-    - name: Make binaries executable
+    - name: Extract desktop tests with permissions
       run: |
-        find ./build/desktop-debug/ -type f -executable -exec chmod +x {} \;
+        mkdir -p build/desktop-debug
+        tar -xzf desktop-tests.tar.gz -C build/desktop-debug
 
     - name: Run unit tests
       run: |

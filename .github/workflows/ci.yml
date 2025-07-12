@@ -51,6 +51,8 @@ jobs:
     name: Unit Tests
     needs: build
     runs-on: ubuntu-latest
+    container:
+      image: cmckiel/hal-build-environment:latest
 
     steps:
     - name: Checkout repository

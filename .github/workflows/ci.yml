@@ -27,6 +27,92 @@ jobs:
     - name: Build (${{ matrix.preset }})
       run: cmake --build --preset ${{ matrix.preset }}
 
-    - name: Test (${{ matrix.preset }})
+    # Upload artifacts for further testing
+    - name: Upload firmware artifact
+      if: matrix.preset == 'embedded-debug'
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware-${{ github.sha }}
+        path: |
+          build/embedded-debug/hal.bin
+          build/embedded-debug/hal.elf
+        retention-days: 7
+
+    - name: Upload desktop test binaries
       if: matrix.preset == 'desktop-debug'
-      run: ctest --preset desktop-debug --output-on-failure
+      uses: actions/upload-artifact@v4
+      with:
+        name: desktop-tests-${{ github.sha }}
+        path: |
+          build/desktop-debug/
+        retention-days: 7
+
+  unit-tests:
+    name: Unit Tests
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Download desktop test binaries
+      uses: actions/download-artifact@v4
+      with:
+        name: desktop-tests-${{ github.sha }}
+        path: ./build/desktop-debug/
+
+    - name: Make binaries executable
+      run: |
+        find ./build/desktop-debug/ -type f -executable -exec chmod +x {} \;
+
+    - name: Run unit tests
+      run: |
+        cd build/desktop-debug
+        ctest --output-on-failure --verbose
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: unit-test-results-${{ github.sha }}
+        path: |
+          build/desktop-debug/Testing/
+        retention-days: 7
+
+  hardware-test:
+    name: Hardware Test
+    needs: build
+    runs-on: [self-hosted, linux, hardware-test, uart-rig]
+    # This will only run on runners with ALL these labels
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Download firmware
+      uses: actions/download-artifact@v4
+      with:
+        name: firmware-${{ github.sha }}
+        path: ./firmware
+
+    - name: Flash firmware to target
+      run: |
+        # Flash the firmware - adjust this command for your programmer
+        # Example for ST-Link:
+        st-flash write ./firmware/hal.bin 0x8000000 && st-flash reset
+
+    - name: Wait for target to boot
+      run: sleep 1
+
+    - name: Run hardware test
+      run: |
+        cd tests
+        python3 uart_test.py
+        echo "Test completed with exit code: $?"
+
+    - name: Reset hardware (cleanup)
+      if: always()
+      run: |
+        # Reset the target to a known state
+        st-flash reset

@@ -55,7 +55,7 @@ jobs:
         retention-days: 7
 
   unit-tests:
-    name: Unit Tests
+    name: Desktop Unit Tests
     needs: build
     runs-on: ubuntu-latest
     container:

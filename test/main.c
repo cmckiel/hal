@@ -1,4 +1,5 @@
 #include <string.h>
+#include "systick.h"
 #include "uart.h"
 
 #define MAX_RX_BYTES 1024
@@ -19,6 +20,8 @@ int main(void)
 
 	while (1)
 	{
+		hal_delay_ms(1);
+
 		// Reset all data structures.
 		bytes_read_uart1 = 0;
 		bytes_read_uart2 = 0;

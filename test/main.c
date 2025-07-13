@@ -20,7 +20,7 @@ int main(void)
 
 	while (1)
 	{
-		hal_delay_ms(1);
+		hal_delay_ms(5);
 
 		// Reset all data structures.
 		bytes_read_uart1 = 0;

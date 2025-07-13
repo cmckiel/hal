@@ -20,27 +20,27 @@ def main():
         message1 = b'Hello, is this the Krusty Krab?\r'
         message2 = b'No, this is Patrick.\r'
 
-        print("Testing UART1 -> UART2...")
-        # Send message1 from uart1 to uart2
+        print("Testing UART1 Loopback...")
+        # Send message1 to uart1
         uart1.write(message1)
         time.sleep(0.1)
-        received_message1 = uart2.read(len(message1))
+        received_message1 = uart1.read(len(message1))
 
-        print("Testing UART2 -> UART1...")
-        # Send message2 from uart2 to uart1
+        print("Testing UART2 Loopback...")
+        # Send message2 to uart2
         uart2.write(message2)
         time.sleep(0.1)
-        received_message2 = uart1.read(len(message2))
+        received_message2 = uart2.read(len(message2))
 
         # Check results
         test1_pass = received_message1 == message1
         test2_pass = received_message2 == message2
 
-        print(f"UART1->UART2: {'PASS' if test1_pass else 'FAIL'}")
+        print(f"UART1 Loopback: {'PASS' if test1_pass else 'FAIL'}")
         print(f"  Sent:     {message1}")
         print(f"  Received: {received_message1}")
 
-        print(f"UART2->UART1: {'PASS' if test2_pass else 'FAIL'}")
+        print(f"UART2 Loopback: {'PASS' if test2_pass else 'FAIL'}")
         print(f"  Sent:     {message2}")
         print(f"  Received: {received_message2}")
 

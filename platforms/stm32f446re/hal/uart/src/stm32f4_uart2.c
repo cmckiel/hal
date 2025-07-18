@@ -112,9 +112,13 @@ HalStatus_t stm32f4_uart2_read(uint8_t *data, size_t len, size_t *bytes_read, ui
 		// While there are still bytes in the buffer and we still have space to store them.
 		while (!circular_buffer_is_empty(&rx_ctx) && *bytes_read < len)
 		{
-			CRITICAL_SECTION_ENTER();
+			// ***************************************************
+			// CRITICAL_SECTION_ENTER
+			NVIC_DisableIRQ(USART2_IRQn);
 			bool popped = circular_buffer_pop(&rx_ctx, &byte);
-			CRITICAL_SECTION_EXIT();
+			NVIC_EnableIRQ(USART2_IRQn);
+			// CRITICAL_SECTION_EXIT
+			// ***************************************************
 
 			if (popped)
 			{
@@ -143,7 +147,9 @@ HalStatus_t stm32f4_uart2_write(const uint8_t *data, size_t len)
 
 	if (data && uart2_initialized)
 	{
-		CRITICAL_SECTION_ENTER();
+		// ***************************************************
+		// CRITICAL_SECTION_ENTER
+		NVIC_DisableIRQ(USART2_IRQn);
 
 		bool buffer_was_empty = circular_buffer_is_empty(&tx_ctx);
 
@@ -171,7 +177,9 @@ HalStatus_t stm32f4_uart2_write(const uint8_t *data, size_t len)
 
 		}
 
-		CRITICAL_SECTION_EXIT();
+		NVIC_EnableIRQ(USART2_IRQn);
+		// CRITICAL_SECTION_EXIT
+		// ***************************************************
 	}
 
 	return res;

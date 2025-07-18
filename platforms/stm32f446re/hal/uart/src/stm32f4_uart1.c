@@ -106,9 +106,13 @@ HalStatus_t stm32f4_uart1_read(uint8_t *data, size_t len, size_t *bytes_read, ui
 		// While there are still bytes in the buffer and we still have space to store them.
 		while (!circular_buffer_is_empty(&rx_ctx) && *bytes_read < len)
 		{
-			CRITICAL_SECTION_ENTER();
+			// ***************************************************
+			// CRITICAL_SECTION_ENTER
+			NVIC_DisableIRQ(USART1_IRQn);
 			bool popped = circular_buffer_pop(&rx_ctx, &byte);
-			CRITICAL_SECTION_EXIT();
+			// CRITICAL_SECTION_EXIT
+			NVIC_EnableIRQ(USART1_IRQn);
+			// ***************************************************
 
 			if (popped)
 			{
@@ -130,39 +134,41 @@ HalStatus_t stm32f4_uart1_read(uint8_t *data, size_t len, size_t *bytes_read, ui
 HalStatus_t stm32f4_uart1_write(const uint8_t *data, size_t len)
 {
 	HalStatus_t res = HAL_STATUS_ERROR;
-	size_t current_buffer_capacity = 0;
+	size_t bytes_written = 0;
+	bool push_success = true;
 
-	if (data && uart1_initialized)
+	if (uart1_initialized && data && len > 0)
 	{
-		CRITICAL_SECTION_ENTER();
-
-		bool buffer_was_empty = circular_buffer_is_empty(&tx_ctx);
-
-		if (circular_buffer_get_current_capacity(&tx_ctx, &current_buffer_capacity) &&
-			0 < len && len <= current_buffer_capacity)
+		for (size_t i = 0; i < len; i++)
 		{
-			res = HAL_STATUS_OK;
-			// The entirety of the data will fit.
-			// Put the data into buffer.
-			for (size_t i = 0; i < len; i++)
-			{
-				if (!circular_buffer_push_no_overwrite(&tx_ctx, data[i]))
-				{
-					// Something went wrong. We were unable to push despite
-					// there being capacity.
-					res = HAL_STATUS_ERROR;
-					break;
-				}
-			}
+			// ***************************************************
+			// CRITICAL SECTION ENTER
+			NVIC_DisableIRQ(USART1_IRQn);
+			push_success = circular_buffer_push_no_overwrite(&tx_ctx, data[i]);
+			NVIC_EnableIRQ(USART1_IRQn);
+			// CRITICAL SECTION EXIT
+			// ***************************************************
 
-			if (res == HAL_STATUS_OK && buffer_was_empty)
+			if (push_success)
 			{
-				USART1->CR1 |= USART_CR1_TXEIE;  // Enable TXE interrupt
+				bytes_written++;
 			}
-
+			else
+			{
+				break;
+			}
 		}
 
-		CRITICAL_SECTION_EXIT();
+		// If bytes were written successfully to buffer, then enable the transmit
+		// interrupt because those bytes need to be sent out.
+		if (bytes_written > 0)
+		{
+			USART1->CR1 |= USART_CR1_TXEIE;  // Enable TXE interrupt
+		}
+
+		// If we successfully wrote all bytes to buffer, then the function was an
+		// overall success.
+		res = (bytes_written == len) ? HAL_STATUS_OK : HAL_STATUS_ERROR;
 	}
 
 	return res;

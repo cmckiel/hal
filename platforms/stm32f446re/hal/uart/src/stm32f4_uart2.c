@@ -86,7 +86,7 @@ HalStatus_t stm32f4_uart2_deinit()
     NVIC_DisableIRQ(USART2_IRQn);
 
     // Disable UART
-    USART1->CR1 &= ~USART_CR1_UE;
+    USART2->CR1 &= ~USART_CR1_UE;
 
     // Disable clock
 	RCC->APB1ENR &= ~RCC_APB1ENR_USART2EN;

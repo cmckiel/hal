@@ -7,11 +7,11 @@
  */
 int __io_putchar(int ch)
 {
-	uint8_t data[] = { 0 };
-	data[0] = ch;
-	size_t len = 1;
+	uint8_t data[1] = { 0 };
+	size_t bytes_written = 0;
 
-	hal_uart_write(HAL_UART2, &data[0], len);
+	data[0] = ch;
+	hal_uart_write(HAL_UART2, data, sizeof(data), &bytes_written);
 
 	return ch;
 }
@@ -76,17 +76,17 @@ HalStatus_t hal_uart_read(HalUart_t uart, uint8_t *data, size_t len, size_t *byt
 	return hal_status;
 }
 
-HalStatus_t hal_uart_write(HalUart_t uart, const uint8_t *data, size_t len)
+HalStatus_t hal_uart_write(HalUart_t uart, const uint8_t *data, size_t len, size_t *bytes_written)
 {
 	HalStatus_t hal_status = HAL_STATUS_ERROR;
 
 	if (uart == HAL_UART1)
 	{
-		hal_status = stm32f4_uart1_write(data, len);
+		hal_status = stm32f4_uart1_write(data, len, bytes_written);
 	}
 	else if (uart == HAL_UART2)
 	{
-		hal_status = stm32f4_uart2_write(data, len);
+		hal_status = stm32f4_uart2_write(data, len, bytes_written);
 	}
 	else if (uart == HAL_UART3)
 	{

@@ -28,6 +28,9 @@ int main(void)
 		bytes_read_uart1 = 0;
 		bytes_read_uart2 = 0;
 
+		bytes_written_uart1 = 0;
+		bytes_written_uart2 = 0;
+
 		memset(rx_data_uart1, 0, sizeof(rx_data_uart1));
 		memset(rx_data_uart2, 0, sizeof(rx_data_uart2));
 

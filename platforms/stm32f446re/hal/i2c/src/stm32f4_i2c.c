@@ -3,8 +3,14 @@
  * @brief STM32F4 I2C HAL implementation
  */
 
-#include "i2c.h"
+#ifdef SIMULATION_BUILD
+#include "registers.h"
+#include "nvic.h"
+#else
 #include "stm32f4xx.h"
+#endif
+
+#include "i2c.h"
 
 /* Private variables */
 static HalI2cStats_t i2c_stats = {0};

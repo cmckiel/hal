@@ -131,14 +131,14 @@ HalStatus_t stm32f4_uart1_read(uint8_t *data, size_t len, size_t *bytes_read, ui
     return res;
 }
 
-HalStatus_t stm32f4_uart1_write(const uint8_t *data, size_t len)
+HalStatus_t stm32f4_uart1_write(const uint8_t *data, size_t len, size_t *bytes_written)
 {
 	HalStatus_t res = HAL_STATUS_ERROR;
-	size_t bytes_written = 0;
 	bool push_success = true;
 
-	if (uart1_initialized && data && len > 0)
+	if (uart1_initialized && bytes_written && data && len > 0)
 	{
+		*bytes_written = 0;
 		for (size_t i = 0; i < len; i++)
 		{
 			// ***************************************************
@@ -151,7 +151,7 @@ HalStatus_t stm32f4_uart1_write(const uint8_t *data, size_t len)
 
 			if (push_success)
 			{
-				bytes_written++;
+				*bytes_written += 1;
 			}
 			else
 			{
@@ -161,14 +161,14 @@ HalStatus_t stm32f4_uart1_write(const uint8_t *data, size_t len)
 
 		// If bytes were written successfully to buffer, then enable the transmit
 		// interrupt because those bytes need to be sent out.
-		if (bytes_written > 0)
+		if (*bytes_written > 0)
 		{
 			USART1->CR1 |= USART_CR1_TXEIE;  // Enable TXE interrupt
 		}
 
 		// If we successfully wrote all bytes to buffer, then the function was an
 		// overall success.
-		res = (bytes_written == len) ? HAL_STATUS_OK : HAL_STATUS_ERROR;
+		res = (*bytes_written == len) ? HAL_STATUS_OK : HAL_STATUS_ERROR;
 	}
 
 	return res;

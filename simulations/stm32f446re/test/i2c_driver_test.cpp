@@ -4,6 +4,7 @@ extern "C" {
 #include "i2c.h"
 #include "registers.h"
 #include "nvic.h"
+#include "stm32f4_hal.h"
 #include "circular_buffer.h"
 }
 
@@ -41,5 +42,22 @@ TEST_F(I2CDriverTest, InitEnablesGPIOBCorrectly)
 {
     ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
 
+    // Clock enabled to port b.
     ASSERT_TRUE(Sim_RCC.AHB1ENR & RCC_AHB1ENR_GPIOBEN);
+
+    // pb8 in alt function mode
+    ASSERT_FALSE(Sim_GPIOB.MODER & BIT_16); // Low
+    ASSERT_TRUE(Sim_GPIOB.MODER & BIT_17);  // High
+
+    // pb9 in alt function mode
+    ASSERT_FALSE(Sim_GPIOB.MODER & BIT_18); // Low
+    ASSERT_TRUE(Sim_GPIOB.MODER & BIT_19);  // High
+
+    // pb8 alt func type to i2c
+    uint32_t pb8_af = (Sim_GPIOB.AFR[1] >> (PIN_0 * AF_SHIFT_WIDTH)) & 0xF;
+    ASSERT_EQ(pb8_af, AF4_MASK);
+
+    // pb9 alt func type to i2c
+    uint32_t pb9_af = (Sim_GPIOB.AFR[1] >> (PIN_1 * AF_SHIFT_WIDTH)) & 0xF;
+    ASSERT_EQ(pb9_af, AF4_MASK);
 }

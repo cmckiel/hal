@@ -164,11 +164,18 @@ static void configure_gpio()
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
 
     // Set PB8 (i2c1 SCL pin) moe to alternate function.
+    GPIOB->MODER &= ~BIT_16;
+    GPIOB->MODER |= BIT_17;
 
     // Set PB9 (i2c1 SDA pin) moe to alternate function.
+    GPIOB->MODER &= ~BIT_18;
+    GPIOB->MODER |= BIT_19;
 
     // Set PB8 alternate function type to I2C (AF04)
+    GPIOB->AFR[1] &= ~(0xF << (PIN_0 * AF_SHIFT_WIDTH));
+    GPIOB->AFR[1] |= (AF4_MASK << (PIN_0 * AF_SHIFT_WIDTH));
 
     // Set PB9 alternate function type to I2C (AF04)
-
+    GPIOB->AFR[1] &= ~(0xF << (PIN_1 * AF_SHIFT_WIDTH));
+    GPIOB->AFR[1] |= (AF4_MASK << (PIN_1 * AF_SHIFT_WIDTH));
 }

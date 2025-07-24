@@ -11,9 +11,12 @@
 #endif
 
 #include "i2c.h"
+#include "stm32f4_hal.h"
 
 /* Private variables */
 static HalI2cStats_t i2c_stats = {0};
+
+static void configure_gpio();
 
 /**
  * @brief Initialize I2C peripheral
@@ -24,9 +27,16 @@ HalStatus_t hal_i2c_init(void *config)
 {
     // TODO: Implement I2C initialization
     // - Enable I2C clock
-    // - Configure GPIO pins for I2C (SCL/SDA)
     // - Configure I2C peripheral registers
     // - Set up interrupts if needed
+
+    // - Configure GPIO pins for I2C (SCL/SDA)
+    // These pins are broken out right next to each other on the dev board.
+    // And no interference from other peripherals.
+    // PB8 - I2C1 SCL
+    // PB9 - I2C1 SDA
+    // Need to bring up bus from port B, set these pins in AF4.
+    configure_gpio();
 
     return HAL_STATUS_OK;
 }
@@ -146,4 +156,19 @@ HalStatus_t hal_i2c_get_stats(HalI2cStats_t *stats)
 
     *stats = i2c_stats;
     return HAL_STATUS_OK;
+}
+
+static void configure_gpio()
+{
+    // Enable Bus.
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+
+    // Set PB8 (i2c1 SCL pin) moe to alternate function.
+
+    // Set PB9 (i2c1 SDA pin) moe to alternate function.
+
+    // Set PB8 alternate function type to I2C (AF04)
+
+    // Set PB9 alternate function type to I2C (AF04)
+
 }

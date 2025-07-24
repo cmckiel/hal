@@ -35,6 +35,9 @@ typedef struct {
 extern GPIO_TypeDef Sim_GPIOA;
 #define GPIOA (&Sim_GPIOA)
 
+extern GPIO_TypeDef Sim_GPIOB;
+#define GPIOB (&Sim_GPIOB)
+
 // USART peripheral simulation
 typedef struct {
     volatile uint32_t SR;
@@ -73,6 +76,7 @@ extern SysTick_Type Sim_SysTick;
 #define USART_CR1_RXNEIE (1U << 5)
 #define USART_CR1_TXEIE  (1U << 7)
 #define RCC_AHB1ENR_GPIOAEN (1U << 0)
+#define RCC_AHB1ENR_GPIOBEN (1U << 1)
 #define RCC_APB1ENR_USART2EN (1U << 17)
 #define RCC_APB2ENR_USART1EN (1U << 4)
 

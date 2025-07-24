@@ -6,4 +6,5 @@ GPIO_TypeDef Sim_GPIOA = {0};
 GPIO_TypeDef Sim_GPIOB = {0};
 USART_TypeDef Sim_USART1 = {0};
 USART_TypeDef Sim_USART2 = {0};
+I2C_TypeDef Sim_I2C1 = {0};
 SysTick_Type Sim_SysTick = {0};

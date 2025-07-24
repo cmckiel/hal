@@ -13,10 +13,13 @@
 #include "i2c.h"
 #include "stm32f4_hal.h"
 
+#define SYS_FREQ_MHZ 16
+
 /* Private variables */
 static HalI2cStats_t i2c_stats = {0};
 
 static void configure_gpio();
+static void configure_peripheral();
 
 /**
  * @brief Initialize I2C peripheral
@@ -37,6 +40,7 @@ HalStatus_t hal_i2c_init(void *config)
     // PB9 - I2C1 SDA
     // Need to bring up bus from port B, set these pins in AF4.
     configure_gpio();
+    configure_peripheral();
 
     return HAL_STATUS_OK;
 }
@@ -178,4 +182,44 @@ static void configure_gpio()
     // Set PB9 alternate function type to I2C (AF04)
     GPIOB->AFR[1] &= ~(0xF << (PIN_1 * AF_SHIFT_WIDTH));
     GPIOB->AFR[1] |= (AF4_MASK << (PIN_1 * AF_SHIFT_WIDTH));
+
+    // Open drain
+    GPIOB->OTYPER |= (GPIO_OTYPER_OT_8 | GPIO_OTYPER_OT_9);
+}
+
+static void configure_peripheral()
+{
+    // Send the clock to I2C1
+    RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
+
+    // Need to set the APB1 Clock frequency in the CR2 register.
+    // With no dividers, it is the same as the System Frequency of 16 MHz.
+    I2C1->CR2 &= ~(I2C_CR2_FREQ);
+    I2C1->CR2 |= (SYS_FREQ_MHZ & I2C_CR2_FREQ);
+
+    // Time to rise (TRISE) register. Set to 17 via the calcualtion
+    // Assumed 1000 ns SCL clock rise time (maximum permitted for I2C Standard Mode)
+    // Periphal's clock period (1 / SYSTEM_FREQ_MHZ)
+    // (1000ns / 62.5) = 17 OR SYSTEM_FREQ_MHZ + 1 = 17. Either calc works.
+    size_t trise_reg_val = SYS_FREQ_MHZ + 1;
+    I2C1->TRISE &= ~(I2C_TRISE_TRISE);
+    I2C1->TRISE |= (trise_reg_val & I2C_TRISE_TRISE);
+
+    // Set CCR.
+    // We want to setup CCR so that the peripheral can count up ticks of the
+    // peripheral bus clock, and use that count to create the SCL clock at 100kHz for
+    // Standard Mode.
+    // 100 kHz SCL means 1 / 100kHz period of 10 microseconds.
+    // So we need to transition the SCL clock every ~5 microseconds.
+    // On a 16 MHz bus clock with a tick every 62.5 nanoseconds, this means
+    // we need to transition the SCL line every 80 ticks to achieve 100kHz SCL line.
+    size_t ticks_between_scl_transitions = 80;
+    I2C1->CCR &= ~(I2C_CCR_CCR);
+    I2C1->CCR |= (ticks_between_scl_transitions & I2C_CCR_CCR);
+
+    // Standard mode
+    I2C1->CCR &= ~I2C_CCR_FS;
+
+    // Enable the peripheral.
+    I2C1->CR1 |= I2C_CR1_PE;
 }

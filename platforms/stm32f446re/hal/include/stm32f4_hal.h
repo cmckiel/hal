@@ -9,8 +9,9 @@
 #define CRITICAL_SECTION_EXIT()  __enable_irq()
 #endif
 
-#define AF7_MASK 0b0111
-#define AF_SHIFT_WIDTH 4
+#define AF7_MASK 7U
+#define AF4_MASK 4U
+#define AF_SHIFT_WIDTH 4U
 
 #define BIT_0 (1U << 0)
 #define BIT_1 (1U << 1)

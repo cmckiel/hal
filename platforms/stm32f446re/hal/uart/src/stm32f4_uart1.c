@@ -189,12 +189,12 @@ static void configure_gpio_pins()
 
 	// Set PA9 alternate function type to UART_TX (AF07)
 	// Pin number is misleading here, because AFR is divided into high and low regs.
-	GPIOA->AFR[1] &= ~(0xFF << (PIN_1 * AF_SHIFT_WIDTH));
+	GPIOA->AFR[1] &= ~(0xF << (PIN_1 * AF_SHIFT_WIDTH));
 	GPIOA->AFR[1] |=  (AF7_MASK << (PIN_1 * AF_SHIFT_WIDTH));
 
 	// Set PA10 alternate function type to UART_RX (AF07)
 	// Pin number is misleading here, because AFR is divided into high and low regs.
-	GPIOA->AFR[1] &= ~(0xFF << (PIN_2 * AF_SHIFT_WIDTH)); // clear bits 15-12
+	GPIOA->AFR[1] &= ~(0xF << (PIN_2 * AF_SHIFT_WIDTH)); // clear bits 15-12
 	GPIOA->AFR[1] |= (AF7_MASK << (PIN_2 * AF_SHIFT_WIDTH)); // set bits 15-12 as 0111 aka AF07 for PA3.
 }
 

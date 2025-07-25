@@ -84,7 +84,38 @@ HalStatus_t hal_i2c_write(uint8_t slave_addr, const uint8_t *data, size_t len,
         *bytes_written = 0;
     }
 
-    return HAL_STATUS_ERROR;
+    // Send START condition
+    I2C1->CR1 |= I2C_CR1_START;
+
+    // Wait for START condition to be generated (SB flag)
+    while (!(I2C1->SR1 & I2C_SR1_SB)) {
+        // Could add timeout here
+    }
+
+    // Send slave address + write bit (0)
+    I2C1->DR = (slave_addr << 1) | 0;
+
+    // Wait for address to be sent (ADDR flag) or acknowledge failure (AF flag)
+    while (!(I2C1->SR1 & (I2C_SR1_ADDR | I2C_SR1_AF))) {
+        // Could add timeout here
+    }
+
+    if (I2C1->SR1 & I2C_SR1_AF) {
+        // Acknowledge failure - slave didn't respond
+        I2C1->SR1 &= ~I2C_SR1_AF; // Clear AF flag
+        I2C1->CR1 |= I2C_CR1_STOP; // Send STOP
+        i2c_stats.tx_errors++;
+        return HAL_STATUS_ERROR;
+    }
+
+    // Clear ADDR flag by reading SR1 then SR2
+    (void)I2C1->SR1;
+    (void)I2C1->SR2;
+
+    // Send STOP condition (for now, just testing address transmission)
+    I2C1->CR1 |= I2C_CR1_STOP;
+
+    return HAL_STATUS_OK;
 }
 
 /**
@@ -167,11 +198,11 @@ static void configure_gpio()
     // Enable Bus.
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
 
-    // Set PB8 (i2c1 SCL pin) moe to alternate function.
+    // Set PB8 (i2c1 SCL pin) mode to alternate function.
     GPIOB->MODER &= ~BIT_16;
     GPIOB->MODER |= BIT_17;
 
-    // Set PB9 (i2c1 SDA pin) moe to alternate function.
+    // Set PB9 (i2c1 SDA pin) mode to alternate function.
     GPIOB->MODER &= ~BIT_18;
     GPIOB->MODER |= BIT_19;
 

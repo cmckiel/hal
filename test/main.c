@@ -1,6 +1,7 @@
 #include <string.h>
 #include "systick.h"
 #include "uart.h"
+#include "i2c.h"
 
 #define MAX_RX_BYTES 1024
 
@@ -14,6 +15,7 @@ int main(void)
 
 	size_t bytes_written_uart1 = 0;
 	size_t bytes_written_uart2 = 0;
+	size_t bytes_written_i2c = 0;
 
 	uint8_t rx_data_uart1[MAX_RX_BYTES] = { 0 };
 	uint8_t rx_data_uart2[MAX_RX_BYTES] = { 0 };
@@ -21,15 +23,19 @@ int main(void)
 	// Initialize drivers.
 	hal_uart_init(HAL_UART1, NULL);
 	hal_uart_init(HAL_UART2, NULL);
+	hal_i2c_init(NULL);
 
 	while (1)
 	{
+		hal_delay_ms(20);
+
 		// Reset all data structures.
 		bytes_read_uart1 = 0;
 		bytes_read_uart2 = 0;
 
 		bytes_written_uart1 = 0;
 		bytes_written_uart2 = 0;
+		bytes_written_i2c = 0;
 
 		memset(rx_data_uart1, 0, sizeof(rx_data_uart1));
 		memset(rx_data_uart2, 0, sizeof(rx_data_uart2));
@@ -41,6 +47,9 @@ int main(void)
 		// Echo the data back to sender.
 		hal_uart_write(HAL_UART1, &rx_data_uart1[0], bytes_read_uart1, &bytes_written_uart1);
 		hal_uart_write(HAL_UART2, &rx_data_uart2[0], bytes_read_uart2, &bytes_written_uart2);
+
+
+		hal_i2c_write(0x42, NULL, 0, &bytes_written_i2c, 0);
 	}
 
 	return 0;

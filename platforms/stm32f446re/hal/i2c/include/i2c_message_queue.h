@@ -34,6 +34,9 @@ typedef enum {
     I2C_MESSAGE_EVENT_START_CONDITION_CONFIRMED,
     I2C_MESSAGE_EVENT_ADDRESS_ACKNOWLEDGED,
     I2C_MESSAGE_EVENT_ADDRESS_ACK_FAILURE,
+    I2C_MESSAGE_EVENT_TXE,
+    I2C_MESSAGE_EVENT_ACK_FAILURE,
+    I2C_MESSAGE_EVENT_BYTE_SENT,
     I2C_MESSAGE_EVENT_TRANSFER_COMPLETE,
     I2C_MESSAGE_EVENT_FAULT,
     _I2C_MESSAGE_EVENT_ENUM_MAX,
@@ -52,9 +55,13 @@ typedef struct {
     bool message_transfer_cancelled;
 } i2c_message_t;
 
+void message_queue_init();
 i2c_queue_status_t add_message_to_queue(i2c_message_t *message);
 i2c_queue_status_t get_current_message_from_queue(i2c_message_t *message);
 bool update_current_message_state(i2c_message_processing_event_t event);
+void enqueue_event(i2c_message_processing_event_t event);
+i2c_message_processing_event_t dequeue_event();
+bool event_queue_is_empty();
 void update_current_message();
 void next_message_in_queue();
 void get_failed_messages();

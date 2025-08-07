@@ -12,6 +12,7 @@ typedef struct {
 
 HalStatus_t hal_i2c_init(void *config);
 HalStatus_t hal_i2c_deinit(void);
+HalStatus_t hal_i2c_event_servicer();
 HalStatus_t hal_i2c_write(uint8_t slave_addr, const uint8_t *data, size_t len, size_t *bytes_written, uint32_t timeout_ms);
 HalStatus_t hal_i2c_read(uint8_t slave_addr, uint8_t *data, size_t len, size_t *bytes_read, uint32_t timeout_ms);
 HalStatus_t hal_i2c_write_read(uint8_t slave_addr, const uint8_t *write_data, size_t write_len, uint8_t *read_data, size_t read_len, size_t *bytes_read, uint32_t timeout_ms);

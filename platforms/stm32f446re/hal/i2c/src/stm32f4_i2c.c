@@ -20,93 +20,39 @@
 
 #define MAX_MESSAGE_DATA_LEN sizeof(((i2c_message_t*)0)->data)
 
+static void initiate_message_transfer();
+static void conclude_message_transfer();
+static void continue_message_transfer(i2c_message_t *message);
+static void send_slave_address(i2c_message_t *message);
+static void send_next_byte_or_resolve_message(i2c_message_t *message);
+static void handle_ack_failure(i2c_message_t *message);
+
 void I2C1_EV_IRQHandler()
 {
-    i2c_message_t message;
-    i2c_queue_status_t queue_status;
-
-    queue_status = get_current_message_from_queue(&message);
-
-    if (queue_status == I2C_QUEUE_STATUS_SUCCESS)
+    if (I2C1->SR1 & I2C_SR1_SB)
     {
-        if (message.proccessing_state == I2C_MESSAGE_STATE_QUEUED)
-        {
-            // Send START condition
-            I2C1->CR1 |= I2C_CR1_START;
-            update_current_message_state(I2C_MESSAGE_EVENT_START_CONDITION_REQUESTED);
-        }
-        else if (message.proccessing_state == I2C_MESSAGE_STATE_START_CONDITION_REQUESTED &&
-                I2C1->SR1 & I2C_SR1_SB)
-        {
-            // Send slave address + write bit (0)
-            I2C1->DR = (message.slave_addr << 1) | 0;
-            update_current_message_state(I2C_MESSAGE_EVENT_START_CONDITION_CONFIRMED);
-        }
-        else if (message.proccessing_state == I2C_MESSAGE_STATE_TRANSMISSION_STARTED)
-        {
-            if (I2C1->SR1 & I2C_SR1_ADDR)
-            {
-                // Address acknowledged by slave.
-                // Clearl ADDR bit
-                I2C1->SR1;
-                I2C1->SR2;
-
-                // Update processing state to reflect the acknowledgement.
-                update_current_message_state(I2C_MESSAGE_EVENT_ADDRESS_ACKNOWLEDGED);
-            }
-            else if (I2C1->SR1 & I2C_SR1_AF)
-            {
-                // Acknowledge failure - slave didn't respond
-                I2C1->SR1 &= ~I2C_SR1_AF; // Clear AF flag
-                I2C1->CR1 |= I2C_CR1_STOP; // Send STOP
-                message.ack_failure_count++;
-
-                // Retry logic
-                update_current_message_state(I2C_MESSAGE_EVENT_ADDRESS_ACK_FAILURE);
-            }
-        }
-        else if (message.proccessing_state == I2C_MESSAGE_STATE_TRANSFERRING_DATA)
-        {
-            if (I2C1->SR1 & I2C_SR1_TXE)
-            {
-                // If TXE bit is set, then the slave ack'd the data, and the hardware is ready for
-                // a new byte.
-                if (message.bytes_sent < message.data_len && message.bytes_sent < sizeof(message.data))
-                {
-                    I2C1->DR = message.data[message.bytes_sent] & 0xFF;
-                    message.bytes_sent++;
-                }
-                else if (message.bytes_sent == message.data_len)
-                {
-                    update_current_message_state(I2C_MESSAGE_EVENT_TRANSFER_COMPLETE);
-                }
-                else
-                {
-                    // Bytes sent is greater than the available data, some error occurred.
-                    update_current_message_state(I2C_MESSAGE_EVENT_FAULT);
-                }
-            }
-            else if (I2C1->SR1 & I2C_SR1_AF)
-            {
-                // Acknowledge failure - slave didn't respond
-                I2C1->SR1 &= ~I2C_SR1_AF; // Clear AF flag
-                I2C1->CR1 |= I2C_CR1_STOP; // Send STOP
-                message.ack_failure_count++;
-
-                // No retry on data ack failure.
-                update_current_message_state(I2C_MESSAGE_EVENT_FAULT);
-            }
-        }
-        else if (message.proccessing_state == I2C_MESSAGE_STATE_TRANSFER_COMPLETE)
-        {
-            I2C1->CR1 |= I2C_CR1_STOP; // Send STOP
-            next_message_in_queue();
-        }
-        else
-        {
-            // Unknown processing state
-            // Send stop condition? Safety reset hardware? Through away message?
-        }
+        // The start condition has been sent on bus.
+        I2C1->SR1; // Clear SB.
+        enqueue_event(I2C_MESSAGE_EVENT_START_CONDITION_CONFIRMED);
+    }
+    else if (I2C1->SR1 & I2C_SR1_ADDR)
+    {
+        // The slave address has been sent and acknowledge by slave on bus.
+        // Clear ADDR.
+        I2C1->SR1;
+        I2C1->SR2;
+        enqueue_event(I2C_MESSAGE_EVENT_ADDRESS_ACKNOWLEDGED);
+    }
+    else if (I2C1->SR1 & I2C_SR1_TXE)
+    {
+        // The Transmit Data Register is ready to receive a new byte.
+        enqueue_event(I2C_MESSAGE_EVENT_TXE);
+    }
+    else if (I2C1->SR1 & I2C_SR1_AF)
+    {
+        // The slaved failed to acknowledge either address or data.
+        I2C1->SR1 &= ~I2C_SR1_AF; // Reset flag.
+        enqueue_event(I2C_MESSAGE_EVENT_ACK_FAILURE);
     }
 }
 
@@ -179,6 +125,7 @@ HalStatus_t hal_i2c_write(uint8_t slave_addr, const uint8_t *data, size_t len,
     // - Send data bytes
     // - Send STOP condition
     // - Handle timeouts and errors
+    HalStatus_t status = HAL_STATUS_ERROR;
 
     // Create an I2C message.
     size_t data_len = len > MAX_MESSAGE_DATA_LEN ? MAX_MESSAGE_DATA_LEN : len;
@@ -199,11 +146,12 @@ HalStatus_t hal_i2c_write(uint8_t slave_addr, const uint8_t *data, size_t len,
     queue_status = add_message_to_queue(&message);
     // CRITICAL SECTION EXIT
 
-    if (bytes_written) {
+    if (queue_status == I2C_QUEUE_STATUS_SUCCESS && bytes_written) {
         *bytes_written = data_len;
+        status = HAL_STATUS_OK;
     }
 
-    return HAL_STATUS_OK;
+    return status;
 }
 
 /**
@@ -264,6 +212,37 @@ HalStatus_t hal_i2c_write_read(uint8_t slave_addr, const uint8_t *write_data, si
     }
 
     return HAL_STATUS_ERROR;
+}
+
+HalStatus_t hal_i2c_event_servicer()
+{
+    HalStatus_t status = HAL_STATUS_ERROR;
+
+    i2c_message_t message;
+    i2c_queue_status_t queue_status;
+    queue_status = get_current_message_from_queue(&message);
+
+    // We should make sure that we successfully retrieved a message first.
+    if (queue_status == I2C_QUEUE_STATUS_SUCCESS)
+    {
+        // Now, I want to know if I have already started processing this one or not.
+        if (message.proccessing_state == I2C_MESSAGE_STATE_QUEUED)
+        {
+            initiate_message_transfer();
+        }
+        else if (message.proccessing_state == I2C_MESSAGE_STATE_TRANSFER_COMPLETE)
+        {
+            conclude_message_transfer();
+        }
+        else
+        {
+            continue_message_transfer(&message);
+        }
+
+        status = HAL_STATUS_OK;
+    }
+
+    return status;
 }
 
 /**
@@ -341,4 +320,91 @@ static void configure_peripheral()
 
     // Enable the peripheral.
     I2C1->CR1 |= I2C_CR1_PE;
+}
+
+static void initiate_message_transfer()
+{
+    // Send START condition
+    I2C1->CR1 |= I2C_CR1_START;
+    update_current_message_state(I2C_MESSAGE_EVENT_START_CONDITION_REQUESTED);
+}
+
+static void conclude_message_transfer()
+{
+    I2C1->CR1 |= I2C_CR1_STOP; // Send STOP
+    next_message_in_queue();
+}
+
+static void continue_message_transfer(i2c_message_t *message)
+{
+    if (message)
+    {
+        i2c_message_processing_event_t event = dequeue_event();
+
+        switch (event)
+        {
+            case I2C_MESSAGE_EVENT_START_CONDITION_CONFIRMED:
+                send_slave_address(message);
+                break;
+            case I2C_MESSAGE_EVENT_ADDRESS_ACKNOWLEDGED:
+                update_current_message_state(I2C_MESSAGE_EVENT_ADDRESS_ACKNOWLEDGED);
+                break;
+            case I2C_MESSAGE_EVENT_TXE:
+                send_next_byte_or_resolve_message(message);
+                break;
+            case I2C_MESSAGE_EVENT_ACK_FAILURE:
+                handle_ack_failure(message);
+                break;
+            default:
+                // Something weird happened.
+                update_current_message_state(I2C_MESSAGE_EVENT_FAULT);
+        }
+    }
+}
+
+static void send_slave_address(i2c_message_t *message)
+{
+    if (message)
+    {
+        // Send slave address + write bit (0)
+        I2C1->DR = (message->slave_addr << 1) | 0;
+        update_current_message_state(I2C_MESSAGE_EVENT_START_CONDITION_CONFIRMED);
+    }
+}
+
+static void send_next_byte_or_resolve_message(i2c_message_t *message)
+{
+    if (message)
+    {
+        // If TXE bit is set, then the slave ack'd the data, and the hardware is ready for
+        // a new byte.
+        if (message->bytes_sent < message->data_len && message->bytes_sent < sizeof(message->data))
+        {
+            I2C1->DR = message->data[message->bytes_sent] & 0xFF;
+            message->bytes_sent++;
+        }
+        else if (message->bytes_sent == message->data_len)
+        {
+            update_current_message_state(I2C_MESSAGE_EVENT_TRANSFER_COMPLETE);
+        }
+        else
+        {
+            // Bytes sent is greater than the available data, some error occurred.
+            update_current_message_state(I2C_MESSAGE_EVENT_FAULT);
+        }
+    }
+}
+
+static void handle_ack_failure(i2c_message_t *message)
+{
+    // Send STOP
+    I2C1->CR1 |= I2C_CR1_STOP;
+
+    if (message)
+    {
+        message->ack_failure_count++;
+    }
+
+    // Retry logic
+    update_current_message_state(I2C_MESSAGE_EVENT_ACK_FAILURE);
 }

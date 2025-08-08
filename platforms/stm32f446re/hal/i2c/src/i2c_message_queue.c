@@ -12,7 +12,11 @@ typedef struct {
     size_t message_count;
 } i2c_message_queue_t;
 
-static i2c_message_queue_t queue = { .messages = {0}, .head = 0, .tail = 0, .message_count = 0 };
+static i2c_message_queue_t queue = {
+    .head = 0,
+    .tail = 0,
+    .message_count = 0
+};
 
 void message_queue_init()
 {

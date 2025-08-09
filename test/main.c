@@ -20,6 +20,8 @@ int main(void)
 	uint8_t rx_data_uart1[MAX_RX_BYTES] = { 0 };
 	uint8_t rx_data_uart2[MAX_RX_BYTES] = { 0 };
 
+	uint8_t tx_data_i2c[10] = {0};
+
 	// Initialize drivers.
 	hal_uart_init(HAL_UART1, NULL);
 	hal_uart_init(HAL_UART2, NULL);
@@ -49,7 +51,10 @@ int main(void)
 		hal_uart_write(HAL_UART2, &rx_data_uart2[0], bytes_read_uart2, &bytes_written_uart2);
 
 
-		hal_i2c_write(0x42, NULL, 0, &bytes_written_i2c, 0);
+		hal_i2c_write(0x68, tx_data_i2c, 0, &bytes_written_i2c, 0);
+		// hal_i2c_write(0x6C, tx_data_i2c, 0, &bytes_written_i2c, 0);
+
+		hal_i2c_event_servicer();
 	}
 
 	return 0;

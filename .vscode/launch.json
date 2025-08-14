@@ -23,5 +23,18 @@
             // Add LD_LIBRARY_PATH etc. here if your test exe needs it
             ]
         },
+        {
+            "name": "Target Debug: hal.elf",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "stlink", // or "jlink", "openocd", "pyocd", etc.
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/embedded-debug/hal.elf",
+            "device": "STM32F446RE", // exact device name
+            // "svdFile": "${workspaceFolder}/svd/STM32F446xx.svd", // optional but helpful
+            "configFiles": [], // if using OpenOCD, e.g. ["interface/stlink.cfg", "target/stm32f4x.cfg"]
+            "postRestartCommands": ["monitor reset halt"],
+            "showDevDebugOutput": "parsed"
+        }
     ],
 }

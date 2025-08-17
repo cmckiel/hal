@@ -18,21 +18,39 @@
 #include <string.h>
 
 #define SYS_FREQ_MHZ 16
-
-#define MAX_MESSAGE_DATA_LEN sizeof(((i2c_message_t*)0)->data)
+#define I2C_DIRECTION_WRITE 0
+#define I2C_DIRECTION_READ  1
 
 static void configure_gpio();
 static void configure_peripheral();
 static void configure_interrupts();
 
 /* Private variables */
-static HalI2cStats_t i2c_stats = {0};
-static volatile uint8_t  _addr      = 0;
-static volatile uint8_t  _data[MAX_MESSAGE_DATA_LEN];
-static volatile size_t   _data_len  = 0;
-static volatile size_t   _tx_pos    = 0;
-static volatile uint8_t  _tx_last_written = 0; // 1 after writing final byte
-static volatile bool     _tx_in_progress = false;
+static HalI2C_Stats_t i2c_stats = {0};
+static uint8_t        rx_data = 0;
+static HalI2C_Txn_t   *current_i2c_transaction = NULL;
+
+/* ISR variables */
+static volatile HalI2C_Txn_t _current_i2c_transaction;
+static volatile size_t       _tx_position = 0;
+static volatile size_t       _rx_position = 0;
+static volatile bool         _tx_last_byte_written = false;
+static volatile bool         _tx_in_progress = false;
+static volatile bool         _rx_in_progress = false;
+static volatile bool         _error_occured = false;
+
+#define _SET_ERROR_FLAG_AND_ABORT_TRANSACTION() \
+_error_occured = true; \
+I2C1->CR2 &= ~I2C_CR2_ITBUFEN; \
+I2C1->CR1 |= I2C_CR1_STOP; \
+_tx_in_progress = false; \
+_rx_in_progress = false;
+
+#define _END_TRANSACTION() \
+I2C1->CR2 &= ~I2C_CR2_ITBUFEN; \
+I2C1->CR1 |= I2C_CR1_STOP; \
+_tx_in_progress = false; \
+_rx_in_progress = false;
 
 void I2C1_EV_IRQHandler(void)
 {
@@ -41,8 +59,23 @@ void I2C1_EV_IRQHandler(void)
     // START bit: cleared by reading SR1 then writing DR with address
     if (sr1 & I2C_SR1_SB)
     {
-        (void)I2C1->SR1;                // read to clear SB
-        I2C1->DR = (_addr << 1) | 0;     // write direction = write
+        (void)I2C1->SR1; // read to clear SB
+
+        if (_tx_in_progress && !_rx_in_progress)
+        {
+            I2C1->DR = (_current_i2c_transaction.target_addr << 1) | I2C_DIRECTION_WRITE;
+        }
+        else if (_rx_in_progress && !_tx_in_progress)
+        {
+            I2C1->DR = (_current_i2c_transaction.target_addr << 1) | I2C_DIRECTION_READ;
+        }
+        else
+        {
+            // Error with mutual exclusion of _tx_in_progress and _rx_in_progress.
+            // Set error flag and bail.
+            _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
+            return;
+        }
     }
 
     // Address sent/ack: clear by SR1 then SR2 read
@@ -53,52 +86,104 @@ void I2C1_EV_IRQHandler(void)
         I2C1->CR2 |= I2C_CR2_ITBUFEN;   // allow TXE/RXNE interrupts
     }
 
-    // If we already wrote the last byte, wait for BTF then STOP
-    if ((sr1 & I2C_SR1_BTF) && _tx_last_written)
+    // If we already wrote the last byte, wait for BTF (Byte Transfer Finished) then STOP
+    if ((sr1 & I2C_SR1_BTF) && _tx_last_byte_written)
     {
-        I2C1->CR1 |= I2C_CR1_STOP;
-        I2C1->CR2 &= ~I2C_CR2_ITBUFEN;  // no more buffer IRQs
-        _tx_last_written = 0;
+        // Transmit phase is concluded.
         _tx_in_progress = false;
+
+        // Reset flag.
+        _tx_last_byte_written = false;
+
+        // Determine the next phase.
+        if (_current_i2c_transaction.i2c_op == HAL_I2C_OP_WRITE)
+        {
+            // There is no READ phase. End the transaction.
+            _END_TRANSACTION();
+        }
+        else if (_current_i2c_transaction.i2c_op == HAL_I2C_OP_WRITE_READ &&
+                 _current_i2c_transaction.expected_bytes_to_rx > 0)
+        {
+            // Start the next transition.
+            _rx_in_progress = true;
+            I2C1->CR1 |= I2C_CR1_START;
+        }
+        else
+        {
+            // Failure: Either the i2c_op is not WRITE or WRITE_READ, in which case we shouldn't
+            // be able to get here, or we tried to WRITE_READ without specifiying an amount of
+            // data to read.
+            _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
+        }
+
         return;
     }
 
     // TXE: feed next byte if any
-    if (sr1 & I2C_SR1_TXE)
+    if (sr1 & I2C_SR1_TXE && _tx_in_progress && !_rx_in_progress)
     {
-        if (_tx_pos < _data_len)
+        if (_tx_position < _current_i2c_transaction.num_of_bytes_to_tx)
         {
-            I2C1->DR = _data[_tx_pos++];
-            if (_tx_pos == _data_len)
+            I2C1->DR = _current_i2c_transaction.tx_data[_tx_position++];
+            if (_tx_position == _current_i2c_transaction.num_of_bytes_to_tx)
             {
                 // we just queued the final byte; arm BTF to finish
-                _tx_last_written = 1;
+                _tx_last_byte_written = true;
             }
         }
         else
         {
             // Nothing to send (e.g., zero-length write)
-            I2C1->CR2 &= ~I2C_CR2_ITBUFEN;
-            I2C1->CR1 |= I2C_CR1_STOP;
-            _tx_in_progress = false;
+            _END_TRANSACTION();
         }
     }
+    else if (sr1 & I2C_SR1_TXE)
+    {
+        // Error with mutual exclusion of _tx_in_progress and _rx_in_progress.
+        // Set error flag and bail.
+        _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
+        return;
+    }
 
-    // todo: handle STOPF in slave mode, RXNE for reads, etc.
+    if (sr1 & I2C_SR1_RXNE && _rx_in_progress && !_tx_in_progress)
+    {
+        if (_rx_position < _current_i2c_transaction.expected_bytes_to_rx)
+        {
+            _current_i2c_transaction.rx_data[_rx_position] = I2C1->DR;
+            _rx_position++;
+            if (_rx_position == _current_i2c_transaction.expected_bytes_to_rx)
+            {
+                // Received our last byte. End the transaction.
+                _END_TRANSACTION();
+                return;
+            }
+        }
+        else
+        {
+            // It appears we are trying to read without specifying how much.
+            _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
+            return;
+        }
+    }
+    else if (sr1 & I2C_SR1_RXNE)
+    {
+        // Error with mutual exclusion of _tx_in_progress and _rx_in_progress.
+        // Set error flag and bail.
+        _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
+        return;
+    }
 }
 
 void I2C1_ER_IRQHandler()
 {
     uint32_t sr1 = I2C1->SR1;  // volatile read ok
 
-    // @todo
     if (sr1 & I2C_SR1_AF)
     {
-        // The slaved failed to acknowledge either address or data.
-        I2C1->SR1 &= ~I2C_SR1_AF; // Reset flag.
-        // Send STOP condition
-        I2C1->CR1 |= I2C_CR1_STOP;
-        _tx_in_progress = false;
+        // The target failed to acknowledge either address or data.
+        // Reset flag.
+        I2C1->SR1 &= ~I2C_SR1_AF;
+        _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
     }
 }
 
@@ -131,106 +216,14 @@ HalStatus_t hal_i2c_deinit(void)
     return HAL_STATUS_OK;
 }
 
-/**
- * @brief Write data to I2C slave device
- * @param slave_addr 7-bit slave address
- * @param data Pointer to data to write
- * @param len Number of bytes to write
- * @param bytes_written Pointer to store actual bytes written
- * @param timeout_ms Timeout in milliseconds
- * @return HAL_STATUS_OK on success, error code otherwise
- */
-HalStatus_t hal_i2c_write(uint8_t slave_addr, const uint8_t *data, size_t len,
-                          size_t *bytes_written, uint32_t timeout_ms)
+HalStatus_t hal_i2c_submit_transaction(HalI2C_Txn_t *txn)
 {
-    HalStatus_t status = HAL_STATUS_ERROR;
-    i2c_queue_status_t queue_status;
-
-    // Create an I2C message.
-    size_t data_len = len > MAX_MESSAGE_DATA_LEN ? MAX_MESSAGE_DATA_LEN : len;
-    i2c_message_t message = {
-        .slave_addr = slave_addr,
-        .data = {0},
-        .data_len = data_len,
-        .ack_failure_count = 0,
-        .bytes_sent = 0,
-        .is_new_message = true,
-        .message_transfer_cancelled = false,
-    };
-    memcpy(message.data, data, data_len);
-
-    queue_status = add_message_to_queue(&message);
-
-    if (queue_status == I2C_QUEUE_STATUS_SUCCESS && bytes_written)
-    {
-        *bytes_written = data_len;
-        status = HAL_STATUS_OK;
-    }
-
-    return status;
+    // @todo: Some transaction validation here.
+    return (i2c_add_transaction_to_queue(txn) == I2C_QUEUE_STATUS_SUCCESS) ? HAL_STATUS_OK : HAL_STATUS_ERROR;
 }
 
-/**
- * @brief Read data from I2C slave device
- * @param slave_addr 7-bit slave address
- * @param data Pointer to buffer for received data
- * @param len Number of bytes to read
- * @param bytes_read Pointer to store actual bytes read
- * @param timeout_ms Timeout in milliseconds
- * @return HAL_STATUS_OK on success, error code otherwise
- */
-HalStatus_t hal_i2c_read(uint8_t slave_addr, uint8_t *data, size_t len,
-                         size_t *bytes_read, uint32_t timeout_ms)
-{
-    // TODO: Implement I2C read operation
-    // - Send START condition
-    // - Send slave address + read bit
-    // - Wait for ACK
-    // - Read data bytes (send ACK for all but last byte)
-    // - Send NACK for last byte
-    // - Send STOP condition
-    // - Handle timeouts and errors
 
-    if (bytes_read) {
-        *bytes_read = 0;
-    }
-
-    return HAL_STATUS_ERROR;
-}
-
-/**
- * @brief Write then read from I2C slave device (common for register access)
- * @param slave_addr 7-bit slave address
- * @param write_data Pointer to data to write (typically register address)
- * @param write_len Number of bytes to write
- * @param read_data Pointer to buffer for received data
- * @param read_len Number of bytes to read
- * @param bytes_read Pointer to store actual bytes read
- * @param timeout_ms Timeout in milliseconds
- * @return HAL_STATUS_OK on success, error code otherwise
- */
-HalStatus_t hal_i2c_write_read(uint8_t slave_addr, const uint8_t *write_data, size_t write_len,
-                               uint8_t *read_data, size_t read_len, size_t *bytes_read,
-                               uint32_t timeout_ms)
-{
-    // TODO: Implement I2C write-read operation
-    // - Send START condition
-    // - Send slave address + write bit
-    // - Send write data (register address)
-    // - Send repeated START condition
-    // - Send slave address + read bit
-    // - Read data bytes
-    // - Send STOP condition
-    // - Handle timeouts and errors
-
-    if (bytes_read) {
-        *bytes_read = 0;
-    }
-
-    return HAL_STATUS_ERROR;
-}
-
-HalStatus_t hal_i2c_event_servicer()
+HalStatus_t hal_i2c_transaction_servicer()
 {
     HalStatus_t status = HAL_STATUS_ERROR;
 
@@ -239,27 +232,56 @@ HalStatus_t hal_i2c_event_servicer()
     NVIC_DisableIRQ(I2C1_ER_IRQn);
 
     // Check if I need to load in a new message for the hardware.
-    if (!_tx_in_progress)
+    if (!_tx_in_progress && !_rx_in_progress)
     {
-        // Feed the next message.
-        i2c_message_t msg;
-        if (I2C_QUEUE_STATUS_SUCCESS == get_next_message(&msg))
+        // Finish transaction that just completed.
+        if (current_i2c_transaction)
         {
-            // Message data
-            _addr = msg.slave_addr;
-            _data_len = msg.data_len;
-            memcpy((void*)_data, msg.data, _data_len);
+            // Transfer the results back to the client's transaction object.
+            current_i2c_transaction->actual_bytes_trasmitted = _tx_position;
+            current_i2c_transaction->actual_bytes_received = _rx_position;
+            memcpy(current_i2c_transaction->rx_data, _current_i2c_transaction.rx_data, current_i2c_transaction->actual_bytes_received);
+            current_i2c_transaction->transaction_result = HAL_I2C_TXN_RESULT_SUCCESS;
 
-            // Control data
-            _tx_pos = 0;
-            _tx_last_written = 0;
-            _tx_in_progress = true;
+            // Complete the transaction.
+            current_i2c_transaction->processing_state = HAL_I2C_TXN_STATE_COMPLETED;
+
+            // Reset our pointer away from the completed transaction.
+            current_i2c_transaction = NULL;
+        }
+
+        // Load in a new one if there is one.
+        if (I2C_QUEUE_STATUS_SUCCESS == i2c_get_next_transaction_from_queue(current_i2c_transaction) &&
+            current_i2c_transaction)
+        {
+            // Set state to processing.
+            current_i2c_transaction->processing_state = HAL_I2C_TXN_STATE_PROCESSING;
+
+            // Copy the transaction to memory that belongs to the ISR.
+            _current_i2c_transaction = *current_i2c_transaction;
+
+            // Set up the control variables.
+            _tx_position = 0;
+            _rx_position = 0;
+            _tx_last_byte_written = false;
+
+            if (current_i2c_transaction->i2c_op == HAL_I2C_OP_WRITE ||
+                current_i2c_transaction->i2c_op == HAL_I2C_OP_WRITE_READ)
+            {
+                _tx_in_progress = true;
+                _rx_in_progress = false;
+            }
+            else if (current_i2c_transaction->i2c_op = HAL_I2C_OP_READ)
+            {
+                _tx_in_progress = false;
+                _rx_in_progress = true;
+            }
 
             // Send start
             I2C1->CR1 |= I2C_CR1_START;
-
-            status = HAL_STATUS_OK;
         }
+
+        status = HAL_STATUS_OK;
     }
 
     NVIC_EnableIRQ(I2C1_EV_IRQn);
@@ -274,7 +296,7 @@ HalStatus_t hal_i2c_event_servicer()
  * @param stats Pointer to statistics structure to fill
  * @return HAL_STATUS_OK on success, error code otherwise
  */
-HalStatus_t hal_i2c_get_stats(HalI2cStats_t *stats)
+HalStatus_t hal_i2c_get_stats(HalI2C_Stats_t *stats)
 {
     if (!stats) {
         return HAL_STATUS_ERROR;

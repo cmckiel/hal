@@ -1,15 +1,22 @@
+#include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 #include "systick.h"
 #include "uart.h"
 #include "i2c.h"
 
 #define MAX_RX_BYTES 1024
 
+#define MPU_6050_ADDR 0x68
+#define MPU_PWR_MGMT_1_REG 0x6B
+
 /**
  * @brief Supports External Loopback Testing by echoing everyting received back to sender.
  */
 int main(void)
 {
+	uint8_t loop_count = 0;
+
 	size_t bytes_read_uart1 = 0;
 	size_t bytes_read_uart2 = 0;
 
@@ -21,6 +28,7 @@ int main(void)
 	uint8_t rx_data_uart2[MAX_RX_BYTES] = { 0 };
 
 	uint8_t tx_data_i2c[10] = {0};
+	uint8_t rx_data_i2c[10] = {0};
 
 	// Initialize drivers.
 	hal_uart_init(HAL_UART1, NULL);
@@ -29,7 +37,7 @@ int main(void)
 
 	while (1)
 	{
-		hal_delay_ms(20);
+		hal_delay_ms(200);
 
 		// Reset all data structures.
 		bytes_read_uart1 = 0;
@@ -51,11 +59,29 @@ int main(void)
 		hal_uart_write(HAL_UART2, &rx_data_uart2[0], bytes_read_uart2, &bytes_written_uart2);
 
 
-		hal_i2c_write(0x68, tx_data_i2c, 0, &bytes_written_i2c, 0);
-		// hal_i2c_write(0x6C, tx_data_i2c, 0, &bytes_written_i2c, 0);
 
-		hal_i2c_event_servicer();
+
+		tx_data_i2c[0] = MPU_PWR_MGMT_1_REG;
+		hal_i2c_write(0x68, tx_data_i2c, 1, &bytes_written_i2c, 0);
+		// hal_i2c_write(0x6C, tx_data_i2c, 0, &bytes_written_i2c, 0);
+		// hal_i2c_write_read(MPU_6050_ADDR, tx_data_i2c, 1, NULL, 1, NULL, 0);
+
+
+
+
+
+
+		if (HAL_STATUS_OK == hal_i2c_transaction_servicer())
+		{
+			// This means a message was completed.
+			// Gather the data.
+			hal_i2c_read(MPU_6050_ADDR, rx_data_i2c, 1, NULL, 0);
+			printf("[%d]pwr_mgmt reg: 0x%x\n\r", loop_count++, rx_data_i2c[0]);
+			fflush(stdout);
+		}
 	}
 
 	return 0;
 }
+
+

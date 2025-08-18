@@ -14,4 +14,4 @@ typedef enum {
 } i2c_queue_status_t;
 
 i2c_queue_status_t i2c_add_transaction_to_queue(HalI2C_Txn_t *txn);
-i2c_queue_status_t i2c_get_next_transaction_from_queue(HalI2C_Txn_t *txn);
+i2c_queue_status_t i2c_get_next_transaction_from_queue(HalI2C_Txn_t **txn);

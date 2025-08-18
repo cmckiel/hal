@@ -27,7 +27,6 @@ static void configure_interrupts();
 
 /* Private variables */
 static HalI2C_Stats_t i2c_stats = {0};
-static uint8_t        rx_data = 0;
 static HalI2C_Txn_t   *current_i2c_transaction = NULL;
 
 /* ISR variables */
@@ -74,8 +73,8 @@ void I2C1_EV_IRQHandler(void)
             // Error with mutual exclusion of _tx_in_progress and _rx_in_progress.
             // Set error flag and bail.
             _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
-            return;
         }
+        return;
     }
 
     // Address sent/ack: clear by SR1 then SR2 read
@@ -106,6 +105,7 @@ void I2C1_EV_IRQHandler(void)
         {
             // Start the next transition.
             _rx_in_progress = true;
+            I2C1->CR2 &= ~I2C_CR2_ITBUFEN;
             I2C1->CR1 |= I2C_CR1_START;
         }
         else
@@ -124,7 +124,8 @@ void I2C1_EV_IRQHandler(void)
     {
         if (_tx_position < _current_i2c_transaction.num_of_bytes_to_tx)
         {
-            I2C1->DR = _current_i2c_transaction.tx_data[_tx_position++];
+            I2C1->DR = _current_i2c_transaction.tx_data[_tx_position];
+            _tx_position++;
             if (_tx_position == _current_i2c_transaction.num_of_bytes_to_tx)
             {
                 // we just queued the final byte; arm BTF to finish
@@ -137,13 +138,13 @@ void I2C1_EV_IRQHandler(void)
             _END_TRANSACTION();
         }
     }
-    else if (sr1 & I2C_SR1_TXE)
-    {
-        // Error with mutual exclusion of _tx_in_progress and _rx_in_progress.
-        // Set error flag and bail.
-        _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
-        return;
-    }
+    // else if (sr1 & I2C_SR1_TXE)
+    // {
+    //     // Error with mutual exclusion of _tx_in_progress and _rx_in_progress.
+    //     // Set error flag and bail.
+    //     _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
+    //     return;
+    // }
 
     if (sr1 & I2C_SR1_RXNE && _rx_in_progress && !_tx_in_progress)
     {
@@ -165,13 +166,13 @@ void I2C1_EV_IRQHandler(void)
             return;
         }
     }
-    else if (sr1 & I2C_SR1_RXNE)
-    {
-        // Error with mutual exclusion of _tx_in_progress and _rx_in_progress.
-        // Set error flag and bail.
-        _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
-        return;
-    }
+    // else if (sr1 & I2C_SR1_RXNE)
+    // {
+    //     // Error with mutual exclusion of _tx_in_progress and _rx_in_progress.
+    //     // Set error flag and bail.
+    //     _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
+    //     return;
+    // }
 }
 
 void I2C1_ER_IRQHandler()
@@ -231,17 +232,17 @@ HalStatus_t hal_i2c_transaction_servicer()
     NVIC_DisableIRQ(I2C1_EV_IRQn);
     NVIC_DisableIRQ(I2C1_ER_IRQn);
 
-    // Check if I need to load in a new message for the hardware.
+    // Check if there is currently no transaction in progress.
     if (!_tx_in_progress && !_rx_in_progress)
     {
         // Finish transaction that just completed.
         if (current_i2c_transaction)
         {
             // Transfer the results back to the client's transaction object.
-            current_i2c_transaction->actual_bytes_trasmitted = _tx_position;
+            current_i2c_transaction->actual_bytes_transmitted = _tx_position;
             current_i2c_transaction->actual_bytes_received = _rx_position;
-            memcpy(current_i2c_transaction->rx_data, _current_i2c_transaction.rx_data, current_i2c_transaction->actual_bytes_received);
-            current_i2c_transaction->transaction_result = HAL_I2C_TXN_RESULT_SUCCESS;
+            memcpy(current_i2c_transaction->rx_data, (const void*)_current_i2c_transaction.rx_data, current_i2c_transaction->actual_bytes_received);
+            current_i2c_transaction->transaction_result = (_error_occured) ? HAL_I2C_TXN_RESULT_FAIL : HAL_I2C_TXN_RESULT_SUCCESS;
 
             // Complete the transaction.
             current_i2c_transaction->processing_state = HAL_I2C_TXN_STATE_COMPLETED;
@@ -250,8 +251,8 @@ HalStatus_t hal_i2c_transaction_servicer()
             current_i2c_transaction = NULL;
         }
 
-        // Load in a new one if there is one.
-        if (I2C_QUEUE_STATUS_SUCCESS == i2c_get_next_transaction_from_queue(current_i2c_transaction) &&
+        // Load in a new transaction if there is one.
+        if (I2C_QUEUE_STATUS_SUCCESS == i2c_get_next_transaction_from_queue(&current_i2c_transaction) &&
             current_i2c_transaction)
         {
             // Set state to processing.
@@ -261,9 +262,9 @@ HalStatus_t hal_i2c_transaction_servicer()
             _current_i2c_transaction = *current_i2c_transaction;
 
             // Set up the control variables.
+            _error_occured = false;
             _tx_position = 0;
             _rx_position = 0;
-            _tx_last_byte_written = false;
 
             if (current_i2c_transaction->i2c_op == HAL_I2C_OP_WRITE ||
                 current_i2c_transaction->i2c_op == HAL_I2C_OP_WRITE_READ)
@@ -271,7 +272,7 @@ HalStatus_t hal_i2c_transaction_servicer()
                 _tx_in_progress = true;
                 _rx_in_progress = false;
             }
-            else if (current_i2c_transaction->i2c_op = HAL_I2C_OP_READ)
+            else if (current_i2c_transaction->i2c_op == HAL_I2C_OP_READ)
             {
                 _tx_in_progress = false;
                 _rx_in_progress = true;

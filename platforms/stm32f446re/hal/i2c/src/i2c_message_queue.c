@@ -43,7 +43,8 @@ i2c_queue_status_t i2c_add_transaction_to_queue(HalI2C_Txn_t *txn)
     return status;
 }
 
-i2c_queue_status_t get_next_message(HalI2C_Txn_t *txn)
+// lol pointers are passed by value. Better make this a pointer to a pointer.
+i2c_queue_status_t i2c_get_next_transaction_from_queue(HalI2C_Txn_t **txn)
 {
     i2c_queue_status_t status = I2C_QUEUE_STATUS_FAIL;
 
@@ -55,7 +56,7 @@ i2c_queue_status_t get_next_message(HalI2C_Txn_t *txn)
         }
         else
         {
-            txn = queue.transactions[queue.tail];
+            *txn = queue.transactions[queue.tail];
             queue.tail = (queue.tail + 1) % I2C_TRANSACTION_QUEUE_SIZE;
             queue.transaction_count--;
             status = I2C_QUEUE_STATUS_SUCCESS;

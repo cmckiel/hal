@@ -46,7 +46,7 @@ typedef struct {
     // Initialize to prescribed values when submitting transaction.
     HalI2C_TxnResult_t transaction_result;   // Only valid once processing_state == COMPLETED. Contains the result of the transaction (success, fail, etc). Init to NONE.
     size_t actual_bytes_received;            // The actual number of bytes that got read during the transaction. Init to 0.
-    size_t actual_bytes_trasmitted;          // The actual number of bytes that got transmitted during the transaction. Init to 0.
+    size_t actual_bytes_transmitted;         // The actual number of bytes that got transmitted during the transaction. Init to 0.
     uint8_t rx_data[RX_MESSAGE_MAX_LENGTH];  // Data read from device will be stored here. Only valid after processing_state == COMPLETED.
                                              // Init rx_data to zeros when creating the transaction struct.
 } HalI2C_Txn_t;

@@ -22,13 +22,27 @@ int main(void)
 
 	size_t bytes_written_uart1 = 0;
 	size_t bytes_written_uart2 = 0;
-	size_t bytes_written_i2c = 0;
 
 	uint8_t rx_data_uart1[MAX_RX_BYTES] = { 0 };
 	uint8_t rx_data_uart2[MAX_RX_BYTES] = { 0 };
 
-	uint8_t tx_data_i2c[10] = {0};
-	uint8_t rx_data_i2c[10] = {0};
+	HalI2C_Txn_t my_i2c_transaction = {
+		// Immutable once submitted.
+		.target_addr = MPU_6050_ADDR,
+		.i2c_op = HAL_I2C_OP_WRITE_READ,
+		.tx_data = {0},
+		.num_of_bytes_to_tx = 0,
+		.expected_bytes_to_rx = 0,
+
+		// Poll to determine completion status.
+		.processing_state = HAL_I2C_TXN_STATE_CREATED,
+
+		// Post transaction completion results.
+		.transaction_result = HAL_I2C_TXN_RESULT_NONE,
+		.actual_bytes_received = 0,
+		.actual_bytes_transmitted = 0,
+		.rx_data = {0},
+	};
 
 	// Initialize drivers.
 	hal_uart_init(HAL_UART1, NULL);
@@ -37,7 +51,10 @@ int main(void)
 
 	while (1)
 	{
-		hal_delay_ms(200);
+		hal_delay_ms(20);
+
+		// printf("[%d]Heartbeat\n\r", loop_count++);
+		// fflush(stdout);
 
 		// Reset all data structures.
 		bytes_read_uart1 = 0;
@@ -45,7 +62,6 @@ int main(void)
 
 		bytes_written_uart1 = 0;
 		bytes_written_uart2 = 0;
-		bytes_written_i2c = 0;
 
 		memset(rx_data_uart1, 0, sizeof(rx_data_uart1));
 		memset(rx_data_uart2, 0, sizeof(rx_data_uart2));
@@ -58,28 +74,39 @@ int main(void)
 		hal_uart_write(HAL_UART1, &rx_data_uart1[0], bytes_read_uart1, &bytes_written_uart1);
 		hal_uart_write(HAL_UART2, &rx_data_uart2[0], bytes_read_uart2, &bytes_written_uart2);
 
-
-
-
-		tx_data_i2c[0] = MPU_PWR_MGMT_1_REG;
-		hal_i2c_write(0x68, tx_data_i2c, 1, &bytes_written_i2c, 0);
-		// hal_i2c_write(0x6C, tx_data_i2c, 0, &bytes_written_i2c, 0);
-		// hal_i2c_write_read(MPU_6050_ADDR, tx_data_i2c, 1, NULL, 1, NULL, 0);
-
-
-
-
-
-
-		if (HAL_STATUS_OK == hal_i2c_transaction_servicer())
+		// If we have a new transaction, submit it.
+		if (my_i2c_transaction.processing_state == HAL_I2C_TXN_STATE_CREATED)
 		{
-			// This means a message was completed.
-			// Gather the data.
-			hal_i2c_read(MPU_6050_ADDR, rx_data_i2c, 1, NULL, 0);
-			printf("[%d]pwr_mgmt reg: 0x%x\n\r", loop_count++, rx_data_i2c[0]);
-			fflush(stdout);
+			// Set up transaction to read the power management register.
+			my_i2c_transaction.tx_data[0] = MPU_PWR_MGMT_1_REG;
+			my_i2c_transaction.num_of_bytes_to_tx = 1;
+			my_i2c_transaction.expected_bytes_to_rx = 1;
+			hal_i2c_submit_transaction(&my_i2c_transaction);
 		}
+
+		// If the transaction is complete and some basic expectations check out, process the data and reset.
+		if (my_i2c_transaction.processing_state == HAL_I2C_TXN_STATE_COMPLETED &&
+			my_i2c_transaction.actual_bytes_received == my_i2c_transaction.expected_bytes_to_rx)
+		{
+			// printf("pwr_mgmt reg: 0x%x\n\r", my_i2c_transaction.rx_data[0]);
+			// fflush(stdout);
+
+			// Reset our I2C transaction.
+			my_i2c_transaction.processing_state = HAL_I2C_TXN_STATE_CREATED;
+			my_i2c_transaction.transaction_result = HAL_I2C_TXN_RESULT_NONE;
+			my_i2c_transaction.actual_bytes_received = 0;
+			my_i2c_transaction.actual_bytes_transmitted = 0;
+			my_i2c_transaction.rx_data[0] = 0; // Cheating for now. @todo memset()
+		}
+		else if (my_i2c_transaction.processing_state == HAL_I2C_TXN_STATE_COMPLETED)
+		{
+			// printf("I2C Transaction Failure: Bytes received not equal to expected.\n\r");
+			// fflush(stdout);
+		}
+
+		hal_i2c_transaction_servicer();
 	}
+
 
 	return 0;
 }

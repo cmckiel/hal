@@ -2,6 +2,7 @@ add_library(
     stm32f4_hal
     stm32f4_gpio.c
     stm32f4_systick.c
+    system/stm32f4_hal_system.c
     uart/src/stm32f4_uart.c
     uart/src/stm32f4_uart1.c
     uart/src/stm32f4_uart2.c

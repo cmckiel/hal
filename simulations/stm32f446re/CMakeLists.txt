@@ -13,7 +13,6 @@ add_library(
     i2c_driver
     ../../platforms/stm32f446re/hal/i2c/src/stm32f4_i2c.c
     ../../platforms/stm32f446re/hal/i2c/src/i2c_message_queue.c
-    ../../platforms/stm32f446re/hal/i2c/src/i2c_state_machine.c
 )
 
 target_compile_definitions(
@@ -69,7 +68,6 @@ add_executable(
 add_executable(
     i2c_driver_test
     test/i2c_driver_test.cpp
-    test/i2c_state_machine_test.cpp
     test/main.cpp
 )
 

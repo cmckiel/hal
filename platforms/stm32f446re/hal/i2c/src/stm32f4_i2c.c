@@ -104,6 +104,10 @@ void I2C1_EV_IRQHandler(void)
                  _current_i2c_transaction.expected_bytes_to_rx > 0)
         {
             // Start the next transition.
+            if (_current_i2c_transaction.expected_bytes_to_rx > 1)
+            {
+                I2C1->CR1 |= I2C_CR1_ACK; // Set up the hardware to automatically ACK each byte.
+            }
             _rx_in_progress = true;
             I2C1->CR2 &= ~I2C_CR2_ITBUFEN;
             I2C1->CR1 |= I2C_CR1_START;
@@ -152,6 +156,13 @@ void I2C1_EV_IRQHandler(void)
         {
             _current_i2c_transaction.rx_data[_rx_position] = I2C1->DR;
             _rx_position++;
+
+            // If there is only one byte left to send.
+            if (_current_i2c_transaction.expected_bytes_to_rx - _rx_position == 1)
+            {
+                I2C1->CR1 &= ~I2C_CR1_ACK; // Disable ACK so we send NACK on next byte and finish transaction.
+            }
+
             if (_rx_position == _current_i2c_transaction.expected_bytes_to_rx)
             {
                 // Received our last byte. End the transaction.

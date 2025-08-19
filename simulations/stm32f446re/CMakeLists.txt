@@ -12,7 +12,7 @@ add_library(
 add_library(
     i2c_driver
     ../../platforms/stm32f446re/hal/i2c/src/stm32f4_i2c.c
-    ../../platforms/stm32f446re/hal/i2c/src/i2c_message_queue.c
+    ../../platforms/stm32f446re/hal/i2c/src/i2c_transaction_queue.c
 )
 
 target_compile_definitions(

@@ -11,7 +11,7 @@
 #endif
 
 #include "i2c.h"
-#include "i2c_message_queue.h"
+#include "i2c_transaction_queue.h"
 #include "stm32f4_hal.h"
 
 #include <string.h>

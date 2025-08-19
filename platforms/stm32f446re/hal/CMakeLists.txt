@@ -3,7 +3,7 @@ add_library(
     stm32f4_gpio.c
     stm32f4_systick.c
     system/stm32f4_hal_system.c
-    i2c/src/i2c_message_queue.c
+    i2c/src/i2c_transaction_queue.c
     i2c/src/stm32f4_i2c.c
     uart/src/stm32f4_uart.c
     uart/src/stm32f4_uart1.c

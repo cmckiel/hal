@@ -1,4 +1,4 @@
-#include "i2c_message_queue.h"
+#include "i2c_transaction_queue.h"
 
 #define I2C_TRANSACTION_QUEUE_SIZE 10
 
@@ -7,9 +7,9 @@ typedef struct {
     size_t head;
     size_t tail; // the current message
     size_t transaction_count;
-} i2c_message_queue_t;
+} i2c_transaction_queue_t;
 
-static i2c_message_queue_t queue = {
+static i2c_transaction_queue_t queue = {
     .head = 0,
     .tail = 0,
     .transaction_count = 0

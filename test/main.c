@@ -112,20 +112,20 @@ int main(void)
 	hal_uart_init(HAL_UART2, NULL);
 	hal_i2c_init(NULL);
 
-	printf("\033[2J");   // clear screen
-	printf("\033[H");    // move cursor to 1,1
+	// printf("\033[2J");   // clear screen
+	// printf("\033[H");    // move cursor to 1,1
 
 	while (1)
 	{
 		hal_delay_ms(20);
 
 		// Print out the results each loop:
-		printf("\033[H");    // move cursor to 1,1
-		printf("Heartbeat: [%d]\n\r", loop_count++);
-		printf("\n\r");
-		printf("gx_dps: %.2f\n\r", gx_dps);
-		printf("gy_dps: %.2f\n\r", gy_dps);
-		printf("gz_dps: %.2f\n\r", gz_dps);
+		// printf("\033[H");    // move cursor to 1,1
+		// printf("Heartbeat: [%d]\n\r", loop_count++);
+		// printf("\n\r");
+		// printf("gx_dps: %.2f\n\r", gx_dps);
+		// printf("gy_dps: %.2f\n\r", gy_dps);
+		// printf("gz_dps: %.2f\n\r", gz_dps);
 
 		// Reset all data structures.
 		bytes_read_uart1 = 0;
@@ -155,14 +155,14 @@ int main(void)
 		if (current_transaction->processing_state == HAL_I2C_TXN_STATE_COMPLETED)
 		{
 			// Print out the transaction results.
-			printf("\n\r");
-			printf("expected bytes transmitted: %d\n\r", current_transaction->num_of_bytes_to_tx);
-			printf("actual bytes transmitted: %d\n\r", current_transaction->actual_bytes_transmitted);
+			// printf("\n\r");
+			// printf("expected bytes transmitted: %d\n\r", current_transaction->num_of_bytes_to_tx);
+			// printf("actual bytes transmitted: %d\n\r", current_transaction->actual_bytes_transmitted);
 
-			printf("expected bytes received: %d\n\r", current_transaction->expected_bytes_to_rx);
-			printf("actual bytes received: %d\n\r", current_transaction->actual_bytes_received);
+			// printf("expected bytes received: %d\n\r", current_transaction->expected_bytes_to_rx);
+			// printf("actual bytes received: %d\n\r", current_transaction->actual_bytes_received);
 
-			printf("transaction result: %s\n\r", current_transaction->transaction_result == HAL_I2C_TXN_RESULT_SUCCESS ? "SUCCESS" : "FAILURE");
+			// printf("transaction result: %s\n\r", current_transaction->transaction_result == HAL_I2C_TXN_RESULT_SUCCESS ? "SUCCESS" : "FAILURE");
 
 			// Determine next transaction.
 			if (current_transaction == &imu_read_pwr_mode)
@@ -217,7 +217,7 @@ int main(void)
 
 		hal_i2c_transaction_servicer();
 
-		fflush(stdout);
+		// fflush(stdout);
 	}
 
 	return 0;

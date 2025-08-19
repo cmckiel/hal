@@ -43,7 +43,10 @@ i2c_queue_status_t i2c_add_transaction_to_queue(HalI2C_Txn_t *txn)
     return status;
 }
 
-// lol pointers are passed by value. Better make this a pointer to a pointer.
+// Double pointer to transaction. This is because everything is pass by value in C.
+// The desire is to actually set the pointer passed to this function, and to set
+// a parameter, there needs to be a reference. In conclusion, this is a reference to
+// a pointer type.
 i2c_queue_status_t i2c_get_next_transaction_from_queue(HalI2C_Txn_t **txn)
 {
     i2c_queue_status_t status = I2C_QUEUE_STATUS_FAIL;

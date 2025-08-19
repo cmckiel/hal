@@ -15,6 +15,7 @@
 #include "stm32f4_hal.h"
 
 #include <string.h>
+#include <stdbool.h>
 
 #define SYS_FREQ_MHZ 16
 #define I2C_DIRECTION_WRITE 0
@@ -232,7 +233,6 @@ HalStatus_t hal_i2c_submit_transaction(HalI2C_Txn_t *txn)
     // @todo: Some transaction validation here.
     return (i2c_add_transaction_to_queue(txn) == I2C_QUEUE_STATUS_SUCCESS) ? HAL_STATUS_OK : HAL_STATUS_ERROR;
 }
-
 
 HalStatus_t hal_i2c_transaction_servicer()
 {

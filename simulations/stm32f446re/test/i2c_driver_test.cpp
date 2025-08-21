@@ -23,6 +23,7 @@ protected:
         // @todo Sim I2C
         Sim_GPIOB = {0};
         Sim_RCC = {0};
+        Sim_I2C1 = {0};
 
         // Set up the seed only once per full testing run.
         // if (!seed_is_set) {
@@ -89,4 +90,21 @@ TEST_F(I2CDriverTest, InitsPeripheralCorrectly)
 
     // Peripheral is enabled
     ASSERT_TRUE(Sim_I2C1.CR1 & I2C_CR1_PE);
+}
+
+TEST_F(I2CDriverTest, InitsInterruptsCorrectly)
+{
+    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+
+    // Event interrupt enabled in peripheral
+    ASSERT_TRUE(Sim_I2C1.CR2 & I2C_CR2_ITEVTEN);
+
+    // Error interrupt enabled in peripheral
+    ASSERT_TRUE(Sim_I2C1.CR2 & I2C_CR2_ITERREN);
+
+    // Event interrupt enabled in NVIC
+    ASSERT_TRUE(NVIC_IsIRQEnabled(I2C1_EV_IRQn));
+
+    // Error interrupt enabled in NVIC
+    ASSERT_TRUE(NVIC_IsIRQEnabled(I2C1_ER_IRQn));
 }

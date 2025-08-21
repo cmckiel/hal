@@ -231,7 +231,7 @@ HalStatus_t hal_i2c_deinit(void)
 HalStatus_t hal_i2c_submit_transaction(HalI2C_Txn_t *txn)
 {
     // @todo: Some transaction validation here.
-    return (i2c_add_transaction_to_queue(txn) == I2C_QUEUE_STATUS_SUCCESS) ? HAL_STATUS_OK : HAL_STATUS_ERROR;
+    return (i2c_transaction_queue_add(txn) == I2C_QUEUE_STATUS_SUCCESS) ? HAL_STATUS_OK : HAL_STATUS_ERROR;
 }
 
 HalStatus_t hal_i2c_transaction_servicer()
@@ -262,7 +262,7 @@ HalStatus_t hal_i2c_transaction_servicer()
         }
 
         // Load in a new transaction if there is one.
-        if (I2C_QUEUE_STATUS_SUCCESS == i2c_get_next_transaction_from_queue(&current_i2c_transaction) &&
+        if (I2C_QUEUE_STATUS_SUCCESS == i2c_transaction_queue_get_next(&current_i2c_transaction) &&
             current_i2c_transaction)
         {
             // Set state to processing.

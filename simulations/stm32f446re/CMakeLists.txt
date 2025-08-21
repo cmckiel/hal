@@ -68,6 +68,7 @@ add_executable(
 add_executable(
     i2c_driver_test
     test/i2c_driver_test.cpp
+    test/i2c_transaction_queue_test.cpp
     test/main.cpp
 )
 

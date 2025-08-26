@@ -109,23 +109,24 @@ TEST_F(I2CTransactionQueueTest, QueueAddMarksTransactionAsQueued)
 
 TEST_F(I2CTransactionQueueTest, QueueHandlesRollover)
 {
-    const size_t NUM_OF_TRANSACTIONS = 510; // Divisible by 6.
+    const size_t ROLLOVER_INCREMENT = (I2C_TRANSACTION_QUEUE_SIZE / 2) + 1;
+    const size_t NUM_OF_TRANSACTIONS = 100 * ROLLOVER_INCREMENT; // Divisible by ROLLOVER_INCREMENT.
     size_t transaction_in_index = 0;
     size_t transaction_out_index = 0;
-    HalI2C_Txn_t transactions_in[NUM_OF_TRANSACTIONS];
+    static HalI2C_Txn_t transactions_in[NUM_OF_TRANSACTIONS]; // Static because this data structure can be too large for the stack.
     HalI2C_Txn_t *transaction_out = nullptr;
 
     // Conduct the rollover test.
-    for (size_t i = 0; i < NUM_OF_TRANSACTIONS / 6; i++)
+    for (size_t i = 0; i < NUM_OF_TRANSACTIONS / ROLLOVER_INCREMENT; i++)
     {
-        // Queue 6
-        for (size_t j = 0; j < 6; j++)
+        // Queue ROLLOVER_INCREMENT number of transactions.
+        for (size_t j = 0; j < ROLLOVER_INCREMENT; j++)
         {
             ASSERT_EQ(i2c_transaction_queue_add(&transactions_in[transaction_in_index++]), I2C_QUEUE_STATUS_SUCCESS);
         }
 
-        // Dequeue 6
-        for (size_t j = 0; j < 6; j++)
+        // Dequeue ROLLOVER_INCREMENT number of transactions.
+        for (size_t j = 0; j < ROLLOVER_INCREMENT; j++)
         {
             // Make sure we can dequeue.
             ASSERT_EQ(i2c_transaction_queue_get_next(&transaction_out), I2C_QUEUE_STATUS_SUCCESS);

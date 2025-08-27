@@ -236,7 +236,7 @@ HalStatus_t hal_i2c_submit_transaction(HalI2C_Txn_t *txn)
 
 HalStatus_t hal_i2c_transaction_servicer()
 {
-    HalStatus_t status = HAL_STATUS_ERROR;
+    HalStatus_t status = HAL_STATUS_BUSY;
 
     // CRITICAL SECTION ENTER
     NVIC_DisableIRQ(I2C1_EV_IRQn);

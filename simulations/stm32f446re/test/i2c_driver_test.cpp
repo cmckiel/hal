@@ -39,6 +39,10 @@ protected:
 
 // bool I2CDriverTest::seed_is_set = false;
 
+/***********************************************/
+// Init Tests
+/***********************************************/
+
 TEST_F(I2CDriverTest, InitsGPIOPinsCorrectly)
 {
     ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
@@ -107,4 +111,27 @@ TEST_F(I2CDriverTest, InitsInterruptsCorrectly)
 
     // Error interrupt enabled in NVIC
     ASSERT_TRUE(NVIC_IsIRQEnabled(I2C1_ER_IRQn));
+}
+
+/***********************************************/
+// Transaction Servicer Tests
+/***********************************************/
+
+TEST_F(I2CDriverTest, TransactionServicerLoadsTransaction)
+{
+    // Given an I2C transaction and an initialized I2C driver.
+    HalI2C_Txn_t transaction;
+    transaction.i2c_op = HAL_I2C_OP_WRITE; // @todo what happens if this isn't initialized or is out of bounds?
+    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+
+    // Given that the transaction has been submitted successfully.
+    ASSERT_EQ(hal_i2c_submit_transaction(&transaction), HAL_STATUS_OK);
+    ASSERT_EQ(transaction.processing_state, HAL_I2C_TXN_STATE_QUEUED);
+
+    // When the transaction servicer is called, Then it should load the new transaction.
+    ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_OK);
+    ASSERT_EQ(transaction.processing_state, HAL_I2C_TXN_STATE_PROCESSING);
+
+    // When the transaction servicer is called a second time, Then it should be busy processing the current transaction.
+    ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_BUSY);
 }

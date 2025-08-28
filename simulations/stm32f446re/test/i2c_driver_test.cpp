@@ -127,11 +127,11 @@ TEST_F(I2CDriverTest, TransactionServicerLoadsTransaction)
     ASSERT_EQ(hal_i2c_submit_transaction(&transaction), HAL_STATUS_OK);
     ASSERT_EQ(transaction.processing_state, HAL_I2C_TXN_STATE_QUEUED);
 
-    // When the transaction servicer is called, Then it should load the new transaction.
+    // When the transaction servicer is called, then it should load the new transaction.
     ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_OK);
     ASSERT_EQ(transaction.processing_state, HAL_I2C_TXN_STATE_PROCESSING);
 
-    // When the transaction servicer is called a second time, Then it should be busy processing the current transaction.
+    // When the transaction servicer is called a second time, then it should be busy processing the current transaction.
     ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_BUSY);
 }
 
@@ -147,11 +147,51 @@ TEST_F(I2CDriverTest, TransactionServicerRejectsInvalidTransaction)
     ASSERT_EQ(hal_i2c_submit_transaction(&transaction), HAL_STATUS_OK);
     ASSERT_EQ(transaction.processing_state, HAL_I2C_TXN_STATE_QUEUED);
 
-    // When the transaction servicer is called, Then it should reject the new transaction.
+    // When the transaction servicer is called, then it should reject the new transaction.
     ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_ERROR);
     ASSERT_EQ(transaction.processing_state, HAL_I2C_TXN_STATE_COMPLETED);
     ASSERT_EQ(transaction.transaction_result, HAL_I2C_TXN_RESULT_FAIL);
 
-    // When the transaction servicer is called a second time, Then it should be ready for the next transaction.
+    // When the transaction servicer is called a second time, then it should be ready for the next transaction.
     ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_OK);
+}
+
+TEST_F(I2CDriverTest, TransactionServicerSendsStartSignal)
+{
+    // Given an I2C transaction and an initialized I2C driver.
+    HalI2C_Txn_t transaction = {0};
+    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+
+    // Given that the transaction has been submitted successfully.
+    ASSERT_EQ(hal_i2c_submit_transaction(&transaction), HAL_STATUS_OK);
+
+    // When the transaction servicer is called,
+    ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_OK);
+
+    // Then the start signal shall be sent.
+    ASSERT_TRUE(Sim_I2C1.CR1 & I2C_CR1_START);
+}
+
+TEST_F(I2CDriverTest, TransactionServicerSendsStartSignalOnlyOnce)
+{
+    // Given an I2C transaction and an initialized I2C driver.
+    HalI2C_Txn_t transaction = {0};
+    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+
+    // Given that the transaction has been submitted successfully.
+    ASSERT_EQ(hal_i2c_submit_transaction(&transaction), HAL_STATUS_OK);
+
+    // Given that a transaction has been loaded and already sent the start signal.
+    ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_OK);
+    ASSERT_TRUE(Sim_I2C1.CR1 & I2C_CR1_START);
+
+    // Given that the start signal is artificially reset.
+    Sim_I2C1.CR1 &= ~I2C_CR1_START;
+    ASSERT_FALSE(Sim_I2C1.CR1 & I2C_CR1_START);
+
+    // When the transaction servicer is called a second time.
+    ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_BUSY);
+
+    // Then the start signal shall still be reset.
+    ASSERT_FALSE(Sim_I2C1.CR1 & I2C_CR1_START);
 }

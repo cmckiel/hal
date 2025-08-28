@@ -120,8 +120,7 @@ TEST_F(I2CDriverTest, InitsInterruptsCorrectly)
 TEST_F(I2CDriverTest, TransactionServicerLoadsTransaction)
 {
     // Given an I2C transaction and an initialized I2C driver.
-    HalI2C_Txn_t transaction;
-    transaction.i2c_op = HAL_I2C_OP_WRITE; // @todo what happens if this isn't initialized or is out of bounds?
+    HalI2C_Txn_t transaction = {0};
     ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
 
     // Given that the transaction has been submitted successfully.
@@ -134,4 +133,25 @@ TEST_F(I2CDriverTest, TransactionServicerLoadsTransaction)
 
     // When the transaction servicer is called a second time, Then it should be busy processing the current transaction.
     ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_BUSY);
+}
+
+TEST_F(I2CDriverTest, TransactionServicerRejectsInvalidTransaction)
+{
+    // Given an invalid I2C transaction and an initialized I2C driver.
+    HalI2C_Txn_t transaction;
+    transaction.i2c_op = _HAL_I2C_OP_MAX; // invalid operation value
+    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+
+    // @todo change how this the transaction is injected once this api also validates.
+    // Given that the transaction has been submitted successfully.
+    ASSERT_EQ(hal_i2c_submit_transaction(&transaction), HAL_STATUS_OK);
+    ASSERT_EQ(transaction.processing_state, HAL_I2C_TXN_STATE_QUEUED);
+
+    // When the transaction servicer is called, Then it should reject the new transaction.
+    ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_ERROR);
+    ASSERT_EQ(transaction.processing_state, HAL_I2C_TXN_STATE_COMPLETED);
+    ASSERT_EQ(transaction.transaction_result, HAL_I2C_TXN_RESULT_FAIL);
+
+    // When the transaction servicer is called a second time, Then it should be ready for the next transaction.
+    ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_OK);
 }

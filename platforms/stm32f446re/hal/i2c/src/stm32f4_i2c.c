@@ -24,6 +24,8 @@
 static void configure_gpio();
 static void configure_peripheral();
 static void configure_interrupts();
+static bool load_new_transaction();
+static bool current_transaction_is_valid();
 
 /* Private variables */
 static HalI2C_Stats_t i2c_stats = {0};
@@ -245,6 +247,8 @@ HalStatus_t hal_i2c_transaction_servicer()
     // Check if there is currently no transaction in progress.
     if (!_tx_in_progress && !_rx_in_progress)
     {
+        status = HAL_STATUS_OK;
+
         // Finish transaction that just completed.
         if (current_i2c_transaction)
         {
@@ -262,37 +266,47 @@ HalStatus_t hal_i2c_transaction_servicer()
         }
 
         // Load in a new transaction if there is one.
-        if (I2C_QUEUE_STATUS_SUCCESS == i2c_transaction_queue_get_next(&current_i2c_transaction) &&
-            current_i2c_transaction)
+        if (load_new_transaction())
         {
-            // Set state to processing.
-            current_i2c_transaction->processing_state = HAL_I2C_TXN_STATE_PROCESSING;
-
-            // Copy the transaction to memory that belongs to the ISR.
-            _current_i2c_transaction = *current_i2c_transaction;
-
-            // Set up the control variables.
-            _error_occured = false;
-            _tx_position = 0;
-            _rx_position = 0;
-
-            if (current_i2c_transaction->i2c_op == HAL_I2C_OP_WRITE ||
-                current_i2c_transaction->i2c_op == HAL_I2C_OP_WRITE_READ)
+            if (current_transaction_is_valid())
             {
-                _tx_in_progress = true;
-                _rx_in_progress = false;
-            }
-            else if (current_i2c_transaction->i2c_op == HAL_I2C_OP_READ)
-            {
-                _tx_in_progress = false;
-                _rx_in_progress = true;
-            }
+                // Set state to processing.
+                current_i2c_transaction->processing_state = HAL_I2C_TXN_STATE_PROCESSING;
 
-            // Send start
-            I2C1->CR1 |= I2C_CR1_START;
+                // Copy the transaction to memory that belongs to the ISR.
+                _current_i2c_transaction = *current_i2c_transaction;
+
+                // Set up the control variables.
+                _error_occured = false;
+                _tx_position = 0;
+                _rx_position = 0;
+
+                if (current_i2c_transaction->i2c_op == HAL_I2C_OP_WRITE ||
+                    current_i2c_transaction->i2c_op == HAL_I2C_OP_WRITE_READ)
+                {
+                    _tx_in_progress = true;
+                    _rx_in_progress = false;
+                }
+                else if (current_i2c_transaction->i2c_op == HAL_I2C_OP_READ)
+                {
+                    _tx_in_progress = false;
+                    _rx_in_progress = true;
+                }
+
+                // Send start
+                I2C1->CR1 |= I2C_CR1_START;
+            }
+            else
+            {
+                // Close out the invalid transaction and set error.
+                status = HAL_STATUS_ERROR;
+                current_i2c_transaction->actual_bytes_transmitted = 0;
+                current_i2c_transaction->actual_bytes_received = 0;
+                current_i2c_transaction->transaction_result = HAL_I2C_TXN_RESULT_FAIL;
+                current_i2c_transaction->processing_state = HAL_I2C_TXN_STATE_COMPLETED;
+                current_i2c_transaction = NULL;
+            }
         }
-
-        status = HAL_STATUS_OK;
     }
 
     NVIC_EnableIRQ(I2C1_EV_IRQn);
@@ -390,4 +404,17 @@ static void configure_interrupts()
     I2C1->CR2 |= I2C_CR2_ITERREN;
     NVIC_EnableIRQ(I2C1_EV_IRQn);
     NVIC_EnableIRQ(I2C1_ER_IRQn);
+}
+
+static bool current_transaction_is_valid()
+{
+    return (current_i2c_transaction &&
+            ENUM_IN_RANGE(current_i2c_transaction->i2c_op, _HAL_I2C_OP_MIN, _HAL_I2C_OP_MAX) &&
+            current_i2c_transaction->processing_state == HAL_I2C_TXN_STATE_QUEUED);
+}
+
+static bool load_new_transaction()
+{
+    return (I2C_QUEUE_STATUS_SUCCESS == i2c_transaction_queue_get_next(&current_i2c_transaction) &&
+            current_i2c_transaction);
 }

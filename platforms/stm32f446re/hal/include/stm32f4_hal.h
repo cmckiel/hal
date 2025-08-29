@@ -9,6 +9,9 @@
 #define CRITICAL_SECTION_EXIT()  __enable_irq()
 #endif
 
+#define ENUM_IN_RANGE(x, lowerbound_inclusive, upperbound_exclusive) \
+(lowerbound_inclusive <= x && x < upperbound_exclusive)
+
 #define AF7_MASK 7U
 #define AF4_MASK 4U
 #define AF_SHIFT_WIDTH 4U

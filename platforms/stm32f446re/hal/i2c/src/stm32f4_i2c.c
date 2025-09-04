@@ -159,11 +159,14 @@ void I2C1_EV_IRQHandler(void)
                 // For the case of 2-byte reception and BTF set, byte 1 is
                 // in the DR and byte 2 is in the shift register and SCL is stretched
                 // low. Set the STOP bit and then read the two bytes.
+                // Reset POS for 2-byte read.
                 I2C1->CR1 |= I2C_CR1_STOP;
-                _current_i2c_transaction.rx_data[0] = I2C1->DR;
-                _current_i2c_transaction.rx_data[1] = I2C1->DR;
-                _current_i2c_transaction.actual_bytes_received = 2;
-                _rx_in_progress = false;
+                I2C1->CR1 &= ~I2C_CR1_POS;
+                _current_i2c_transaction.rx_data[_rx_position] = I2C1->DR;
+                _rx_position++;
+                // Wait for the last byte to be read in the RxNE interrupt
+                // to give hardware time to move it from shift register.
+                I2C1->CR2 |= I2C_CR2_ITBUFEN;
             }
             else if (_current_i2c_transaction.expected_bytes_to_rx > 2)
             {
@@ -188,14 +191,15 @@ void I2C1_EV_IRQHandler(void)
                     // Byte N-1 in DR and byte N in shift register. SCL stretched low.
                     // Time to set STOP and read last two bytes.
                     I2C1->CR1 |= I2C_CR1_STOP;
-                    _current_i2c_transaction.rx_data[_rx_position] = I2C1->DR;
-                    _rx_position++;
-                    _current_i2c_transaction.rx_data[_rx_position] = I2C1->DR;
-                    _rx_position++;
 
-                    // Close out the transaction.
-                    _current_i2c_transaction.actual_bytes_received = _rx_position;
-                    _rx_in_progress = false;
+                    // Read byte N-1.
+                    _current_i2c_transaction.rx_data[_rx_position] = I2C1->DR;
+                    _rx_position++;
+                    // Wait for the last byte to be read in the RxNE interrupt
+                    // to give hardware time to move it from shift register.
+                    I2C1->CR2 |= I2C_CR2_ITBUFEN;
+
+                    // Reset the flag.
                     _rx_last_byte_read = false;
                 }
                 else
@@ -228,6 +232,9 @@ void I2C1_EV_IRQHandler(void)
                 _rx_in_progress = true;
                 I2C1->CR1 |= I2C_CR1_START;
             }
+
+            // Clear BTF to prevent immediate refire.
+            (void)I2C1->DR;
         }
     }
 
@@ -258,13 +265,17 @@ void I2C1_EV_IRQHandler(void)
 
     if (I2C1->SR1 & I2C_SR1_RXNE)
     {
-        if (_rx_in_progress && _current_i2c_transaction.expected_bytes_to_rx == 1)
+        // In receive mode we only use RxNE to pick up the last byte.
+        if (_rx_in_progress && _rx_position == (_current_i2c_transaction.expected_bytes_to_rx - 1))
         {
-            // The single byte is in the DR. Read it and end the transaction, making sure
-            // to reset the RxNE interrupt.
-            _current_i2c_transaction.rx_data[0] = I2C1->DR;
-            _current_i2c_transaction.actual_bytes_received = 1;
+            // We are about to receive our last byte.
+            _current_i2c_transaction.rx_data[_rx_position] = I2C1->DR;
+            _rx_position++;
+
+            // Turn off buffer interrupt.
             I2C1->CR2 &= ~I2C_CR2_ITBUFEN;
+
+            // Close out the transaction.
             _rx_in_progress = false;
         }
     }

@@ -235,6 +235,8 @@ void I2C1_EV_IRQHandler(void)
 
             // Clear BTF to prevent immediate refire.
             (void)I2C1->DR;
+            // Disable TxE and RxNE interrupts.
+            I2C1->CR2 &= ~I2C_CR2_ITBUFEN;
         }
     }
 
@@ -422,6 +424,32 @@ HalStatus_t hal_i2c_get_stats(HalI2C_Stats_t *stats)
 
     *stats = i2c_stats;
     return HAL_STATUS_OK;
+}
+
+// @brief Just for testing.
+// @warning Grave consequences if used in production code.
+void _test_fixture_hal_i2c_reset_internals()
+{
+    current_i2c_transaction = NULL;
+
+    _current_i2c_transaction.target_addr = 0;
+    _current_i2c_transaction.i2c_op = HAL_I2C_OP_WRITE;
+    _current_i2c_transaction.num_of_bytes_to_tx = 0;
+    _current_i2c_transaction.expected_bytes_to_rx = 0;
+    _current_i2c_transaction.processing_state = HAL_I2C_TXN_STATE_CREATED;
+    _current_i2c_transaction.transaction_result = HAL_I2C_TXN_RESULT_NONE;
+    _current_i2c_transaction.actual_bytes_received = 0;
+    _current_i2c_transaction.actual_bytes_transmitted = 0;
+    memset((void*)_current_i2c_transaction.tx_data, 0, sizeof(_current_i2c_transaction.tx_data));
+    memset((void*)_current_i2c_transaction.rx_data, 0, sizeof(_current_i2c_transaction.rx_data));
+
+    _tx_position = 0;
+    _rx_position = 0;
+    _tx_last_byte_written = false;
+    _rx_last_byte_read = false;
+    _tx_in_progress = false;
+    _rx_in_progress = false;
+    _error_occured = false;
 }
 
 // These pins are broken out right next to each other on the dev board.

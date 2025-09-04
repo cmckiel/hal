@@ -36,6 +36,7 @@ static volatile HalI2C_Txn_t _current_i2c_transaction;
 static volatile size_t       _tx_position = 0;
 static volatile size_t       _rx_position = 0;
 static volatile bool         _tx_last_byte_written = false;
+static volatile bool         _rx_last_byte_read = false;
 static volatile bool         _tx_in_progress = false;
 static volatile bool         _rx_in_progress = false;
 static volatile bool         _error_occured = false;
@@ -47,21 +48,20 @@ I2C1->CR1 |= I2C_CR1_STOP; \
 _tx_in_progress = false; \
 _rx_in_progress = false;
 
-#define _END_TRANSACTION() \
-I2C1->CR2 &= ~I2C_CR2_ITBUFEN; \
-I2C1->CR1 |= I2C_CR1_STOP; \
-_tx_in_progress = false; \
-_rx_in_progress = false;
-
 void I2C1_EV_IRQHandler(void)
 {
-    uint32_t sr1 = I2C1->SR1;  // volatile read ok
-
-    // START bit: cleared by reading SR1 then writing DR with address
-    if (sr1 & I2C_SR1_SB)
+    // ************** START Phase **************
+    // Start condition has been generated on the line.
+    // Start bit has been set. It must be cleared and the
+    // device address written to DR.
+    // *****************************************
+    if (I2C1->SR1 & I2C_SR1_SB)
     {
-        (void)I2C1->SR1; // read to clear SB
+        // Reading SR1 clears SB.
+        (void)I2C1->SR1;
 
+        // If we're transmitting data, append the WRITE bit to address. Otherwise,
+        // append the READ bit.
         if (_tx_in_progress && !_rx_in_progress)
         {
             I2C1->DR = (_current_i2c_transaction.target_addr << 1) | I2C_DIRECTION_WRITE;
@@ -76,116 +76,198 @@ void I2C1_EV_IRQHandler(void)
             // Set error flag and bail.
             _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
         }
-        return;
     }
 
-    // Address sent/ack: clear by SR1 then SR2 read
-    if (sr1 & I2C_SR1_ADDR)
+    // ************** ADDRESS Phase **************
+    // The target address has been sent on the line and
+    // the target has acknowledged the address. Need to
+    // set up the rest of the transaction and clear the
+    // ADDR bit.
+    // *****************************************
+    if (I2C1->SR1 & I2C_SR1_ADDR)
     {
+        // Set up ACK hardware base on reception size.
+        if (_rx_in_progress)
+        {
+            if (_current_i2c_transaction.expected_bytes_to_rx == 1)
+            {
+                // Reset ACK bit so that NACK is sent on the next byte reception.
+                I2C1->CR1 &= ~I2C_CR1_ACK;
+            }
+            else if (_current_i2c_transaction.expected_bytes_to_rx == 2)
+            {
+                // Reset ACK bit.
+                I2C1->CR1 &= ~I2C_CR1_ACK;
+                // Only set POS for 2-byte reception.
+                // ACK bit controls the NACK of the next byte which is received in the shift register.
+                // Therefore, the first byte will be ACK'd and the second NACK'd automatically.
+                I2C1->CR1 |= I2C_CR1_POS;
+            }
+            else if (_current_i2c_transaction.expected_bytes_to_rx > 2)
+            {
+                // Set ACK bit to acknowledge received bytes until further notice.
+                I2C1->CR1 |= I2C_CR1_ACK;
+            }
+            else
+            {
+                // In this scenario, an error occurred. Expected bytes to receive should be one or
+                // greater if an rx is in progress.
+                // Set STOP and reset ACK.
+                I2C1->CR1 |= I2C_CR1_STOP;
+                I2C1->CR1 &= ~I2C_CR1_ACK;
+                _rx_in_progress = false;
+                _tx_in_progress = false;
+                _error_occured = true;
+            }
+        }
+
+        // Reading SR1 followed by SR1 clears ADDR.
+        // SCL stretched low until this cleared.
         (void)I2C1->SR1;
         (void)I2C1->SR2;
-        I2C1->CR2 |= I2C_CR2_ITBUFEN;   // allow TXE/RXNE interrupts
+
+        // Setup STOP condition for single byte rx.
+        if (_rx_in_progress && _current_i2c_transaction.expected_bytes_to_rx == 1)
+        {
+            // If ADDR was cleared by reading SR1 and SR2, then the clock is no longer stretched low and
+            // the reception of the single byte should be happening right now as we process this instruction.
+            // Stop bit needs to be set while byte is still in flight so hardware can generate STOP on time.
+            I2C1->CR1 |= I2C_CR1_STOP;
+            // BTF will never be set for a single byte, in which case we must enable RxNE interrupt to
+            // receive our byte.
+            I2C1->CR2 |= I2C_CR2_ITBUFEN;
+        }
+
+        if (_tx_in_progress)
+        {
+            // Enable TxE interrupts for the transmit phase.
+            I2C1->CR2 |= I2C_CR2_ITBUFEN;
+        }
     }
 
-    // If we already wrote the last byte, wait for BTF (Byte Transfer Finished) then STOP
-    if ((sr1 & I2C_SR1_BTF) && _tx_last_byte_written)
+    // ************** DATA Phase **************
+    // The connection has been established and the
+    // hardware configured for either the tx or rx
+    // phase. Need to monitor BTF, RxNE, and TxE.
+    // *****************************************
+    if (I2C1->SR1 & I2C_SR1_BTF)
     {
-        // Transmit phase is concluded.
-        _tx_in_progress = false;
-
-        // Reset flag.
-        _tx_last_byte_written = false;
-
-        // Determine the next phase.
-        if (_current_i2c_transaction.i2c_op == HAL_I2C_OP_WRITE)
+        if (_rx_in_progress)
         {
-            // There is no READ phase. End the transaction.
-            _END_TRANSACTION();
-        }
-        else if (_current_i2c_transaction.i2c_op == HAL_I2C_OP_WRITE_READ &&
-                 _current_i2c_transaction.expected_bytes_to_rx > 0)
-        {
-            // Start the next transition.
-            if (_current_i2c_transaction.expected_bytes_to_rx > 1)
+            if (_current_i2c_transaction.expected_bytes_to_rx == 2)
             {
-                I2C1->CR1 |= I2C_CR1_ACK; // Set up the hardware to automatically ACK each byte.
+                // For the case of 2-byte reception and BTF set, byte 1 is
+                // in the DR and byte 2 is in the shift register and SCL is stretched
+                // low. Set the STOP bit and then read the two bytes.
+                I2C1->CR1 |= I2C_CR1_STOP;
+                _current_i2c_transaction.rx_data[0] = I2C1->DR;
+                _current_i2c_transaction.rx_data[1] = I2C1->DR;
+                _current_i2c_transaction.actual_bytes_received = 2;
+                _rx_in_progress = false;
             }
-            _rx_in_progress = true;
+            else if (_current_i2c_transaction.expected_bytes_to_rx > 2)
+            {
+                // Count starting from 1 instead of zero indexed array.
+                size_t byte_number = _rx_position + 1;
+                // Assuming rx bytes numbered 1, 2, ..., N
+                // If byte N-2 is in the DR, then byte N-1 is in the shift register since BTF
+                // bit is set. Target is waiting to send byte N while SCL is stretch low by our micro.
+                if (byte_number == (_current_i2c_transaction.expected_bytes_to_rx - 2))
+                {
+                    // Reset ACK bit before byte N is sent so the hardware can NACK in time.
+                    I2C1->CR1 &= ~I2C_CR1_ACK;
+                    // Reading the DR clears BTF and unstretches the clock. Byte N should be on
+                    // its way.
+                    _current_i2c_transaction.rx_data[_rx_position] = I2C1->DR;
+                    _rx_position++;
+                    // Arm the flag. Next BTF will mean byte N-1 in DR and N in shift register.
+                    _rx_last_byte_read = true;
+                }
+                else if (_rx_last_byte_read)
+                {
+                    // Byte N-1 in DR and byte N in shift register. SCL stretched low.
+                    // Time to set STOP and read last two bytes.
+                    I2C1->CR1 |= I2C_CR1_STOP;
+                    _current_i2c_transaction.rx_data[_rx_position] = I2C1->DR;
+                    _rx_position++;
+                    _current_i2c_transaction.rx_data[_rx_position] = I2C1->DR;
+                    _rx_position++;
+
+                    // Close out the transaction.
+                    _current_i2c_transaction.actual_bytes_received = _rx_position;
+                    _rx_in_progress = false;
+                    _rx_last_byte_read = false;
+                }
+                else
+                {
+                    // Normal read somewhere in the beginning or middle of the transaction.
+                    _current_i2c_transaction.rx_data[_rx_position] = I2C1->DR;
+                    _rx_position++;
+                }
+            }
+        }
+        else if (_tx_in_progress && _tx_last_byte_written)
+        {
+            // With BTF set during the transmit phase, and the last byte already written,
+            // then both DR and shift register are empty and SCL is stretched low. Time to determine
+            // whether to begin a read phase or end the transaction. Either way, the transmit phase is over.
+
+            // Reset transmit control variables
+            _tx_in_progress = false;
+            _tx_last_byte_written = false;
+
+            // Determine next phase.
+            if (_current_i2c_transaction.i2c_op == HAL_I2C_OP_WRITE)
+            {
+                // There is no read phase. End the transaction.
+                I2C1->CR1 |= I2C_CR1_STOP;
+            }
+            else if (_current_i2c_transaction.i2c_op == HAL_I2C_OP_WRITE_READ)
+            {
+                // There is a read phase. Generate a re-start.
+                _rx_in_progress = true;
+                I2C1->CR1 |= I2C_CR1_START;
+            }
+        }
+    }
+
+    if (I2C1->SR1 & I2C_SR1_TXE)
+    {
+        if (_tx_in_progress)
+        {
+            if (_tx_position < _current_i2c_transaction.num_of_bytes_to_tx)
+            {
+                I2C1->DR = _current_i2c_transaction.tx_data[_tx_position];
+                _tx_position++;
+                if (_tx_position == _current_i2c_transaction.num_of_bytes_to_tx)
+                {
+                    // we just queued the final byte; arm BTF to finish
+                    _tx_last_byte_written = true;
+                }
+            }
+            else if (_current_i2c_transaction.num_of_bytes_to_tx == 0)
+            {
+                // Zero length write.
+                // Disable TxE interrupt, generate STOP, and close out transaction.
+                I2C1->CR2 &= ~I2C_CR2_ITBUFEN;
+                I2C1->CR1 |= I2C_CR1_STOP;
+                _tx_in_progress = false;
+            }
+        }
+    }
+
+    if (I2C1->SR1 & I2C_SR1_RXNE)
+    {
+        if (_rx_in_progress && _current_i2c_transaction.expected_bytes_to_rx == 1)
+        {
+            // The single byte is in the DR. Read it and end the transaction, making sure
+            // to reset the RxNE interrupt.
+            _current_i2c_transaction.rx_data[0] = I2C1->DR;
+            _current_i2c_transaction.actual_bytes_received = 1;
             I2C1->CR2 &= ~I2C_CR2_ITBUFEN;
-            I2C1->CR1 |= I2C_CR1_START;
-        }
-        else
-        {
-            // Failure: Either the i2c_op is not WRITE or WRITE_READ, in which case we shouldn't
-            // be able to get here, or we tried to WRITE_READ without specifiying an amount of
-            // data to read.
-            _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
-        }
-
-        return;
-    }
-
-    // TXE: feed next byte if any
-    if (sr1 & I2C_SR1_TXE && _tx_in_progress && !_rx_in_progress)
-    {
-        if (_tx_position < _current_i2c_transaction.num_of_bytes_to_tx)
-        {
-            I2C1->DR = _current_i2c_transaction.tx_data[_tx_position];
-            _tx_position++;
-            if (_tx_position == _current_i2c_transaction.num_of_bytes_to_tx)
-            {
-                // we just queued the final byte; arm BTF to finish
-                _tx_last_byte_written = true;
-            }
-        }
-        else
-        {
-            // Nothing to send (e.g., zero-length write)
-            _END_TRANSACTION();
+            _rx_in_progress = false;
         }
     }
-    // else if (sr1 & I2C_SR1_TXE)
-    // {
-    //     // Error with mutual exclusion of _tx_in_progress and _rx_in_progress.
-    //     // Set error flag and bail.
-    //     _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
-    //     return;
-    // }
-
-    if (sr1 & I2C_SR1_RXNE && _rx_in_progress && !_tx_in_progress)
-    {
-        if (_rx_position < _current_i2c_transaction.expected_bytes_to_rx)
-        {
-            _current_i2c_transaction.rx_data[_rx_position] = I2C1->DR;
-            _rx_position++;
-
-            // If there is only one byte left to send.
-            if (_current_i2c_transaction.expected_bytes_to_rx - _rx_position == 1)
-            {
-                I2C1->CR1 &= ~I2C_CR1_ACK; // Disable ACK so we send NACK on next byte and finish transaction.
-            }
-
-            if (_rx_position == _current_i2c_transaction.expected_bytes_to_rx)
-            {
-                // Received our last byte. End the transaction.
-                _END_TRANSACTION();
-                return;
-            }
-        }
-        else
-        {
-            // It appears we are trying to read without specifying how much.
-            _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
-            return;
-        }
-    }
-    // else if (sr1 & I2C_SR1_RXNE)
-    // {
-    //     // Error with mutual exclusion of _tx_in_progress and _rx_in_progress.
-    //     // Set error flag and bail.
-    //     _SET_ERROR_FLAG_AND_ABORT_TRANSACTION();
-    //     return;
-    // }
 }
 
 void I2C1_ER_IRQHandler()

@@ -191,6 +191,11 @@ int main(void)
 			{
 				if (imu_read_gyro.transaction_result == HAL_I2C_TXN_RESULT_SUCCESS)
 				{
+					// printf("\n\r");
+					// printf("Raw bytes: 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n\r",
+					// imu_read_gyro.rx_data[0], imu_read_gyro.rx_data[1], imu_read_gyro.rx_data[2],
+					// imu_read_gyro.rx_data[3], imu_read_gyro.rx_data[4], imu_read_gyro.rx_data[5]);
+
 					// Update my display data.
 					int16_t gx = (imu_read_gyro.rx_data[0] << 8) | imu_read_gyro.rx_data[1];
 					int16_t gy = (imu_read_gyro.rx_data[2] << 8) | imu_read_gyro.rx_data[3];

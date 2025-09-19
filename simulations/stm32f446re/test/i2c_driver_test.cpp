@@ -370,18 +370,21 @@ TEST_F(I2CDriverTest, ISRHandlesBasicWrite)
     ASSERT_EQ(txn.actual_bytes_received, static_cast<size_t>(0));
 }
 
-TEST_F(I2CDriverTest, ISRHandlesAddressNACK)
+TEST_F(I2CDriverTest, ISRHandlesBasicWriteRead)
 {
+    // Representing the I2C peripheral's internal shift register.
+    uint32_t shift_register = 0;
+
     // Given an initialized I2C driver
     ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
 
-    // Prepare a simple 1-byte WRITE so we can hit the address phase.
+    // Given a simple WRITE-READ transaction of 1 byte write, 2 byte read.
     HalI2C_Txn_t txn = {};
-    txn.target_addr               = 0x2A;
-    txn.i2c_op                    = HAL_I2C_OP_WRITE;
-    txn.tx_data[0]                = 0xDE;
+    txn.target_addr               = 0xFE;
+    txn.i2c_op                    = HAL_I2C_OP_WRITE_READ;
     txn.num_of_bytes_to_tx        = 1;
-    txn.expected_bytes_to_rx      = 0;
+    txn.tx_data[0]                = 0xF4;
+    txn.expected_bytes_to_rx      = 2;
     txn.processing_state          = HAL_I2C_TXN_STATE_CREATED;
     txn.transaction_result        = HAL_I2C_TXN_RESULT_NONE;
     txn.actual_bytes_received     = 0;
@@ -392,41 +395,145 @@ TEST_F(I2CDriverTest, ISRHandlesAddressNACK)
     ASSERT_EQ(hal_i2c_submit_transaction(&txn), HAL_STATUS_OK);
     ASSERT_EQ(txn.processing_state, HAL_I2C_TXN_STATE_QUEUED);
 
-    // Given the servicer loads the transaction and asserts START
+    // When the servicer loads the transaction and issues START
     ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_OK);
     ASSERT_EQ(txn.processing_state, HAL_I2C_TXN_STATE_PROCESSING);
     ASSERT_TRUE(Sim_I2C1.CR1 & I2C_CR1_START);
+
+    // Simulate ISR progress:
 
     // --------- SB phase ---------
     // HW-SIM: START condition sent -> SB set
     Sim_I2C1.SR1 |= I2C_SR1_SB;
     I2C1_EV_IRQHandler();
-    // Assert address was written to data register in write mode.
-    ASSERT_EQ(Sim_I2C1.DR, static_cast<uint32_t>((txn.target_addr << 1) | 0));
+    // Assert address was written to data register in read mode.
+    ASSERT_EQ(Sim_I2C1.DR, static_cast<uint32_t>((txn.target_addr << 1) | 0)); // write = 0
 
-    // HW-SIM: HW would clear SB and then START shortly after
+    // HW-SIM: User code reads SR1 -> HW clears SB then clears START shortly after
     Sim_I2C1.SR1 &= ~I2C_SR1_SB;
     Sim_I2C1.CR1 &= ~I2C_CR1_START;
 
-    // --------- Address NACK error ---------
-    // HW-SIM: target NACKs address -> AF set in SR1, error IRQ fires
-    Sim_I2C1.SR1 |= I2C_SR1_AF;
-    I2C1_ER_IRQHandler();
+    // --------- ADDR phase ---------
+    // HW-SIM: target ACKs address -> HW sets ADDR
+    Sim_I2C1.SR1 |= I2C_SR1_ADDR;
+    I2C1_EV_IRQHandler();
+    // TxE interupts should be enabled for the transmit phase.
+    ASSERT_TRUE(Sim_I2C1.CR2 & I2C_CR2_ITBUFEN);
 
-    // Error ISR should clear AF itself and abort:
-    // - STOP requested
-    // - ITBUFEN disabled
-    // - transfer no longer in progress
-    ASSERT_FALSE(Sim_I2C1.SR1 & I2C_SR1_AF);
-    ASSERT_TRUE(Sim_I2C1.CR1 & I2C_CR1_STOP);
+    // HW-SIM: User code reads SR1 followed by SR2 -> HW clears ADDR
+    Sim_I2C1.SR1 &= ~I2C_SR1_ADDR;
+
+    // --------- TX phase ---------
+    // Feed one TXE event. ISR should write the byte, arming BTF after the last
+
+    // --- TXE byte #1 ---
+    // HW-SIM: Transmit buffer empty and ITBUFEN is enabled -> TXE is set and interrupt generated.
+    Sim_I2C1.SR1 |= I2C_SR1_TXE;
+    I2C1_EV_IRQHandler();
+    // Assert the first data was written and STOP condition is not generated.
+    ASSERT_EQ(Sim_I2C1.DR, static_cast<uint32_t>(0xF4));
+    ASSERT_FALSE(Sim_I2C1.CR1 & I2C_CR1_STOP);
+    // HW-SIM: On real HW, TXE would clear on DR write then re-assert when shifter advances.
+    // Here we just leave it to be re-set manually before the next ISR call.
+
+    // HW-SIM: Data is fully sent onto the bus from the shift register and DR has not been written with
+    // another byte -> BTF set and interrupt generated.
+    Sim_I2C1.SR1 |= I2C_SR1_BTF;
+    I2C1_EV_IRQHandler();
+    // Assert that START condition was re-generated for the READ portion of transaction, and
+    // that STOP is not set and TxE & RxNE interrupts disabled.
+    ASSERT_TRUE(Sim_I2C1.CR1 & I2C_CR1_START);
+    ASSERT_FALSE(Sim_I2C1.CR1 & I2C_CR1_STOP);
     ASSERT_FALSE(Sim_I2C1.CR2 & I2C_CR2_ITBUFEN);
 
-    // Finalize: servicer should complete the transaction with FAIL
+    // HW-SIM: Clear BTF
+    // @todo The behavior of the hardware needs to be better understood at this transition between write and read.
+    Sim_I2C1.SR1 &= ~I2C_SR1_BTF;
+
+    // --------- SB phase ---------
+    // HW-SIM: START condition sent -> SB set
+    Sim_I2C1.SR1 |= I2C_SR1_SB;
+    I2C1_EV_IRQHandler();
+    // Assert address was written to data register in read mode.
+    ASSERT_EQ(Sim_I2C1.DR, static_cast<uint32_t>((txn.target_addr << 1) | 1)); // read = 1
+
+    // HW-SIM: User code reads SR1 -> HW clears SB then clears START shortly after
+    Sim_I2C1.SR1 &= ~I2C_SR1_SB;
+    Sim_I2C1.CR1 &= ~I2C_CR1_START;
+
+    // --------- ADDR phase ---------
+    // HW-SIM: target ACKs address -> HW sets ADDR
+    Sim_I2C1.SR1 |= I2C_SR1_ADDR;
+    I2C1_EV_IRQHandler();
+    // POS set and ACK reset for 2 byte rx phase
+    // No RxNE interrupts.
+    ASSERT_TRUE(Sim_I2C1.CR1 & I2C_CR1_POS);
+    ASSERT_FALSE(Sim_I2C1.CR1 & I2C_CR1_ACK);
+    ASSERT_FALSE(Sim_I2C1.CR2 & I2C_CR2_ITBUFEN);
+
+    // HW-SIM: User code reads SR1 followed by SR2 -> HW clears ADDR
+    Sim_I2C1.SR1 &= ~I2C_SR1_ADDR;
+
+    // --------- RX phase ---------
+    // We will deliver two data bytes: 0xA9, 0xB8
+
+    // --- Byte #1 ---
+    // HW-SIM: First byte received -> RXNE set but no iterrupt since
+    // RxNE interrupts are not enabled.
+    Sim_I2C1.DR  = static_cast<uint32_t>(0xA9);
+    // Sim_I2C1.SR1 |= I2C_SR1_RXNE; // HW-SIM: Truthfully, the hardware sets this. But under test, I cannot
+                                     // because the logic relies on hardware clearing this the moment DR is read, right in
+                                     // the middle of the interrupt. I cannot simulate that in this single thread
+                                     // of execution. RxNE therefore would stay set even after a DR read during this
+                                     // test, which would invalidate the logic, and isn't how the hardware actually
+                                     // works. See similar note just below this.
+
+    // --- Byte #2 ---
+    // HW-SIM: Next byte has arrived -> BTF and RXNE set,
+    // DR contains 0xA9, Shift Register contains 0xB8.
+    // Interrupt is generated by BTF.
+    shift_register = static_cast<uint32_t>(0xB8);
+    Sim_I2C1.SR1 |= I2C_SR1_BTF; // HW-SIM: And a little misleading. In reality, both BTF and RxNE are set right now.
+                                 // But after the first read of DR in the BTF handler, the RxNE should be reset then and
+                                 // there, in the middle of the interrupt. From this test suite I cannot simulate that.
+                                 // Therefore, I leave RxNE reset to make sure I am testing the code paths I mean to.
+    I2C1_EV_IRQHandler();
+
+    // Driver should:
+    //  - request STOP since all data has been received
+    //  - reset POS
+    //  - read DR -> store 0xA9
+    //  - enable RxNE interrupts to catch last byte.
+    ASSERT_TRUE(Sim_I2C1.CR1 & I2C_CR1_STOP);
+    ASSERT_FALSE(Sim_I2C1.CR1 & I2C_CR1_POS);
+    ASSERT_TRUE(Sim_I2C1.CR2 & I2C_CR2_ITBUFEN);
+
+    // HW-SIM: Hardware clears BTF and RXNE after 0xA9 is read from DR and
+    // moves 0xB8 from shift register to DR.
+    Sim_I2C1.SR1 &= ~I2C_SR1_BTF;
+    Sim_I2C1.SR1 &= ~I2C_SR1_RXNE;
+    Sim_I2C1.CR1 &= ~I2C_CR1_STOP;
+    Sim_I2C1.DR  = shift_register;
+
+    // Moving shift register into DR sets RxNE and generates interrupt.
+    Sim_I2C1.SR1 |= I2C_SR1_RXNE;
+    I2C1_EV_IRQHandler();
+
+    // Driver should disable RxNE interrupts.
+    ASSERT_FALSE(Sim_I2C1.CR2 & I2C_CR2_ITBUFEN);
+
+    // HW-SIM: Reading DR clears RxNE.
+    Sim_I2C1.SR1 &= ~I2C_SR1_RXNE;
+
+    // --------- Assert results ---------
+    // Then the next servicer call completes the transaction and copies results back
     ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_OK);
     ASSERT_EQ(txn.processing_state, HAL_I2C_TXN_STATE_COMPLETED);
-    ASSERT_EQ(txn.transaction_result, HAL_I2C_TXN_RESULT_FAIL);
-    ASSERT_EQ(txn.actual_bytes_transmitted, static_cast<size_t>(0));
-    ASSERT_EQ(txn.actual_bytes_received,   static_cast<size_t>(0));
+    ASSERT_EQ(txn.transaction_result, HAL_I2C_TXN_RESULT_SUCCESS);
+    ASSERT_EQ(txn.actual_bytes_transmitted, static_cast<size_t>(1));
+    ASSERT_EQ(txn.actual_bytes_received,   static_cast<size_t>(2));
+    ASSERT_EQ(txn.rx_data[0], static_cast<uint8_t>(0xA9));
+    ASSERT_EQ(txn.rx_data[1], static_cast<uint8_t>(0xB8));
 }
 
 TEST_F(I2CDriverTest, ISRHandlesBasicRead4Bytes)
@@ -891,4 +998,63 @@ TEST_F(I2CDriverTest, ISRHandlesBasicRead1Byte)
     ASSERT_EQ(txn.actual_bytes_transmitted, static_cast<size_t>(0));
     ASSERT_EQ(txn.actual_bytes_received,   static_cast<size_t>(1));
     ASSERT_EQ(txn.rx_data[0], static_cast<uint8_t>(0xF6));
+}
+
+TEST_F(I2CDriverTest, ISRHandlesAddressNACK)
+{
+    // Given an initialized I2C driver
+    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+
+    // Prepare a simple 1-byte WRITE so we can hit the address phase.
+    HalI2C_Txn_t txn = {};
+    txn.target_addr               = 0x2A;
+    txn.i2c_op                    = HAL_I2C_OP_WRITE;
+    txn.tx_data[0]                = 0xDE;
+    txn.num_of_bytes_to_tx        = 1;
+    txn.expected_bytes_to_rx      = 0;
+    txn.processing_state          = HAL_I2C_TXN_STATE_CREATED;
+    txn.transaction_result        = HAL_I2C_TXN_RESULT_NONE;
+    txn.actual_bytes_received     = 0;
+    txn.actual_bytes_transmitted  = 0;
+    memset(txn.rx_data, 0, sizeof(txn.rx_data));
+
+    // Given the transaction was submitted successfully
+    ASSERT_EQ(hal_i2c_submit_transaction(&txn), HAL_STATUS_OK);
+    ASSERT_EQ(txn.processing_state, HAL_I2C_TXN_STATE_QUEUED);
+
+    // Given the servicer loads the transaction and asserts START
+    ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_OK);
+    ASSERT_EQ(txn.processing_state, HAL_I2C_TXN_STATE_PROCESSING);
+    ASSERT_TRUE(Sim_I2C1.CR1 & I2C_CR1_START);
+
+    // --------- SB phase ---------
+    // HW-SIM: START condition sent -> SB set
+    Sim_I2C1.SR1 |= I2C_SR1_SB;
+    I2C1_EV_IRQHandler();
+    // Assert address was written to data register in write mode.
+    ASSERT_EQ(Sim_I2C1.DR, static_cast<uint32_t>((txn.target_addr << 1) | 0));
+
+    // HW-SIM: HW would clear SB and then START shortly after
+    Sim_I2C1.SR1 &= ~I2C_SR1_SB;
+    Sim_I2C1.CR1 &= ~I2C_CR1_START;
+
+    // --------- Address NACK error ---------
+    // HW-SIM: target NACKs address -> AF set in SR1, error IRQ fires
+    Sim_I2C1.SR1 |= I2C_SR1_AF;
+    I2C1_ER_IRQHandler();
+
+    // Error ISR should clear AF itself and abort:
+    // - STOP requested
+    // - ITBUFEN disabled
+    // - transfer no longer in progress
+    ASSERT_FALSE(Sim_I2C1.SR1 & I2C_SR1_AF);
+    ASSERT_TRUE(Sim_I2C1.CR1 & I2C_CR1_STOP);
+    ASSERT_FALSE(Sim_I2C1.CR2 & I2C_CR2_ITBUFEN);
+
+    // Finalize: servicer should complete the transaction with FAIL
+    ASSERT_EQ(hal_i2c_transaction_servicer(), HAL_STATUS_OK);
+    ASSERT_EQ(txn.processing_state, HAL_I2C_TXN_STATE_COMPLETED);
+    ASSERT_EQ(txn.transaction_result, HAL_I2C_TXN_RESULT_FAIL);
+    ASSERT_EQ(txn.actual_bytes_transmitted, static_cast<size_t>(0));
+    ASSERT_EQ(txn.actual_bytes_received,   static_cast<size_t>(0));
 }

@@ -5,6 +5,7 @@ add_library(
     system/stm32f4_hal_system.c
     i2c/src/i2c_transaction_queue.c
     i2c/src/stm32f4_i2c.c
+    pwm/src/stm32f4_pwm.c
     uart/src/stm32f4_uart.c
     uart/src/stm32f4_uart1.c
     uart/src/stm32f4_uart2.c

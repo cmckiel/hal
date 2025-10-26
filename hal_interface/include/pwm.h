@@ -3,6 +3,6 @@
 
 #include "hal_types.h"
 
-HalStatus_t hal_pwm_init(uint32_t pwm_frequency_khz);
+HalStatus_t hal_pwm_init(uint32_t pwm_frequency_hz);
 
 #endif /* _PWM_H */

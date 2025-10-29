@@ -9,17 +9,252 @@
 #endif
 
 // @todo Calculate this smartly starting from SYSCLK
-#define TIM1_FREQ_HZ 168000000
+#define TIM1_FREQ_HZ 16000000
 
+/*********************************************************************************************/
+// Common Output Compare Modes used to configure the pin's behavior when counting events occur.
+/*********************************************************************************************/
+/// @brief PWM Mode 1: In upcounting, channel 1 is active as long as TIM1_CNT<TIM1_CCR1 else inactive.
+/// Classic PWM.
+#define OC_MODE_PWM_1       0b110u
+/// @brief Forced low: Output pin forced low. (0% duty cycle)
+#define OC_MODE_FORCED_LOW  0b100u
+/// @brief Forced high: Output pin forced high (100% duty cycle)
+#define OC_MODE_FORCED_HIGH 0b101u
+
+static bool pwm_state_enabled = false;
+
+/*********************************************************************************************/
+// Forward declarations
+/*********************************************************************************************/
 static void configure_gpios();
 static void configure_timer(uint32_t pwm_frequency_hz);
+static void compute_psc_arr(uint32_t pwm_frequency_hz, uint16_t* psc_out, uint16_t* arr_out);
+
+/*********************************************************************************************/
+// Inline helpers
+/*********************************************************************************************/
+/**
+ * @brief Force an update event: load preloaded ARR/CCR/PSC
+ */
+static inline void tim1_force_update(void)
+{
+    // EGR: Event Generation Register
+    //  UG: Update Generate
+    TIM1->EGR = TIM_EGR_UG;
+}
+
+/**
+ * @brief Sets the output compare mode for channel one.
+ * @param ocm Output compare mode - The important modes of
+ * operation are as follows:
+ *   1. @ref OC_MODE_PWM_1 Classic PWM signal. Valid duty cycles of 1% - 99%.
+ *   2. @ref OC_MODE_FORCED_LOW Output forced low. Duty cycle is 0%.
+ *   3. @ref OC_MODE_FORCED_HIGH Output forced high. Duty cycle is 100%.
+ */
+static inline void tim1_ch1_set_ocmode(uint32_t ocm)
+{
+    // CCMR: Capture/Compare Mode Register
+    TIM1->CCMR1 = (TIM1->CCMR1 & ~TIM_CCMR1_OC1M) | (ocm << TIM_CCMR1_OC1M_Pos);
+}
+
+/**
+ * @brief Apply prescaler (psc) and auto-reload (arr) values to their registers.
+ * Determines the frequency of the PWM signal.
+ */
+static inline void apply_psc_arr(uint16_t psc, uint16_t arr)
+{
+    TIM1->CR1 &= ~TIM_CR1_CEN;      // stop counter during reprogram (optional, safer)
+    TIM1->PSC  = psc;
+    TIM1->ARR  = arr;
+    tim1_force_update();
+    TIM1->CR1 |= TIM_CR1_CEN;
+}
+
+/**
+ * @brief Set PWM Duty Cycle to 0%. (Hold output low)
+ */
+static inline void set_forced_inactive(void)
+{
+    tim1_ch1_set_ocmode(OC_MODE_FORCED_LOW);
+    tim1_force_update();
+}
+
+/**
+ * @brief Set PWM Duty Cycle to 100%. (Hold output high)
+ */
+static inline void set_forced_active(void)
+{
+    tim1_ch1_set_ocmode(OC_MODE_FORCED_HIGH);
+    tim1_force_update();
+}
+
+/**
+ * @brief Set PWM Mode to classic PWM mode (1%-99% duty cycle)
+ */
+static inline void set_pwm_mode1(void)
+{
+    tim1_ch1_set_ocmode(OC_MODE_PWM_1);
+    tim1_force_update();
+}
+
+/*********************************************************************************************/
+// Public Interface
+/*********************************************************************************************/
 
 HalStatus_t hal_pwm_init(uint32_t pwm_frequency_hz)
 {
+    // Safe default values for psc and arr.
+    uint16_t psc = 0;
+    uint16_t arr = 1;
+
     configure_gpios();
-    configure_timer(pwm_frequency_hz);
+    compute_psc_arr(pwm_frequency_hz, &psc, &arr);
+
+    TIM1->CR1 = 0;
+    TIM1->PSC = psc;
+    TIM1->ARR = arr;
+    tim1_force_update();
+
+    // Enable preload for ARR and CCR1
+    TIM1->CCMR1 |= TIM_CCMR1_OC1PE;
+    TIM1->CR1 |= TIM_CR1_ARPE;
+
+    // Start in a safe state. (0% PWM)
+    set_forced_inactive();
+
+    // Set the polarity to be active high.
+    TIM1->CCER &= ~(TIM_CCER_CC1P | TIM_CCER_CC1NP);
+
+    // Enable output for channel 1
+    TIM1->CCER |= TIM_CCER_CC1E;
+
+    // MOE: Main output enable. Necessary to get the output out of the timer and
+    // to the configured output pin.
+    TIM1->BDTR |= TIM_BDTR_MOE;
+
+    // Start the counter. Output is still forced low.
+    TIM1->CR1 |= TIM_CR1_CEN;
+
+    pwm_state_enabled = false;
+
     return HAL_STATUS_OK;
 }
+
+void hal_pwm_enable(bool enable)
+{
+    if (enable)
+    {
+        pwm_state_enabled = true;
+    }
+    else
+    {
+        pwm_state_enabled = false;
+        set_forced_inactive();
+    }
+}
+
+void hal_pwm_set_duty_cycle(uint8_t percent)
+{
+    // Always set pwm low if called with 0%, regardless of pwm_state_enabled,
+    // for safety.
+    if (percent == 0)
+    {
+        set_forced_inactive();
+        return;
+    }
+
+    if (pwm_state_enabled)
+    {
+        if (percent >= 100)
+        {
+            set_forced_active();
+            return;
+        }
+
+        // percent is something between 1%-99%.
+        set_pwm_mode1();
+
+        // Calulate CCR1
+        uint32_t arrp1 = (uint32_t)TIM1->ARR + 1u;
+        // CCR = round(percent/100 * (ARR+1))
+        // Common rounding trick for integers:
+        // result = (numerator * scale + divisor/2) / divisor;
+        uint32_t ccr = ( (uint32_t)percent * arrp1 + 50u ) / 100u;
+
+        // Avoid accidental 0%.
+        if (ccr == 0u)
+        {
+            ccr = 1u;
+        }
+
+        // Keep within [1..ARR]
+        if (ccr > TIM1->ARR)
+        {
+            ccr = TIM1->ARR;
+        }
+
+        // Apply to CCR1
+        TIM1->CCR1 = (uint16_t)ccr;
+        // With OC1PE=1, CCR update latches on next UG/overflow. Force UG to apply now:
+        tim1_force_update();
+    }
+}
+
+void hal_pwm_set_frequency(uint32_t pwm_frequency_hz)
+{
+    if (pwm_state_enabled)
+    {
+        // Compute new PSC/ARR and apply
+        uint16_t psc=0;
+        uint16_t arr=1;
+        compute_psc_arr(pwm_frequency_hz, &psc, &arr);
+
+        // Capture current ratio before changing ARR
+        float ratio = 0.0f;
+        if ((TIM1->CCMR1 & TIM_CCMR1_OC1M) == (OC_MODE_PWM_1 << TIM_CCMR1_OC1M_Pos))
+        {
+            ratio = (float)TIM1->CCR1 / (float)(TIM1->ARR + 1u);
+        }
+
+        apply_psc_arr(psc, arr);
+
+        // Restore ratio if applicable
+        if (ratio > 0.0f && ratio < 1.0f)
+        {
+            uint32_t arrp1 = (uint32_t)TIM1->ARR + 1u;
+            uint32_t ccr   = (uint32_t)(ratio * (float)arrp1 + 0.5f);
+
+            // Avoid accidental 0%.
+            if (ccr == 0u)
+            {
+                ccr = 1u;
+            }
+
+            // Keep within [1..ARR]
+            if (ccr > TIM1->ARR)
+            {
+                ccr = TIM1->ARR;
+            }
+
+            TIM1->CCR1 = (uint16_t)ccr;
+            set_pwm_mode1();
+            tim1_force_update();
+        }
+        else if (ratio >= 1.0f)
+        {
+            set_forced_active();
+        }
+        else
+        { // ratio == 0.0f
+            set_forced_inactive();
+        }
+    }
+}
+
+/*********************************************************************************************/
+// Private Functions
+/*********************************************************************************************/
 
 static void configure_gpios()
 {
@@ -45,10 +280,12 @@ static void configure_gpios()
     // Optional: Set high speed?
 }
 
-static void configure_timer(uint32_t pwm_frequency_hz)
+static void compute_psc_arr(uint32_t pwm_frequency_hz, uint16_t* psc_out, uint16_t* arr_out)
 {
     // Ensure frequency is non-zero
     pwm_frequency_hz = pwm_frequency_hz ? pwm_frequency_hz : 1;
+    // Ensure we clamp high side.
+    pwm_frequency_hz = (pwm_frequency_hz > TIM1_FREQ_HZ) ? TIM1_FREQ_HZ : pwm_frequency_hz;
 
     // target_count: The number of ticks of the timer 1 clock we must count in
     // order to create a pwm of the requested hz.
@@ -110,10 +347,19 @@ static void configure_timer(uint32_t pwm_frequency_hz)
     // Now derive (arr + 1) from psc:
     uint32_t arr = (target_count / (psc + 1));
 
-    // Ensure (arr + 1) is positive before subtracting to get arr.
-    if (arr != 0)
+    // Ensure ARR is positive before subtracting to get the true ARR.
+    if (arr > 0)
     {
         arr -= 1;
+    }
+
+    // Ensure ARR is never zero. Only perform the subtraction if it doesn't take us to zero.
+    // ARR must never be zero because it ruins the counting loop 0 -> ARR -> 0 -> ARR -> ... and
+    // floods the system with constant update events. A genuine PWM cannot be generated at all in
+    // the case ARR = 0.
+    if (arr == 0)
+    {
+        arr = 1;
     }
 
     // Ensure arr is in 16 bit bounds.
@@ -122,7 +368,9 @@ static void configure_timer(uint32_t pwm_frequency_hz)
         arr = 0xFFFF;
     }
 
-    // Now we have the actual values to set PSC and ARR.
-    TIM1->PSC = (uint16_t)psc;
-    TIM1->ARR = (uint16_t)arr;
+    if (psc_out && arr_out)
+    {
+        *psc_out = (uint16_t)psc;
+        *arr_out = (uint16_t)arr;
+    }
 }

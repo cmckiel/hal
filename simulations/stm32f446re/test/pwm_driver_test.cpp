@@ -46,23 +46,51 @@ TEST_F(PWMDriverTest, ConfiguresGPIOCorrectly)
 TEST_F(PWMDriverTest, CalculatesPSC)
 {
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(200));
-    ASSERT_EQ(Sim_TIM1.PSC, 12);
+    ASSERT_EQ(Sim_TIM1.PSC, 1);
 
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20000));
     ASSERT_EQ(Sim_TIM1.PSC, 0);
 
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(10));
-    ASSERT_EQ(Sim_TIM1.PSC, 256);
+    ASSERT_EQ(Sim_TIM1.PSC, 24);
 }
 
 TEST_F(PWMDriverTest, CalculatesARR)
 {
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(200));
-    ASSERT_EQ(Sim_TIM1.ARR, 64614);
+    ASSERT_EQ(Sim_TIM1.ARR, 39999);
 
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20000));
-    ASSERT_EQ(Sim_TIM1.ARR, 8399);
+    ASSERT_EQ(Sim_TIM1.ARR, 799);
 
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(10));
-    ASSERT_EQ(Sim_TIM1.ARR, 65368);
+    ASSERT_EQ(Sim_TIM1.ARR, 63999);
+}
+
+TEST_F(PWMDriverTest, ConfiguresPeripheralCorrectly)
+{
+    // Upon calling init()...
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(200));
+
+    // Ensure ARR (Auto Reload Register) and CCR1 (compare/compare register 1) are
+    // preloaded. Meaning software updates to their values don't take place immediately but
+    // instead happen simultaneously during timer update events.
+    ASSERT_TRUE(Sim_TIM1.CCMR1 & TIM_CCMR1_OC1PE); // Output compare preload enable.
+    ASSERT_TRUE(Sim_TIM1.CR1 & TIM_CR1_ARPE);      // Auto reload preload enable.
+
+    // Ensure output starts forced low for safety reasons.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u); // 0b100 is code for forced low.
+
+    // Ensure active high.
+    ASSERT_FALSE(Sim_TIM1.CCER & TIM_CCER_CC1P);
+    ASSERT_FALSE(Sim_TIM1.CCER & TIM_CCER_CC1NP);
+
+    // Ensure output is enabled for channel 1.
+    ASSERT_TRUE(Sim_TIM1.CCER & TIM_CCER_CC1E);
+
+    // Ensure the main output is enabled.
+    ASSERT_TRUE(Sim_TIM1.BDTR & TIM_BDTR_MOE);
+
+    // Ensure the counter is started.
+    ASSERT_TRUE(Sim_TIM1.CR1 & TIM_CR1_CEN);
 }

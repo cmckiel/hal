@@ -20,6 +20,10 @@ protected:
     }
 };
 
+/***********************************************************************/
+// Init tests
+/***********************************************************************/
+
 TEST_F(PWMDriverTest, ConfiguresGPIOCorrectly)
 {
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20));
@@ -93,4 +97,40 @@ TEST_F(PWMDriverTest, ConfiguresPeripheralCorrectly)
 
     // Ensure the counter is started.
     ASSERT_TRUE(Sim_TIM1.CR1 & TIM_CR1_CEN);
+}
+
+/***********************************************************************/
+// Set duty cycle tests
+/***********************************************************************/
+
+TEST_F(PWMDriverTest, SetZeroDutyCycleResultsInForcedLow)
+{
+    // Arrange: Initialize driver, enable the output, and set to a non-zero duty-cycle.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20000));
+    hal_pwm_enable(true);
+    hal_pwm_set_duty_cycle(25);
+
+    // Confirm the driver has been "arranged" into the standard pwm mode.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b110u);
+
+    // Act: Now, set duty cycle to zero.
+    hal_pwm_set_duty_cycle(0);
+
+    // Assert: Forced low has been set.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
+}
+
+TEST_F(PWMDriverTest, SetZeroDutyCycleResultsInForcedLowRegardlessOfEnable)
+{
+    // Arrange: Initialize driver and manually set mode from outside the driver (testing only)
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20000));
+    Sim_TIM1.CCMR1 = (TIM1->CCMR1 & ~TIM_CCMR1_OC1M) | (0b110u << TIM_CCMR1_OC1M_Pos);
+    // Confirm the driver has been "arranged" into the standard pwm mode.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b110u);
+
+    // Act: Now, set duty cycle to zero.
+    hal_pwm_set_duty_cycle(0);
+
+    // Assert: Forced low has been set.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
 }

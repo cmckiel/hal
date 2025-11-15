@@ -146,6 +146,11 @@ void hal_pwm_enable(bool enable)
     if (enable)
     {
         pwm_state_enabled = true;
+        // Resume the previous setting if there was one.
+        if (TIM1->CCR1 != 0)
+        {
+            set_pwm_mode1();
+        }
     }
     else
     {

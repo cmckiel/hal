@@ -134,3 +134,158 @@ TEST_F(PWMDriverTest, SetZeroDutyCycleResultsInForcedLowRegardlessOfEnable)
     // Assert: Forced low has been set.
     ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
 }
+
+TEST_F(PWMDriverTest, SetFullDutyCycleResultsInForcedHigh)
+{
+    // Arrange: Initialize driver, enable the output, and confirm default forced low mode.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20000));
+    hal_pwm_enable(true);
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
+
+    // Act: Now, set duty cycle to 100%.
+    hal_pwm_set_duty_cycle(100);
+
+    // Assert: Forced high has been set.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b101u);
+}
+
+TEST_F(PWMDriverTest, SetPartialDutyCycleResultsInPWMMode)
+{
+    // Arrange: Initialize driver, enable the output, and confirm default forced low mode.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20000));
+    hal_pwm_enable(true);
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
+
+    // Act: Now, set duty cycle to 50%.
+    hal_pwm_set_duty_cycle(50);
+
+    // Assert: PWM mode has been set.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b110u);
+}
+
+TEST_F(PWMDriverTest, SetsDutyCycleRegisterCorrectly)
+{
+    // Arrange: Initialize driver, enable the output, and confirm default forced low mode.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20000));
+    hal_pwm_enable(true);
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
+
+    // Act: Now, set duty cycle to 30%.
+    hal_pwm_set_duty_cycle(30);
+
+    // Assert: The CCR1 register shall be 30% of ARR register.
+    uint16_t ccr = Sim_TIM1.CCR1;
+    uint16_t arr = Sim_TIM1.ARR;
+    double ccr_ratio = (double)ccr / (double)arr;
+
+    ASSERT_TRUE(0.29 < ccr_ratio && ccr_ratio < 0.31);
+}
+
+TEST_F(PWMDriverTest, SetDutyCycleHandlesAboveMaxDutyCycle)
+{
+    // Arrange: Initialize driver and enable the output.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20000));
+    hal_pwm_enable(true);
+
+    // Act: Now, set duty cycle to 200%.
+    hal_pwm_set_duty_cycle(200);
+
+    // Assert: Forced high has been set.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b101u);
+}
+
+/***********************************************************************/
+// Enable/disable tests
+/***********************************************************************/
+
+TEST_F(PWMDriverTest, DriverMustBeEnabled)
+{
+    // Arrange: Initialize driver and ensure forced low is the default.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20000));
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
+
+    // Act: Set non-zero duty cycle.
+    hal_pwm_set_duty_cycle(40);
+
+    // Assert: Without enable, forced low is still set and ccr1 is zero.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
+    ASSERT_EQ(Sim_TIM1.CCR1, 0);
+}
+
+TEST_F(PWMDriverTest, DriverMustBeEnabledPriorToSetDutyCycle)
+{
+    // Arrange: Initialize driver and ensure forced low is the default.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20000));
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
+
+    // Act: Set non-zero duty cycle.
+    hal_pwm_set_duty_cycle(40);
+
+    // Assert: Without enable, forced low is still set and ccr1 is zero.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
+    ASSERT_EQ(Sim_TIM1.CCR1, 0);
+
+    // Act: Enable the driver.
+    hal_pwm_enable(true);
+
+    // Assert: Previous set_duty_cycle() call had no effect while driver was disabled,
+    // forced low is still set and ccr1 is zero. Value was thrown away.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
+    ASSERT_EQ(Sim_TIM1.CCR1, 0);
+
+    // Act: Set non-zero duty cycle again now that driver is enabled.
+    hal_pwm_set_duty_cycle(40);
+
+    // Assert: With enable, PWM mode was set and ccr1 has a value.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b110u);
+    ASSERT_NE(Sim_TIM1.CCR1, 0);
+}
+
+TEST_F(PWMDriverTest, DisablingDriverCutsOutput)
+{
+    // Arrange: Initialize driver, enable, and set pwm to a non-zero value.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20000));
+    hal_pwm_enable(true);
+    hal_pwm_set_duty_cycle(65);
+    // Confirm active pwm signal.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b110u);
+    ASSERT_NE(Sim_TIM1.CCR1, 0);
+
+    // Act: Disable the driver.
+    hal_pwm_enable(false);
+
+    // Assert: The driver is disabled.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
+}
+
+TEST_F(PWMDriverTest, ReenablingDriverResumesPreviousDutyCycle)
+{
+    // Arrange: Initialize driver, enable, and set pwm to a non-zero value.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20000));
+    hal_pwm_enable(true);
+    hal_pwm_set_duty_cycle(65);
+    // Confirm active pwm signal.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b110u);
+    ASSERT_NE(Sim_TIM1.CCR1, 0);
+    // Store the current ccr and arr values.
+    uint16_t arr = Sim_TIM1.ARR;
+    uint16_t ccr = Sim_TIM1.CCR1;
+
+    // Act: Disable the driver.
+    hal_pwm_enable(false);
+
+    // Assert: The driver is disabled.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
+
+    // Act: Re-enable the driver.
+    hal_pwm_enable(true);
+
+    // Assert: The driver is enabled and acting at the previous duty cycle.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b110u);
+    ASSERT_EQ(Sim_TIM1.ARR, arr);
+    ASSERT_EQ(Sim_TIM1.CCR1, ccr);
+}
+
+/***********************************************************************/
+// Set frequency tests
+/***********************************************************************/

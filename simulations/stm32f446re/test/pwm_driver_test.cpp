@@ -289,3 +289,42 @@ TEST_F(PWMDriverTest, ReenablingDriverResumesPreviousDutyCycle)
 /***********************************************************************/
 // Set frequency tests
 /***********************************************************************/
+
+TEST_F(PWMDriverTest, SetFrequencySetsANewFrequency)
+{
+    // Arrange: Initialize the driver, enable, and confirm ARR & PSC values.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(200));
+    hal_pwm_enable(true);
+    ASSERT_EQ(Sim_TIM1.PSC, 1);
+    ASSERT_EQ(Sim_TIM1.ARR, 39999);
+
+    // Act: Set a new frequency.
+    hal_pwm_set_frequency(20000);
+
+    // Assert: New ARR and PSC values are correct for new input frequency.
+    ASSERT_EQ(Sim_TIM1.PSC, 0);
+    ASSERT_EQ(Sim_TIM1.ARR, 799);
+}
+
+TEST_F(PWMDriverTest, SetFrequencyRestoresPreviousDutyCycle)
+{
+    // Arrange: Initialize the driver, enable, and set a 30% duty cycle.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(200));
+    hal_pwm_enable(true);
+    hal_pwm_set_duty_cycle(30);
+
+    // Confirm the 30% duty cycle.
+    uint16_t ccr = Sim_TIM1.CCR1;
+    uint16_t arr = Sim_TIM1.ARR;
+    double ccr_ratio = (double)ccr / (double)arr;
+    ASSERT_TRUE(0.29 < ccr_ratio && ccr_ratio < 0.31);
+
+    // Act: Set a new frequency.
+    hal_pwm_set_frequency(20000);
+
+    // Assert: The old ratio was maintained.
+    ccr = Sim_TIM1.CCR1;
+    arr = Sim_TIM1.ARR;
+    ccr_ratio = (double)ccr / (double)arr;
+    ASSERT_TRUE(0.29 < ccr_ratio && ccr_ratio < 0.31);
+}

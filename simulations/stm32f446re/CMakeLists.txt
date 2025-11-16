@@ -20,6 +20,15 @@ add_library(
     ../../platforms/stm32f446re/hal/pwm/src/stm32f4_pwm.c
 )
 
+target_compile_options(uart_driver PRIVATE --coverage)
+target_link_options(uart_driver PUBLIC --coverage)
+
+target_compile_options(i2c_driver PRIVATE --coverage)
+target_link_options(i2c_driver PUBLIC --coverage)
+
+target_compile_options(pwm_driver PRIVATE --coverage)
+target_link_options(pwm_driver PUBLIC --coverage)
+
 target_compile_definitions(
     uart_driver
     PRIVATE

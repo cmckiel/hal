@@ -27,7 +27,7 @@
 HalStatus_t hal_pwm_init(uint32_t pwm_frequency_hz);
 
 /**
- * @brief enable or disable the pwm signal. If disabled, nothing with show up on pins.
+ * @brief enable or disable the pwm signal. If disabled, nothing will show up on pins.
  *
  * @param enable true to enable the driver, false to disable.
  */

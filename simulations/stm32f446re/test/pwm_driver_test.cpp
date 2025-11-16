@@ -328,3 +328,30 @@ TEST_F(PWMDriverTest, SetFrequencyRestoresPreviousDutyCycle)
     ccr_ratio = (double)ccr / (double)arr;
     ASSERT_TRUE(0.29 < ccr_ratio && ccr_ratio < 0.31);
 }
+
+/***********************************************************************/
+// Miscellaneous tests
+/***********************************************************************/
+
+TEST_F(PWMDriverTest, SetDutyCycleZeroDoesNotDependOnDriverEnable)
+{
+    // Arrange: Given an initialized and enabled driver operating at 50% duty cycle.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_init(20000));
+    hal_pwm_enable(true);
+    hal_pwm_set_duty_cycle(50);
+
+    // Confirm 50% duty cycle.
+    uint16_t ccr = Sim_TIM1.CCR1;
+    uint16_t arr = Sim_TIM1.ARR;
+    double ccr_ratio = (double)ccr / (double)arr;
+    ASSERT_TRUE(0.49 < ccr_ratio && ccr_ratio < 0.51);
+
+    // Act: Disable driver, set 0% duty cycle, re-enable driver.
+    hal_pwm_enable(false);
+    hal_pwm_set_duty_cycle(0);
+    hal_pwm_enable(true);
+
+    // Assert: Driver is forced low and CCR1 is zero.
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u); // 0b100 is code for forced low.
+    ASSERT_EQ(Sim_TIM1.CCR1, 0);
+}

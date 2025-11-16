@@ -166,6 +166,7 @@ void hal_pwm_set_duty_cycle(uint8_t percent)
     if (percent == 0)
     {
         set_forced_inactive();
+        TIM1->CCR1 = 0;
         return;
     }
 
@@ -294,21 +295,21 @@ static void compute_psc_arr(uint32_t pwm_frequency_hz, uint16_t* psc_out, uint16
 
     // target_count: The number of ticks of the timer 1 clock we must count in
     // order to create a pwm of the requested hz.
-    // Eg: 20 khz pwm request -> 168,000,000 / 20,000 = 8400
+    // Eg: 20 khz pwm request -> 16,000,000 / 20,000 = 800
     // This is used to generate a 20 khz clock by repeatedly counting from
-    // 0 -> 8399 -> 0 -> 8399 -> 0 -> 8399 -> ...
+    // 0 -> 799 -> 0 -> 799 -> 0 -> 799 -> ...
     // and counting each time we roll over.
-    // 0         -> 1         -> 2         -> ...
+    // 0        -> 1        -> 2        -> ...
     // The rollover count will be a 20 khz clock.
     uint32_t target_count = TIM1_FREQ_HZ / pwm_frequency_hz;
 
     // Determine the prescaler (psc): For slow pwm signals (say 200 Hz), we would need
-    // to count very high. For a 168,000,000 timer 1 clock, this would mean repeatedly
-    // counting to 168,000,000 / 200 = 840,000 ticks. The problem is that the counting
-    // register (ARR) is only 16 bits. 840,000 = 0xCD140 > 0xFFFF means we can't count
+    // to count very high. For a 16,000,000 timer 1 clock, this would mean repeatedly
+    // counting to 16,000,000 / 200 = 80,000 ticks. The problem is that the counting
+    // register (ARR) is only 16 bits. 80,000 = 0x13880 > 0xFFFF means we can't count
     // high enough using the 16 bit register. In order to solve this, the prescaler
     // allows us to divide the input clock when counting. For example, if we set psc to
-    // 12, we get: 840,000 / (12 + 1) = 64,615 which is less than 0xFFFF = 65,535. Now we have
+    // 1, we get: 80,000 / (1 + 1) = 40,000 which is less than 0xFFFF = 65,535. Now we have
     // a number small enough that we can count to.
     //
     // The general formula is based on the following:
@@ -321,10 +322,10 @@ static void compute_psc_arr(uint32_t pwm_frequency_hz, uint16_t* psc_out, uint16
     // So, at first, it seems like target_count / 0x10000 would do the trick if we
     // we remember to subtract 1 later. The problem is that int math rounds down.
     // Using our example earlier (200 Hz PWM):
-    // target_count = 840,000 => 840,000 / 65,536 = 12.8 => (C rounds down) => 12.
-    // then subtract 1 => 12 - 1 = 11
-    // And psc of 11 implies (arr + 1) = 840,000 / (11 + 1) = 70,000
-    // implies arr = 69,999 which is greater than 65,535 and cannot fit in arr. We
+    // target_count = 80,000 => 80,000 / 65,536 = 1.22 => (C rounds down) => 1.
+    // then subtract 1 => 1 - 1 = 0
+    // And psc of 0 implies (arr + 1) = 80,000 / (0 + 1) = 80,000
+    // implies arr = 79,999 which is greater than 65,535 and cannot fit in arr. We
     // therefore would have a problem with floor(target_count / 0x10000).
     //
     // So, we need ceil(target_count / 0x10000) which can be calculated using an
@@ -335,9 +336,9 @@ static void compute_psc_arr(uint32_t pwm_frequency_hz, uint16_t* psc_out, uint16
     uint32_t psc = (target_count + 0xFFFF) / 0x10000;
 
     // We need to subtract 1 because under the hood the prescaler performs it's job by
-    // counting, but starting at zero. So if above, we got psc = 13, we subtract 1 so we
-    // get psc = 12. Then it counts: 0, 1, 2, 3, ..., 10, 11, 12, 0, 1, 2, ...
-    // And the rollover happens after 12, but there are 13 states of the counter.
+    // counting, but starting at zero. So if above, we got psc = 2, we subtract 1 so we
+    // get psc = 1. Then it counts: 0, 1, 0, 1, 0, 1, ...
+    // And the rollover happens after 1, but there are 2 states of the counter.
     if (psc != 0)
     {
         psc -= 1;

@@ -5,6 +5,7 @@
 #include "hal_system.h"
 #include "uart.h"
 #include "i2c.h"
+#include "pwm.h"
 
 #define MAX_RX_BYTES 1024
 
@@ -111,6 +112,10 @@ int main(void)
 	hal_uart_init(HAL_UART1, NULL);
 	hal_uart_init(HAL_UART2, NULL);
 	hal_i2c_init(NULL);
+	hal_pwm_init(20000); // 20kHz
+
+	hal_pwm_enable(true);
+	hal_pwm_set_duty_cycle(25);
 
 	// printf("\033[2J");   // clear screen
 	// printf("\033[H");    // move cursor to 1,1

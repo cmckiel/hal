@@ -39,5 +39,21 @@
             // Add LD_LIBRARY_PATH etc. here if your test exe needs it
             ]
         },
+        {
+            "name": "Desktop Unit Tests: pwm_driver_test",
+            "type": "cppdbg",                 // use "cppvsdbg" if you’re on MSVC/Windows
+            "request": "launch",
+            "program": "${workspaceRoot}/build/desktop-debug/simulations/stm32f446re/pwm_driver_test",
+            //   "program": "${command:cmake.launchTargetPath}",  // auto-filled by CMake Tools
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb",                  // or "lldb" / "gdb"
+            "stopAtEntry": false,
+            //   "preLaunchTask": "build-desktop", // see sample task below
+            "externalConsole": false,
+            "args": ["--gtest_filter=*"],     // run all tests; change as you like
+            "environment": [
+            // Add LD_LIBRARY_PATH etc. here if your test exe needs it
+            ]
+        },
     ],
 }

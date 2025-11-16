@@ -15,6 +15,11 @@ add_library(
     ../../platforms/stm32f446re/hal/i2c/src/i2c_transaction_queue.c
 )
 
+add_library(
+    pwm_driver
+    ../../platforms/stm32f446re/hal/pwm/src/stm32f4_pwm.c
+)
+
 target_compile_definitions(
     uart_driver
     PRIVATE
@@ -23,6 +28,12 @@ target_compile_definitions(
 
 target_compile_definitions(
     i2c_driver
+    PRIVATE
+    SIMULATION_BUILD
+)
+
+target_compile_definitions(
+    pwm_driver
     PRIVATE
     SIMULATION_BUILD
 )
@@ -43,6 +54,13 @@ target_include_directories(
     ../../platforms/stm32f446re/hal/i2c/include
 )
 
+target_include_directories(
+    pwm_driver
+    PUBLIC
+    ../../hal_interface/include
+    ../../platforms/stm32f446re/hal/include
+)
+
 target_link_libraries(
     uart_driver
     PRIVATE
@@ -55,6 +73,12 @@ target_link_libraries(
     PRIVATE
     stm32f4_mock
     circular_buffer
+)
+
+target_link_libraries(
+    pwm_driver
+    PRIVATE
+    stm32f4_mock
 )
 
 add_executable(
@@ -72,6 +96,12 @@ add_executable(
     test/main.cpp
 )
 
+add_executable(
+    pwm_driver_test
+    test/pwm_driver_test.cpp
+    test/main.cpp
+)
+
 target_link_libraries(
     uart_driver_test
     uart_driver
@@ -90,8 +120,17 @@ target_link_libraries(
     GTest::gtest_main
 )
 
+target_link_libraries(
+    pwm_driver_test
+    pwm_driver
+    stm32f4_mock
+    GTest::gtest
+    GTest::gtest_main
+)
+
 enable_testing()
 
 include(GoogleTest)
 gtest_discover_tests(uart_driver_test)
 gtest_discover_tests(i2c_driver_test)
+gtest_discover_tests(pwm_driver_test)

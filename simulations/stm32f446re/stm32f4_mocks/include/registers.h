@@ -1059,7 +1059,7 @@ typedef struct
 #define PWR                 ((PWR_TypeDef *) PWR_BASE)
 #define DAC1                ((DAC_TypeDef *) DAC_BASE)
 #define DAC                 ((DAC_TypeDef *) DAC_BASE) /* Kept for legacy purpose */
-#define TIM1                ((TIM_TypeDef *) TIM1_BASE)
+// #define TIM1                ((TIM_TypeDef *) TIM1_BASE)
 #define TIM8                ((TIM_TypeDef *) TIM8_BASE)
 // #define USART1              ((USART_TypeDef *) USART1_BASE)
 #define USART6              ((USART_TypeDef *) USART6_BASE)
@@ -15968,6 +15968,9 @@ extern USART_TypeDef Sim_USART2;
 
 extern I2C_TypeDef Sim_I2C1;
 #define I2C1 (&Sim_I2C1)
+
+extern TIM_TypeDef Sim_TIM1;
+#define TIM1 (&Sim_TIM1)
 
 extern SysTick_Type Sim_SysTick;
 #define SysTick (&Sim_SysTick)

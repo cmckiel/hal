@@ -121,7 +121,7 @@ jobs:
 
     - name: Run hardware test
       run: |
-        python3 tests/itegration/uart_test.py
+        python3 tests/integration/uart_test.py
         echo "Test completed with exit code: $?"
 
     - name: Reset hardware (cleanup)

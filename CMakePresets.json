@@ -59,7 +59,8 @@
         {
             "name": "desktop-debug",
             "displayName": "Desktop Unit Tests",
-            "configurePreset": "desktop-debug"
+            "configurePreset": "desktop-debug",
+            "output": { "outputOnFailure": true }
         }
     ]
 }

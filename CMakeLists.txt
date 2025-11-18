@@ -32,7 +32,7 @@ if(DESKTOP_BUILD)
 
   include(CTest)
 
-  add_custom_target(cppcheck ALL
+  add_custom_target(CppCheck ALL
       COMMAND ${CPPCHECK_EXECUTABLE}
           --error-exitcode=1
           --project=${CMAKE_BINARY_DIR}/compile_commands.json

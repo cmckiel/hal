@@ -1,4 +1,4 @@
-name: CI Build
+name: CI Pipeline
 
 on:
   push:
@@ -27,32 +27,75 @@ jobs:
     - name: Build (${{ matrix.preset }})
       run: cmake --build --preset ${{ matrix.preset }}
 
-    # Upload artifacts for further testing
+    # Upload embedded debug artifacts for further testing
     - name: Upload firmware artifact
       if: matrix.preset == 'embedded-debug'
       uses: actions/upload-artifact@v4
       with:
-        name: firmware-${{ github.sha }}
+        name: firmware-debug-${{ github.sha }}
         path: |
           build/embedded-debug/hal_integration_test.bin
           build/embedded-debug/hal_integration_test.elf
         retention-days: 7
 
-    - name: Create desktop test archive
+    # Upload embedded release artifacts for further testing
+    - name: Upload firmware artifact
+      if: matrix.preset == 'embedded-release'
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware-release-${{ github.sha }}
+        path: |
+          build/embedded-release/hal_integration_test.bin
+          build/embedded-release/hal_integration_test.elf
+        retention-days: 7
+
+    - name: Create desktop-debug archive
       if: matrix.preset == 'desktop-debug'
       run: |
         # Create a tarball that preserves permissions
         cd build/desktop-debug
-        tar -czf ../../desktop-tests.tar.gz .
+        tar -czf ../../desktop-debug.tar.gz .
         cd ../..
 
-    - name: Upload desktop test archive
+    - name: Upload desktop-debug archive
       if: matrix.preset == 'desktop-debug'
       uses: actions/upload-artifact@v4
       with:
-        name: desktop-tests-${{ github.sha }}
-        path: desktop-tests.tar.gz
+        name: desktop-debug-${{ github.sha }}
+        path: desktop-debug.tar.gz
         retention-days: 7
+
+  analyze:
+    name: Analyze with ${{ matrix.preset }}
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: cmckiel/hal-build-environment:latest
+
+    strategy:
+      matrix:
+        preset: [CppCheck, ClangTidy]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Download desktop-debug archive
+      uses: actions/download-artifact@v4
+      with:
+        name: desktop-debug-${{ github.sha }}
+        path: ./
+
+    - name: Extract desktop-debug with permissions
+      run: |
+        mkdir -p build/desktop-debug
+        tar -xzf desktop-debug.tar.gz -C build/desktop-debug
+
+    - name: Analyze with ${{ matrix.preset }}
+      run: |
+        cmake --build --preset desktop-debug -t ${{ matrix.preset }}
 
   unit-tests:
     name: Desktop Unit Tests
@@ -80,8 +123,7 @@ jobs:
 
     - name: Run unit tests
       run: |
-        cd build/desktop-debug
-        ctest --output-on-failure --verbose
+        ctest --preset desktop-debug
 
     - name: Upload test results
       uses: actions/upload-artifact@v4

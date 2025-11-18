@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Build with ${{ matrix.preset }}
+    name: Build ${{ matrix.preset }}
     runs-on: ubuntu-latest
     container:
       image: cmckiel/hal-build-environment:latest
@@ -121,8 +121,7 @@ jobs:
 
     - name: Run hardware test
       run: |
-        cd tests
-        python3 uart_test.py
+        python3 tests/itegration/uart_test.py
         echo "Test completed with exit code: $?"
 
     - name: Reset hardware (cleanup)

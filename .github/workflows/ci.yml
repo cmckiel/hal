@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        preset: [desktop-debug, embedded-debug, static-analysis]
+        preset: [desktop-debug, embedded-debug, embedded-release]
 
     steps:
     - name: Checkout repository
@@ -34,8 +34,8 @@ jobs:
       with:
         name: firmware-${{ github.sha }}
         path: |
-          build/embedded-debug/hal.bin
-          build/embedded-debug/hal.elf
+          build/embedded-debug/hal_integration_test.bin
+          build/embedded-debug/hal_integration_test.elf
         retention-days: 7
 
     - name: Create desktop test archive
@@ -114,7 +114,7 @@ jobs:
 
     - name: Flash firmware to target
       run: |
-        st-flash write ./firmware/hal.bin 0x8000000 && st-flash reset
+        st-flash write ./firmware/hal_integration_test.bin 0x8000000 && st-flash reset
 
     - name: Wait for target to boot
       run: sleep 1

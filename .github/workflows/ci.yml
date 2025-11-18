@@ -88,7 +88,7 @@ jobs:
         name: desktop-debug-${{ github.sha }}
         path: ./
 
-    - name: Extract desktop-debug with permissions
+    - name: Extract desktop-debug archive
       run: |
         mkdir -p build/desktop-debug
         tar -xzf desktop-debug.tar.gz -C build/desktop-debug
@@ -110,16 +110,16 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Download desktop test archive
+    - name: Download desktop-debug archive
       uses: actions/download-artifact@v4
       with:
-        name: desktop-tests-${{ github.sha }}
+        name: desktop-debug-${{ github.sha }}
         path: ./
 
-    - name: Extract desktop tests with permissions
+    - name: Extract desktop-debug archive
       run: |
         mkdir -p build/desktop-debug
-        tar -xzf desktop-tests.tar.gz -C build/desktop-debug
+        tar -xzf desktop-debug.tar.gz -C build/desktop-debug
 
     - name: Run unit tests
       run: |
@@ -151,12 +151,12 @@ jobs:
     - name: Download firmware
       uses: actions/download-artifact@v4
       with:
-        name: firmware-${{ github.sha }}
-        path: ./firmware
+        name: firmware-debug-${{ github.sha }}
+        path: ./firmware-debug
 
     - name: Flash firmware to target
       run: |
-        st-flash write ./firmware/hal_integration_test.bin 0x8000000 && st-flash reset
+        st-flash write ./firmware-debug/hal_integration_test.bin 0x8000000 && st-flash reset
 
     - name: Wait for target to boot
       run: sleep 1

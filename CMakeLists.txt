@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
 # Build options
 option(DESKTOP_BUILD "Build for desktop simulation" OFF)
 option(EMBEDDED_BUILD "Build for embedded target" OFF)
@@ -63,6 +65,11 @@ if(DESKTOP_BUILD)
         COMMENT "Running clang-tidy on HAL sources"
         VERBATIM
     )
+
+    # Document the project with Doxygen
+    include(Doxygen)
+    AddDoxygenDocs()
+
 endif() # Desktop Debug Build
 
 if(EMBEDDED_BUILD)

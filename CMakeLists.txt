@@ -32,7 +32,7 @@ if(DESKTOP_BUILD)
 
   include(CTest)
 
-  add_custom_target(CppCheck ALL
+  add_custom_target(cppcheck ALL
       COMMAND ${CPPCHECK_EXECUTABLE}
           --error-exitcode=1
           --project=${CMAKE_BINARY_DIR}/compile_commands.json
@@ -57,7 +57,7 @@ if(DESKTOP_BUILD)
     endforeach()
 
     # Create one target with all commands
-    add_custom_target(ClangTidy
+    add_custom_target(clang-tidy
         ${TIDY_CMDS}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         COMMENT "Running clang-tidy on HAL sources"

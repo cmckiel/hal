@@ -28,7 +28,7 @@ jobs:
       run: cmake --build --preset ${{ matrix.preset }}
 
     # Upload embedded debug artifacts for further testing
-    - name: Upload firmware artifact
+    - name: Upload firmware debug artifact
       if: matrix.preset == 'embedded-debug'
       uses: actions/upload-artifact@v4
       with:
@@ -39,7 +39,7 @@ jobs:
         retention-days: 7
 
     # Upload embedded release artifacts for further testing
-    - name: Upload firmware artifact
+    - name: Upload firmware release artifact
       if: matrix.preset == 'embedded-release'
       uses: actions/upload-artifact@v4
       with:
@@ -74,7 +74,7 @@ jobs:
 
     strategy:
       matrix:
-        preset: [CppCheck, ClangTidy]
+        preset: [cppcheck, clang-tidy]
 
     steps:
     - name: Checkout repository
@@ -98,7 +98,7 @@ jobs:
         cmake --build --preset desktop-debug -t ${{ matrix.preset }}
 
   unit-tests:
-    name: Desktop Unit Tests
+    name: Test On Desktop (unit tests)
     needs: build
     runs-on: ubuntu-latest
     container:
@@ -134,9 +134,13 @@ jobs:
         retention-days: 7
 
   hardware-test:
-    name: HIL Tests
+    name: Test On Target Hardware (${{ matrix.preset }})
     needs: build
     runs-on: [self-hosted, Linux, ARM64]
+
+    strategy:
+      matrix:
+        preset: [debug, release]
 
     # @todo: This timeout doesn't seem to work. Need a way
     # to detect that the runner is offline to avoid wasting CI minutes.
@@ -148,15 +152,15 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Download firmware
+    - name: Download firmware (${{ matrix.preset }})
       uses: actions/download-artifact@v4
       with:
-        name: firmware-debug-${{ github.sha }}
-        path: ./firmware-debug
+        name: firmware-${{ matrix.preset }}-${{ github.sha }}
+        path: ./firmware-${{ matrix.preset }}
 
     - name: Flash firmware to target
       run: |
-        st-flash write ./firmware-debug/hal_integration_test.bin 0x8000000 && st-flash reset
+        st-flash write ./firmware-${{ matix.preset }}/hal_integration_test.bin 0x8000000 && st-flash reset
 
     - name: Wait for target to boot
       run: sleep 1

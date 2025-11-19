@@ -160,7 +160,7 @@ jobs:
 
     - name: Flash firmware to target
       run: |
-        st-flash write ./firmware-${{ matix.preset }}/hal_integration_test.bin 0x8000000 && st-flash reset
+        st-flash write ./firmware-${{ matrix.preset }}/hal_integration_test.bin 0x8000000 && st-flash reset
 
     - name: Wait for target to boot
       run: sleep 1

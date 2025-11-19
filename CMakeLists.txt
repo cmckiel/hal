@@ -69,22 +69,24 @@ if(EMBEDDED_BUILD)
   # Include the Device Support Package
   add_subdirectory(device)
 
+  # Construct the integration test
+  add_executable(
+      ${PROJECT_NAME}_integration_test.elf
+      tests/integration/main.c
+  )
+  target_link_libraries(
+    ${PROJECT_NAME}_integration_test.elf
+    PRIVATE
+    stm32f4_hal
+  )
+  # Make a .bin from the .elf
+  add_custom_target(${PROJECT_NAME}_integration_test.bin ALL
+      arm-none-eabi-objcopy -O binary ${PROJECT_NAME}_integration_test.elf ${PROJECT_NAME}_integration_test.bin
+      DEPENDS ${PROJECT_NAME}_integration_test.elf
+  )
+
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Building embedded debug targets...")
-    # Construct the integration test
-    add_executable(
-        ${PROJECT_NAME}_integration_test.elf
-        tests/integration/main.c
-    )
-    target_link_libraries(
-      ${PROJECT_NAME}_integration_test.elf
-      PRIVATE
-      stm32f4_hal
-    )
-    add_custom_target(${PROJECT_NAME}_integration_test.bin ALL
-        arm-none-eabi-objcopy -O binary ${PROJECT_NAME}_integration_test.elf ${PROJECT_NAME}_integration_test.bin
-        DEPENDS ${PROJECT_NAME}_integration_test.elf
-    )
 
     # Construct the playground
     add_executable(

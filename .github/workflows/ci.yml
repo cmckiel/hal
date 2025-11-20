@@ -174,3 +174,61 @@ jobs:
       run: |
         # Reset the target to a known state
         st-flash reset
+
+  docs:
+    name: Build documentation
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: cmckiel/hal-build-environment:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download desktop-debug archive
+        uses: actions/download-artifact@v4
+        with:
+          name: desktop-debug-${{ github.sha }}
+          path: ./
+
+      - name: Extract desktop-debug archive
+        run: |
+          mkdir -p build/desktop-debug
+          tar -xzf desktop-debug.tar.gz -C build/desktop-debug
+
+      - name: Build Doxygen docs
+        run: |
+          cmake --build --preset desktop-debug -t docs
+
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-${{ github.sha }}
+          path: build/desktop-debug/docs
+          retention-days: 7
+
+  deploy-docs:
+    name: Deploy documentation to GitHub Pages
+    needs: docs
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download docs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-${{ github.sha }}
+          path: ./public
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./public

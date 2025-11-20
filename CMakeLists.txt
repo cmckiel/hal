@@ -1,29 +1,48 @@
+# ------- PROJECT SETTINGS -------
+
 cmake_minimum_required(VERSION 3.20)
 
+# Include our custom cmake modules.
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-# Build options
-option(DESKTOP_BUILD "Build for desktop simulation" OFF)
-option(EMBEDDED_BUILD "Build for embedded target" OFF)
+# Build options.
+option(DESKTOP_BUILD "Build for Desktop" OFF)
+option(EMBEDDED_BUILD "Build for Embedded Target" OFF)
 
+# Ensure only one target build type is selected.
+if(DESKTOP_BUILD AND EMBEDDED_BUILD)
+  message(FATAL_ERROR "Cannot enable both DESKTOP_BUILD and EMBEDDED_BUILD at the same time.")
+endif()
+
+# Default to desktop build if nothing specified.
+if(NOT DESKTOP_BUILD AND NOT EMBEDDED_BUILD)
+  message(STATUS "No build type specified -- defaulting to DESKTOP_BUILD")
+  set(DESKTOP_BUILD ON)
+endif()
+
+# Declare project.
 project(hal LANGUAGES C ASM CXX)
 
+# Set standards and configuration settings.
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_program(CPPCHECK_EXECUTABLE NAMES cppcheck REQUIRED)
+# Add core project components.
 add_subdirectory(external/circular_buffer)
 add_subdirectory(include)
 add_subdirectory(src)
 
 if(DESKTOP_BUILD)
-  message(STATUS "Building desktop simulation...")
+  message(STATUS "Building Desktop Debug...")
 
-  set(CMAKE_CXX_STANDARD 14)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  # ------- DESKTOP TESTING -------
 
+  # Add our unit tests and mocks.
   add_subdirectory(tests/mocks)
   add_subdirectory(tests/unit)
 
+  # Pull in GTest.
   include(FetchContent)
   FetchContent_Declare(
     googletest
@@ -31,88 +50,51 @@ if(DESKTOP_BUILD)
   )
   FetchContent_MakeAvailable(googletest)
 
-  include(CTest)
+  # ------- STATIC ANALYSIS -------
 
-  add_custom_target(cppcheck ALL
-    COMMAND ${CPPCHECK_EXECUTABLE}
-      --error-exitcode=1
-      --file-list=${CMAKE_BINARY_DIR}/cppcheck_files.txt
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Running cppcheck analysis..."
-  )
-
-  # Gather a list of all source files to be analyzed
+  # Gather a list of all source files to be analyzed.
   file(GLOB_RECURSE HAL_ANALYSIS_SOURCES
     CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/*.c
   )
 
-  # Store sources to be analyzed in a file for cppcheck
-  file(WRITE ${CMAKE_BINARY_DIR}/cppcheck_files.txt "")
-  foreach(f IN LISTS HAL_ANALYSIS_SOURCES)
-    file(APPEND ${CMAKE_BINARY_DIR}/cppcheck_files.txt "${f}\n")
-  endforeach()
+  # Include cppcheck and feed it the list of sources.
+  include(CppCheck)
+  AddCppCheckTarget("${HAL_ANALYSIS_SOURCES}")
 
-  # Build up a list of individual clang-tidy commands, one for each file to be analyzed.
-  foreach(src ${HAL_ANALYSIS_SOURCES})
-    list(APPEND TIDY_CMDS
-      COMMAND clang-tidy
-        -p ${CMAKE_BINARY_DIR}
-        -header-filter=${CMAKE_SOURCE_DIR}/include/hal|${CMAKE_SOURCE_DIR}/src
-        ${src}
-    )
-    endforeach()
+  # Include clang-tidy and feed it the list of sources.
+  include(ClangTidy)
+  AddClangTidyTarget("${HAL_ANALYSIS_SOURCES}")
 
-    # Create one target with all clang-tidy commands
-    add_custom_target(clang-tidy
-        ${TIDY_CMDS}
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        COMMENT "Running clang-tidy on HAL sources"
-        VERBATIM
-    )
+  # ------- DOCUMENTATION -------
 
-    # Document the project with Doxygen
-    include(Doxygen)
-    AddDoxygenDocs()
-
+  # Document the project with Doxygen.
+  include(Doxygen)
+  AddDoxygenDocs()
 endif() # Desktop Debug Build
 
 if(EMBEDDED_BUILD)
-  # Include the Device Support Package
+  # Report build type.
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "Building Embedded Debug...")
+  elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    message(STATUS "Building Embedded Release...")
+  endif()
+
+  # Include the Device Support Package.
   add_subdirectory(device)
 
-  # Construct the integration test
-  add_executable(
-      ${PROJECT_NAME}_integration_test.elf
-      tests/integration/main.c
-  )
-  target_link_libraries(
-    ${PROJECT_NAME}_integration_test.elf
-    PRIVATE
-    stm32f4_hal
-  )
-  # Make a .bin from the .elf
-  add_custom_target(${PROJECT_NAME}_integration_test.bin ALL
-      arm-none-eabi-objcopy -O binary ${PROJECT_NAME}_integration_test.elf ${PROJECT_NAME}_integration_test.bin
-      DEPENDS ${PROJECT_NAME}_integration_test.elf
-  )
+  # ------- INTEGRATION TESTING -------
+
+  # Include Target Creation Utilities.
+  include(Util)
+  # Construct the integration test for both debug and release.
+  AddTargetExecutable("integration_test" "tests/integration/main.c")
+
+  # ------- PLAYGROUND -------
 
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    message(STATUS "Building embedded debug targets...")
-
-    # Construct the playground
-    add_executable(
-        ${PROJECT_NAME}_playground.elf
-        playground/main.c
-    )
-    target_link_libraries(
-      ${PROJECT_NAME}_playground.elf
-      PRIVATE
-      stm32f4_hal
-    )
-    add_custom_target(${PROJECT_NAME}_playground.bin ALL
-        arm-none-eabi-objcopy -O binary ${PROJECT_NAME}_playground.elf ${PROJECT_NAME}_playground.bin
-        DEPENDS ${PROJECT_NAME}_playground.elf
-    )
+    # Construct the playground only for debug builds.
+    AddTargetExecutable("playground" "playground/main.c")
   endif() # Embedded Debug Build
 endif() # Embedded Build

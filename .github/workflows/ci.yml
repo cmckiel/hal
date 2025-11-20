@@ -1,4 +1,4 @@
-name: CI Build
+name: CI Pipeline
 
 on:
   push:
@@ -6,14 +6,14 @@ on:
 
 jobs:
   build:
-    name: Build with ${{ matrix.preset }}
+    name: Build ${{ matrix.preset }}
     runs-on: ubuntu-latest
     container:
       image: cmckiel/hal-build-environment:latest
 
     strategy:
       matrix:
-        preset: [desktop-debug, embedded-debug, static-analysis]
+        preset: [desktop-debug, embedded-debug, embedded-release]
 
     steps:
     - name: Checkout repository
@@ -27,35 +27,78 @@ jobs:
     - name: Build (${{ matrix.preset }})
       run: cmake --build --preset ${{ matrix.preset }}
 
-    # Upload artifacts for further testing
-    - name: Upload firmware artifact
+    # Upload embedded debug artifacts for further testing
+    - name: Upload firmware debug artifact
       if: matrix.preset == 'embedded-debug'
       uses: actions/upload-artifact@v4
       with:
-        name: firmware-${{ github.sha }}
+        name: firmware-debug-${{ github.sha }}
         path: |
-          build/embedded-debug/hal.bin
-          build/embedded-debug/hal.elf
+          build/embedded-debug/hal_integration_test.bin
+          build/embedded-debug/hal_integration_test.elf
         retention-days: 7
 
-    - name: Create desktop test archive
+    # Upload embedded release artifacts for further testing
+    - name: Upload firmware release artifact
+      if: matrix.preset == 'embedded-release'
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware-release-${{ github.sha }}
+        path: |
+          build/embedded-release/hal_integration_test.bin
+          build/embedded-release/hal_integration_test.elf
+        retention-days: 7
+
+    - name: Create desktop-debug archive
       if: matrix.preset == 'desktop-debug'
       run: |
         # Create a tarball that preserves permissions
         cd build/desktop-debug
-        tar -czf ../../desktop-tests.tar.gz .
+        tar -czf ../../desktop-debug.tar.gz .
         cd ../..
 
-    - name: Upload desktop test archive
+    - name: Upload desktop-debug archive
       if: matrix.preset == 'desktop-debug'
       uses: actions/upload-artifact@v4
       with:
-        name: desktop-tests-${{ github.sha }}
-        path: desktop-tests.tar.gz
+        name: desktop-debug-${{ github.sha }}
+        path: desktop-debug.tar.gz
         retention-days: 7
 
+  analyze:
+    name: Analyze with ${{ matrix.preset }}
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: cmckiel/hal-build-environment:latest
+
+    strategy:
+      matrix:
+        preset: [cppcheck, clang-tidy]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Download desktop-debug archive
+      uses: actions/download-artifact@v4
+      with:
+        name: desktop-debug-${{ github.sha }}
+        path: ./
+
+    - name: Extract desktop-debug archive
+      run: |
+        mkdir -p build/desktop-debug
+        tar -xzf desktop-debug.tar.gz -C build/desktop-debug
+
+    - name: Analyze with ${{ matrix.preset }}
+      run: |
+        cmake --build --preset desktop-debug -t ${{ matrix.preset }}
+
   unit-tests:
-    name: Desktop Unit Tests
+    name: Test On Desktop (unit tests)
     needs: build
     runs-on: ubuntu-latest
     container:
@@ -67,21 +110,20 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Download desktop test archive
+    - name: Download desktop-debug archive
       uses: actions/download-artifact@v4
       with:
-        name: desktop-tests-${{ github.sha }}
+        name: desktop-debug-${{ github.sha }}
         path: ./
 
-    - name: Extract desktop tests with permissions
+    - name: Extract desktop-debug archive
       run: |
         mkdir -p build/desktop-debug
-        tar -xzf desktop-tests.tar.gz -C build/desktop-debug
+        tar -xzf desktop-debug.tar.gz -C build/desktop-debug
 
     - name: Run unit tests
       run: |
-        cd build/desktop-debug
-        ctest --output-on-failure --verbose
+        ctest --preset desktop-debug
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -92,9 +134,13 @@ jobs:
         retention-days: 7
 
   hardware-test:
-    name: HIL Tests
+    name: Test On Target Hardware (${{ matrix.preset }})
     needs: build
     runs-on: [self-hosted, Linux, ARM64]
+
+    strategy:
+      matrix:
+        preset: [debug, release]
 
     # @todo: This timeout doesn't seem to work. Need a way
     # to detect that the runner is offline to avoid wasting CI minutes.
@@ -106,26 +152,83 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Download firmware
+    - name: Download firmware (${{ matrix.preset }})
       uses: actions/download-artifact@v4
       with:
-        name: firmware-${{ github.sha }}
-        path: ./firmware
+        name: firmware-${{ matrix.preset }}-${{ github.sha }}
+        path: ./firmware-${{ matrix.preset }}
 
     - name: Flash firmware to target
       run: |
-        st-flash write ./firmware/hal.bin 0x8000000 && st-flash reset
+        st-flash write ./firmware-${{ matrix.preset }}/hal_integration_test.bin 0x8000000 && st-flash reset
 
     - name: Wait for target to boot
       run: sleep 1
 
     - name: Run hardware test
       run: |
-        cd tests
-        python3 uart_test.py
+        python3 tests/integration/uart_test.py
         echo "Test completed with exit code: $?"
 
     - name: Reset hardware (cleanup)
       run: |
         # Reset the target to a known state
         st-flash reset
+
+  docs:
+    name: Build documentation
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: cmckiel/hal-build-environment:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download desktop-debug archive
+        uses: actions/download-artifact@v4
+        with:
+          name: desktop-debug-${{ github.sha }}
+          path: ./
+
+      - name: Extract desktop-debug archive
+        run: |
+          mkdir -p build/desktop-debug
+          tar -xzf desktop-debug.tar.gz -C build/desktop-debug
+
+      - name: Build Doxygen docs
+        run: |
+          cmake --build --preset desktop-debug -t docs
+
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-${{ github.sha }}
+          path: build/desktop-debug/docs
+          retention-days: 7
+
+  deploy-docs:
+    name: Deploy documentation to GitHub Pages
+    needs: docs
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download docs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-${{ github.sha }}
+          path: ./public
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./public

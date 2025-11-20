@@ -1,4 +1,4 @@
-FROM debian:stable-slim
+FROM ubuntu:22.04
 
 # Install basic build tools
 RUN apt-get update && apt-get install -y \
@@ -8,10 +8,11 @@ RUN apt-get update && apt-get install -y \
     valgrind \
     libgtest-dev \
     gcc-arm-none-eabi \
-    gdb-arm-none-eabi \
     clang \
     clang-tidy \
-    cppcheck
+    cppcheck \
+    doxygen \
+    graphviz
 
 # Set working directory
 WORKDIR /workspace

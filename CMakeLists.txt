@@ -1,40 +1,48 @@
+# ------- PROJECT SETTINGS -------
+
 cmake_minimum_required(VERSION 3.20)
 
-# Build options
-option(SIMULATION_BUILD "Build for desktop simulation" OFF)
-option(EMBEDDED_BUILD "Build for embedded target" OFF)
-option(STATIC_ANALYSIS_BUILD "Build to run static analysis" OFF)
+# Include our custom cmake modules.
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-# Ensure only one target build type is selected
-if(SIMULATION_BUILD AND EMBEDDED_BUILD)
-  message(FATAL_ERROR "Cannot enable both SIMULATION_BUILD and EMBEDDED_BUILD at the same time.")
-endif()
-if(STATIC_ANALYSIS_BUILD AND EMBEDDED_BUILD)
-  message(FATAL_ERROR "Cannot enable both STATIC_ANALYSIS_BUILD and EMBEDDED_BUILD at the same time.")
-endif()
-if(STATIC_ANALYSIS_BUILD AND SIMULATION_BUILD)
-  message(FATAL_ERROR "Cannot enable both STATIC_ANALYSIS_BUILD and SIMULATION_BUILD at the same time.")
+# Build options.
+option(DESKTOP_BUILD "Build for Desktop" OFF)
+option(EMBEDDED_BUILD "Build for Embedded Target" OFF)
+
+# Ensure only one target build type is selected.
+if(DESKTOP_BUILD AND EMBEDDED_BUILD)
+  message(FATAL_ERROR "Cannot enable both DESKTOP_BUILD and EMBEDDED_BUILD at the same time.")
 endif()
 
-# Default to static analysis build if nothing specified
-if(NOT SIMULATION_BUILD AND NOT EMBEDDED_BUILD AND NOT STATIC_ANALYSIS_BUILD)
-  message(STATUS "No build type specified -- defaulting to STATIC_ANALYSIS_BUILD")
-  set(STATIC_ANALYSIS_BUILD ON)
+# Default to desktop build if nothing specified.
+if(NOT DESKTOP_BUILD AND NOT EMBEDDED_BUILD)
+  message(STATUS "No build type specified -- defaulting to DESKTOP_BUILD")
+  set(DESKTOP_BUILD ON)
 endif()
 
-set(PROJECT_NAME "hal")
+# Declare project.
+project(hal LANGUAGES C ASM CXX)
 
-project(${PROJECT_NAME} LANGUAGES C ASM CXX)
+# Set standards and configuration settings.
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_program(CPPCHECK_EXECUTABLE NAMES cppcheck REQUIRED)
+# Add core project components.
+add_subdirectory(external/circular_buffer)
+add_subdirectory(include)
+add_subdirectory(src)
 
-if(SIMULATION_BUILD)
-  message(STATUS "Building desktop simulation...")
+if(DESKTOP_BUILD)
+  message(STATUS "Building Desktop Debug...")
 
-  set(CMAKE_CXX_STANDARD 14)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  # ------- DESKTOP TESTING -------
 
-  cmake_policy(SET CMP0135 NEW)
+  # Add our unit tests and mocks.
+  add_subdirectory(tests/mocks)
+  add_subdirectory(tests/unit)
+
+  # Pull in GTest.
   include(FetchContent)
   FetchContent_Declare(
     googletest
@@ -42,54 +50,51 @@ if(SIMULATION_BUILD)
   )
   FetchContent_MakeAvailable(googletest)
 
-  add_subdirectory(simulations)
-  add_subdirectory(external/circular_buffer)
-  include(CTest)
+  # ------- STATIC ANALYSIS -------
 
-  add_custom_target(cppcheck ALL
-      COMMAND ${CPPCHECK_EXECUTABLE}
-          --error-exitcode=1
-          --project=build/desktop-debug/compile_commands.json
-          -i_deps
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-      COMMENT "Running cppcheck analysis..."
+  # Gather a list of all source files to be analyzed.
+  file(GLOB_RECURSE HAL_ANALYSIS_SOURCES
+    CONFIGURE_DEPENDS
+    ${CMAKE_SOURCE_DIR}/src/*.c
   )
-endif()
+
+  # Include cppcheck and feed it the list of sources.
+  include(CppCheck)
+  AddCppCheckTarget("${HAL_ANALYSIS_SOURCES}")
+
+  # Include clang-tidy and feed it the list of sources.
+  include(ClangTidy)
+  AddClangTidyTarget("${HAL_ANALYSIS_SOURCES}")
+
+  # ------- DOCUMENTATION -------
+
+  # Document the project with Doxygen.
+  include(Doxygen)
+  AddDoxygenDocs()
+endif() # Desktop Debug Build
 
 if(EMBEDDED_BUILD)
-  message(STATUS "Building embedded target...")
+  # Report build type.
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "Building Embedded Debug...")
+  elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    message(STATUS "Building Embedded Release...")
+  endif()
 
-  add_subdirectory(platforms)
-  add_subdirectory(hal_interface)
-  add_subdirectory(external/circular_buffer)
+  # Include the Device Support Package.
+  add_subdirectory(device)
 
-  add_executable(
-      ${PROJECT_NAME}.elf
-      test/main.c
-  )
+  # ------- INTEGRATION TESTING -------
 
-  target_link_libraries(${PROJECT_NAME}.elf stm32f4_hal)
+  # Include Target Creation Utilities.
+  include(Util)
+  # Construct the integration test for both debug and release.
+  AddTargetExecutable("integration_test" "tests/integration/main.c")
 
-  add_custom_target(${PROJECT_NAME}.bin ALL
-      arm-none-eabi-objcopy -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin
-      DEPENDS ${PROJECT_NAME}.elf
-  )
+  # ------- PLAYGROUND -------
 
-  add_custom_target(cppcheck ALL
-      COMMAND ${CPPCHECK_EXECUTABLE}
-          --error-exitcode=1
-          --project=build/embedded-debug/compile_commands.json
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-      COMMENT "Running cppcheck analysis..."
-  )
-endif()
-
-if(STATIC_ANALYSIS_BUILD)
-  message(STATUS "Building static analysis...")
-
-  add_subdirectory(hal_interface)
-  add_subdirectory(simulations/stm32f446re/stm32f4_mocks)
-  add_subdirectory(external/circular_buffer)
-  add_subdirectory(platforms/stm32f446re/hal)
-endif()
-
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # Construct the playground only for debug builds.
+    AddTargetExecutable("playground" "playground/main.c")
+  endif() # Embedded Debug Build
+endif() # Embedded Build

@@ -1,0 +1,26 @@
+# --- Project info ---
+PROJECT_NAME           = "@PROJECT_NAME@"
+PROJECT_BRIEF          = "Hardware Abstraction Layer"
+
+# --- Inputs ---
+INPUT                  = @CMAKE_SOURCE_DIR@/src \
+                         @CMAKE_SOURCE_DIR@/include \
+                         @CMAKE_SOURCE_DIR@/docs
+RECURSIVE              = YES
+
+# --- Basic HTML ---
+GENERATE_HTML          = YES
+HTML_OUTPUT            = "@CMAKE_BINARY_DIR@/docs"
+
+# Main page (either @mainpage in a comment or {#mainpage} in Markdown)
+USE_MDFILE_AS_MAINPAGE = mainpage.md
+
+# --- HTML base options ---
+GENERATE_TREEVIEW = YES
+DISABLE_INDEX     = NO
+FULL_SIDEBAR      = NO
+
+# --- Awesome CSS ---
+HTML_EXTRA_STYLESHEET = \
+    @DOXYGEN_AWESOME_DIR@/doxygen-awesome.css \
+    @DOXYGEN_AWESOME_DIR@/doxygen-awesome-sidebar-only.css

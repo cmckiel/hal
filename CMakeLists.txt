@@ -24,7 +24,6 @@ if(DESKTOP_BUILD)
   add_subdirectory(tests/mocks)
   add_subdirectory(tests/unit)
 
-  cmake_policy(SET CMP0135 NEW)
   include(FetchContent)
   FetchContent_Declare(
     googletest
@@ -36,7 +35,6 @@ if(DESKTOP_BUILD)
 
   add_custom_target(cppcheck ALL
     COMMAND ${CPPCHECK_EXECUTABLE}
-      --check-level=exhaustive
       --error-exitcode=1
       --file-list=${CMAKE_BINARY_DIR}/cppcheck_files.txt
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}

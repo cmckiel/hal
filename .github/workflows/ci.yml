@@ -212,6 +212,8 @@ jobs:
 
   deploy-docs:
     name: Deploy documentation to GitHub Pages
+    permissions:
+      contents: write
     needs: docs
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest

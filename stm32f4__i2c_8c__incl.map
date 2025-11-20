@@ -1,0 +1,12 @@
+<map id="/__w/hal/hal/src/i2c/src/stm32f4_i2c.c" name="/__w/hal/hal/src/i2c/src/stm32f4_i2c.c">
+<area shape="rect" id="node1" title="STM32F4 I2C HAL implementation." alt="" coords="287,5,433,47"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,95,109,121"/>
+<area shape="rect" id="node3" href="$i2c_8h_source.html" title=" " alt="" coords="184,169,237,196"/>
+<area shape="rect" id="node7" href="$i2c__transaction__queue_8h.html" title="FIFO data structure used to store handles to client I2C transaction requests." alt="" coords="185,95,365,121"/>
+<area shape="rect" id="node8" href="$stm32f4__hal_8h_source.html" title=" " alt="" coords="389,95,504,121"/>
+<area shape="rect" id="node9" title=" " alt="" coords="529,95,599,121"/>
+<area shape="rect" id="node10" title=" " alt="" coords="624,95,707,121"/>
+<area shape="rect" id="node4" href="$hal__types_8h_source.html" title=" " alt="" coords="162,244,259,271"/>
+<area shape="rect" id="node5" title=" " alt="" coords="129,319,199,345"/>
+<area shape="rect" id="node6" title=" " alt="" coords="223,319,294,345"/>
+</map>

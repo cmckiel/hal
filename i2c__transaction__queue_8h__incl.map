@@ -1,0 +1,7 @@
+<map id="/__w/hal/hal/src/i2c/include/i2c_transaction_queue.h" name="/__w/hal/hal/src/i2c/include/i2c_transaction_queue.h">
+<area shape="rect" id="node1" title="FIFO data structure used to store handles to client I2C transaction requests." alt="" coords="5,5,181,61"/>
+<area shape="rect" id="node2" href="$i2c_8h_source.html" title=" " alt="" coords="67,109,120,136"/>
+<area shape="rect" id="node3" href="$hal__types_8h_source.html" title=" " alt="" coords="45,184,142,211"/>
+<area shape="rect" id="node4" title=" " alt="" coords="11,259,82,285"/>
+<area shape="rect" id="node5" title=" " alt="" coords="106,259,177,285"/>
+</map>

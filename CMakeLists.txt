@@ -35,30 +35,37 @@ if(DESKTOP_BUILD)
   include(CTest)
 
   add_custom_target(cppcheck ALL
-      COMMAND ${CPPCHECK_EXECUTABLE}
-          --error-exitcode=1
-          --project=${CMAKE_BINARY_DIR}/compile_commands.json
-          -i_deps
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-      COMMENT "Running cppcheck analysis..."
+    COMMAND ${CPPCHECK_EXECUTABLE}
+      --check-level=exhaustive
+      --error-exitcode=1
+      --file-list=${CMAKE_BINARY_DIR}/cppcheck_files.txt
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Running cppcheck analysis..."
   )
 
-  file(GLOB_RECURSE HAL_TIDY_SOURCES
+  # Gather a list of all source files to be analyzed
+  file(GLOB_RECURSE HAL_ANALYSIS_SOURCES
     CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/*.c
   )
 
-  # Build up a flat list of COMMAND blocks
-    foreach(src ${HAL_TIDY_SOURCES})
-        list(APPEND TIDY_CMDS
-            COMMAND clang-tidy
-                -p ${CMAKE_BINARY_DIR}
-                -header-filter=${CMAKE_SOURCE_DIR}/include/hal|${CMAKE_SOURCE_DIR}/src
-                ${src}
-        )
+  # Store sources to be analyzed in a file for cppcheck
+  file(WRITE ${CMAKE_BINARY_DIR}/cppcheck_files.txt "")
+  foreach(f IN LISTS HAL_ANALYSIS_SOURCES)
+    file(APPEND ${CMAKE_BINARY_DIR}/cppcheck_files.txt "${f}\n")
+  endforeach()
+
+  # Build up a list of individual clang-tidy commands, one for each file to be analyzed.
+  foreach(src ${HAL_ANALYSIS_SOURCES})
+    list(APPEND TIDY_CMDS
+      COMMAND clang-tidy
+        -p ${CMAKE_BINARY_DIR}
+        -header-filter=${CMAKE_SOURCE_DIR}/include/hal|${CMAKE_SOURCE_DIR}/src
+        ${src}
+    )
     endforeach()
 
-    # Create one target with all commands
+    # Create one target with all clang-tidy commands
     add_custom_target(clang-tidy
         ${TIDY_CMDS}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}

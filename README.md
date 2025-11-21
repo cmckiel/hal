@@ -1,34 +1,88 @@
-# HAL (Hardware Abstraction Layer) for STM32
+# HAL (Hardware Abstraction Layer) for STM32f4
 
-> ⚠️ Work in Progress ⚠️
-
-This project is under active development and not yet complete. Expect breaking changes and incomplete features.
-
-## Overview
-
-This repository contains an experimental Hardware Abstraction Layer (HAL) targeting STM32 microcontrollers. The goal is to provide a clean, modular, and maintainable abstraction layer to simplify STM32 embedded development.
+A testable, first-principles hardware-abstraction layer for the STM32F4, built around a super-loop architecture with interrupt-driven drivers, static memory, and no RTOS or DMA.
+Designed for flight-control-class embedded systems and developed with modern tooling, automated tests, and continuous integration.
 
 ## Current Status
 
-- 🛠 Early stage design and development
-- 🚧 API surface subject to change
-- 🔬 Actively experimenting with architectural patterns
+### Drivers
+- **UART** - Two channels, UART1 and UART2.
+- **I2C** - One bus, I2C1.
+- **PWM** - One channel, TIM1 (Advanced Timer).
+- **Timer** - delay_ms(), Systick.
+- **GPIO** - Toggle onboard LED, GPIOA.
 
-## Current Features
+### Test and Tooling
+- **Unit Tests** - 135 unit tests with 94% code coverage.
+- **Integration Test** - Hardware-in-the-Loop (HIL) integration test.
+- **Static Analysis** - Two static analyzers, clang-tidy and cppcheck.
+- **Containerized Build Environment** - Reproducible builds and platform independent development.
+- **Continous Integration** - Automated Build, Analysis, Testing, and Deployment.
 
-- UART2 interrupt based driver with circular buffers.
-- Toggles onboard LED.
-- Systick delay ms.
-- UART2 Desktop hardware simulation to support unit testing the driver.
-- Cmake presets for easily switching between desktop and target builds.
-- Dev container for portable and consistent build environment.
+## Quick Start
 
-## Intended Features (Planned)
+### Prerequisites
+- A `UNIX-style command line` environment.
+- Have `git` installed.
+- Have `docker` installed
 
-- Peripheral drivers (GPIO, UART, SPI, I2C, etc.)
-- Consistent, platform-agnostic APIs
-- Easier portability across STM32 families
-- Cleaner separation of hardware-dependent and application code
+### Clone
+```console
+$ git clone git@github.com:cmckiel/hal.git && cd hal
+$ git submodule update --init
+```
+
+### Build
+First, from inside the repo directory, build the docker image:
+```console
+$ docker build -t hal-build-env .
+```
+
+Next, run the docker image, mounting the repo dir. This command launches an interactive shell inside the container. (Commands executed inside the container are distinguished by `#`)
+```console
+$ docker run --rm -it -v "$PWD":/workspace -w /workspace hal-build-env
+```
+> If needed: exit the docker container by pressing `ctrl-p` followed quickly by `ctrl-q`.
+
+Build for desktop:
+```console
+# cmake --preset desktop-debug
+# cmake --build --preset desktop-debug
+```
+
+Run the unit tests:
+```console
+# ctest --preset desktop-debug
+```
+
+Build for target hardware:
+```console
+# cmake --preset embedded-debug
+# cmake --build --preset embedded-debug
+```
+
+Target firmware should be visible in `build/embedded-debug/` as `.elf` and `.bin` files.
+
+To see detailed build instructions, troubleshooting steps, and instructions for deploying firmware to target hardware, see the [Full Documenation](https://cmckiel.github.io/hal/).
+
+
+
+## Full Documentation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Getting Started
 

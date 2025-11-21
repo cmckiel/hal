@@ -19,3 +19,7 @@ The HAL provides a small set of purpose-built drivers (UART, I2C, PWM, timers, G
 - **STM32F4 Peripheral Drivers** - Implementations in `src` that operate directly on device registers.
 - **Device Support Package** - CMSIS and vendor headers plus startup code and the linker script in `device`.
 - **STM32F4 Hardware** - The STM32F446RE development board.
+
+For more detailed architecture, see [Detailed Architecture](architecture.md).
+
+## Getting Started

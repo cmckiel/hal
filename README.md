@@ -108,35 +108,15 @@ int main(void)
 
 > Reference the project's [Full Documenation](https://cmckiel.github.io/hal/) to learn about project scope, architecture, usage, deployment, and more.
 
+## Project Structure
 
+- `/include`     — HAL API
+- `/src`         — Driver implementations
+- /`device`      — CMSIS + vendor support
+- `/tests`       — Unit and integration tests
+- `/docs`        — Documentation sources
+- /`playground`  - Application target for experimenting
 
+## License
 
-
-
-
-
-
-
-
-
-
-
-
-
-## Getting Started
-
-More specific instructions will be provided as the project matures, but for now:
-- Have docker installed
-- Clone the repo
-- Update the submodules (`git submodule update --init`)
-- Use VSCode to open and build the Dev Container
-- Select a CMake configure preset:
-  - Embedded Target
-  - Desktop Simulation (Unit tests)
-- Hit the CMake `Build` button.
-
-To deploy to target hardware:
-- `st-flash write hal.bin 0x8000000 && st-flash reset`
-
-To interact over UART2:
-- `screen /dev/<your_device> 115200`
+Licensed under the MIT License; see [LICENSE](https://cmckiel.github.io/hal/md__workspaces_hal_docs_license.html) for details.

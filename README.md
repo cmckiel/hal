@@ -65,9 +65,48 @@ Target firmware should be visible in `build/embedded-debug/` as `.elf` and `.bin
 
 To see detailed build instructions, troubleshooting steps, and instructions for deploying firmware to target hardware, see the [Full Documenation](https://cmckiel.github.io/hal/).
 
+### Example Application
+```C
+#include "uart.h"
+#include "gpio.h"
+#include "systick.h"
 
+int main(void)
+{
+    hal_gpio_init(NULL);
+    hal_uart_init(HAL_UART2, NULL);
+
+    uint8_t message[] = "Hello from HAL!";
+    size_t bytes_successfully_writen = 0;
+
+    // Print hello message over serial.
+    HalStatus_t status = hal_uart_write(HAL_UART2, message, sizeof(message), &bytes_successfully_writen);
+
+    // Easy error checking.
+    if (status != HAL_STATUS_OK || bytes_successfully_writen != sizeof(message))
+    {
+        // Transmission error handling.
+        return 1;
+    }
+
+    // Super loop
+    while (1)
+    {
+        /* APPLICATION CODE HERE */
+
+        // Example application:
+        // Toggle onboard LED at 10 Hz.
+        hal_delay_ms(100);
+        hal_gpio_toggle_led();
+    }
+
+    return 0;
+}
+```
 
 ## Full Documentation
+
+> Reference the project's [Full Documenation](https://cmckiel.github.io/hal/) to learn about project scope, architecture, usage, deployment, and more.
 
 
 

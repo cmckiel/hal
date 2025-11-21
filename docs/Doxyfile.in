@@ -7,6 +7,7 @@ INPUT                  = @CMAKE_SOURCE_DIR@/src \
                          @CMAKE_SOURCE_DIR@/include \
                          @CMAKE_SOURCE_DIR@/docs
 RECURSIVE              = YES
+IMAGE_PATH             = @CMAKE_SOURCE_DIR@/docs/assets
 
 # --- Basic HTML ---
 GENERATE_HTML          = YES

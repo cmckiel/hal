@@ -38,6 +38,9 @@ if(DESKTOP_BUILD)
 
   # ------- DESKTOP TESTING -------
 
+  # Include CTest to allow VS Code to see unit tests.
+  include(CTest)
+
   # Add our unit tests and mocks.
   add_subdirectory(tests/mocks)
   add_subdirectory(tests/unit)

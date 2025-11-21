@@ -25,7 +25,19 @@
 var NAVTREE =
 [
   [ "hal", "index.html", [
-    [ "HAL Documentation", "index.html", null ],
+    [ "Overview", "index.html#autotoc_md2", null ],
+    [ "Architecture", "index.html#autotoc_md3", [
+      [ "Layer Descriptions", "index.html#autotoc_md4", null ]
+    ] ],
+    [ "Getting Started", "index.html#autotoc_md5", [
+      [ "Prerequisites", "index.html#autotoc_md6", null ],
+      [ "Clone", "index.html#autotoc_md7", null ],
+      [ "Build", "index.html#autotoc_md8", null ],
+      [ "Example Application", "index.html#autotoc_md9", null ]
+    ] ],
+    [ "License", "index.html#autotoc_md10", null ],
+    [ "Detailed Architecture", "md____w_hal_hal_docs_architecture.html", null ],
+    [ "LICENSE", "md____w_hal_hal_docs_license.html", null ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ]

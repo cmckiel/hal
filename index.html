@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>hal: HAL Documentation</title>
+<title>hal: HAL</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -85,10 +85,94 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 
 <div class="PageDoc"><div class="header">
   <div class="headertitle">
-<div class="title">HAL Documentation </div>  </div>
+<div class="title">HAL </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="mainpage"></a> Welcome to the documentation for my STM32F4 HAL project. </p>
+<div class="textblock"><p><a class="anchor" id="mainpage"></a> </p>
+<h1><a class="anchor" id="autotoc_md2"></a>
+Overview</h1>
+<p>This project is an experiment in building a testable hardware-abstraction layer for the STM32F4 from first principles, oriented toward flight-control–class embedded systems. It addresses the tension between development speed and rigor through automated testing, modern tooling, containerized builds, and continuous integration.</p>
+<p>The HAL provides a small set of purpose-built drivers (UART, I2C, PWM, timers, GPIO) built around a classic embedded architecture: a super-loop execution model with interrupt-driven peripherals, no RTOS, no DMA, and strictly static memory. Its scope is intentionally narrow and includes only the primitives required for embedded control workloads, avoiding generic configuration layers, dynamic allocation, and broad peripheral coverage. The design favors simplicity, predictability, and testability over configurability or feature breadth.</p>
+<h1><a class="anchor" id="autotoc_md3"></a>
+Architecture</h1>
+<p><img src="HalArchitecture.svg" alt="" style="pointer-events: none;" width="600px" class="inline"/> </p>
+<h2><a class="anchor" id="autotoc_md4"></a>
+Layer Descriptions</h2>
+<ul>
+<li><b>Applications</b> - Logic executed in the project’s super-loop (<code>main.c</code>).</li>
+<li><b>Hardware Abstration Layer</b> - Public interfaces in <code>include/hal</code>.</li>
+<li><b>STM32F4 Peripheral Drivers</b> - Implementations in <code>src</code> that operate directly on device registers.</li>
+<li><b>Device Support Package</b> - CMSIS and vendor headers plus startup code and the linker script in <code>device</code>.</li>
+<li><b>STM32F4 Hardware</b> - The STM32F446RE development board.</li>
+</ul>
+<p>For more detailed architecture, see <a class="el" href="md____w_hal_hal_docs_architecture.html">Detailed Architecture</a>.</p>
+<h1><a class="anchor" id="autotoc_md5"></a>
+Getting Started</h1>
+<h2><a class="anchor" id="autotoc_md6"></a>
+Prerequisites</h2>
+<ul>
+<li>A <code>UNIX-style command line</code> environment.</li>
+<li>Have <code>git</code> installed.</li>
+<li>Have <code>docker</code> installed</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md7"></a>
+Clone</h2>
+<div class="fragment"><div class="line">$ git clone git@github.com:cmckiel/hal.git &amp;&amp; cd hal</div>
+<div class="line">$ git submodule update --init</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md8"></a>
+Build</h2>
+<p>First, from inside the repo directory, build the docker image: </p><div class="fragment"><div class="line">$ docker build -t hal-build-env .</div>
+</div><!-- fragment --><p>Next, run the docker image, mounting the repo dir. This command launches an interactive shell inside the container. (Commands executed inside the container are distinguished by <code>#</code>) </p><div class="fragment"><div class="line">$ docker run --rm -it -v &quot;$PWD&quot;:/workspace -w /workspace hal-build-env</div>
+</div><!-- fragment --> <blockquote class="doxtable">
+<p>If needed: exit the docker container by pressing <code>ctrl-p</code> followed quickly by <code>ctrl-q</code>. </p>
+</blockquote>
+<p>Build for desktop: </p><div class="fragment"><div class="line"># cmake --preset desktop-debug</div>
+<div class="line"># cmake --build --preset desktop-debug</div>
+</div><!-- fragment --><p>Run the unit tests: </p><div class="fragment"><div class="line"># ctest --preset desktop-debug</div>
+</div><!-- fragment --><p>Build for target hardware: </p><div class="fragment"><div class="line"># cmake --preset embedded-debug</div>
+<div class="line"># cmake --build --preset embedded-debug</div>
+</div><!-- fragment --><p>Target firmware should be visible in <code>build/embedded-debug/</code> as <code>.elf</code> and <code>.bin</code> files.</p>
+<p>To see detailed build instructions, troubleshooting steps, and instructions for deploying firmware to target hardware, see the <a href="https://cmckiel.github.io/hal/">Full Documenation</a>.</p>
+<h2><a class="anchor" id="autotoc_md9"></a>
+Example Application</h2>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;uart.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;gpio.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;systick.h&quot;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">void</span>)</div>
+<div class="line">{</div>
+<div class="line">    hal_gpio_init(NULL);</div>
+<div class="line">    hal_uart_init(HAL_UART2, NULL);</div>
+<div class="line"> </div>
+<div class="line">    uint8_t message[] = <span class="stringliteral">&quot;Hello from HAL!&quot;</span>;</div>
+<div class="line">    <span class="keywordtype">size_t</span> bytes_successfully_writen = 0;</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">// Print hello message over serial.</span></div>
+<div class="line">    HalStatus_t status = hal_uart_write(HAL_UART2, message, <span class="keyword">sizeof</span>(message), &amp;bytes_successfully_writen);</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">// Easy error checking.</span></div>
+<div class="line">    <span class="keywordflow">if</span> (status != HAL_STATUS_OK || bytes_successfully_writen != <span class="keyword">sizeof</span>(message))</div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// Transmission error handling.</span></div>
+<div class="line">        <span class="keywordflow">return</span> 1;</div>
+<div class="line">    }</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">// Super loop</span></div>
+<div class="line">    <span class="keywordflow">while</span> (1)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">/* APPLICATION CODE HERE */</span></div>
+<div class="line"> </div>
+<div class="line">        <span class="comment">// Example application:</span></div>
+<div class="line">        <span class="comment">// Toggle onboard LED at 10 Hz.</span></div>
+<div class="line">        hal_delay_ms(100);</div>
+<div class="line">        hal_gpio_toggle_led();</div>
+<div class="line">    }</div>
+<div class="line"> </div>
+<div class="line">    <span class="keywordflow">return</span> 0;</div>
+<div class="line">}</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md10"></a>
+License</h1>
+<p>Licensed under the MIT License; see <a class="el" href="md____w_hal_hal_docs_license.html">LICENSE</a> for details. </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->

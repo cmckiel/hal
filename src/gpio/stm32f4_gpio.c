@@ -3,7 +3,6 @@
  * @brief Implementation for toggling the red LED onboard the
  * stm32f446re development board.
  *
- * @copyright
  * Copyright (c) 2025 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.
  */

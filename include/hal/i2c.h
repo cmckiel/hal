@@ -58,10 +58,10 @@ typedef struct {
     size_t arbitration_lost_count;
 } HalI2C_Stats_t;
 
-HalStatus_t hal_i2c_init(void *config);
-HalStatus_t hal_i2c_deinit(void);
-HalStatus_t hal_i2c_submit_transaction(HalI2C_Txn_t *txn);
-HalStatus_t hal_i2c_transaction_servicer();
-HalStatus_t hal_i2c_get_stats(HalI2C_Stats_t *stats);
+hal_status_t hal_i2c_init(void *config);
+hal_status_t hal_i2c_deinit(void);
+hal_status_t hal_i2c_submit_transaction(HalI2C_Txn_t *txn);
+hal_status_t hal_i2c_transaction_servicer();
+hal_status_t hal_i2c_get_stats(HalI2C_Stats_t *stats);
 
 #endif /* _I2C_H */

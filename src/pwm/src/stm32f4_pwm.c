@@ -28,7 +28,6 @@ static bool pwm_state_enabled = false;
 // Forward declarations
 /*********************************************************************************************/
 static void configure_gpios();
-static void configure_timer(uint32_t pwm_frequency_hz);
 static void compute_psc_arr(uint32_t pwm_frequency_hz, uint16_t* psc_out, uint16_t* arr_out);
 
 /*********************************************************************************************/
@@ -102,7 +101,7 @@ static inline void set_pwm_mode1(void)
 // Public Interface
 /*********************************************************************************************/
 
-HalStatus_t hal_pwm_init(uint32_t pwm_frequency_hz)
+hal_status_t hal_pwm_init(uint32_t pwm_frequency_hz)
 {
     // Safe default values for psc and arr.
     uint16_t psc = 0;

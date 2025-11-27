@@ -1,4 +1,4 @@
-# HAL (Hardware Abstraction Layer) for STM32f4
+# HAL (Hardware Abstraction Layer) for STM32F4
 
 A testable, first-principles hardware-abstraction layer for the STM32F4, built around a super-loop architecture with interrupt-driven drivers, static memory, and no RTOS or DMA.
 Designed for flight-control-class embedded systems and developed with modern tooling, automated tests, and continuous integration.
@@ -112,11 +112,11 @@ int main(void)
 
 - `/include`     — HAL API
 - `/src`         — Driver implementations
-- /`device`      — CMSIS + vendor support
+- `/device`      — CMSIS + vendor support
 - `/tests`       — Unit and integration tests
 - `/docs`        — Documentation sources
-- /`playground`  - Application target for experimenting
+- `/playground`  - Application target for experimenting
 
 ## License
 
-Licensed under the MIT License; see [LICENSE](https://cmckiel.github.io/hal/md__workspaces_hal_docs_license.html) for details.
+Licensed under the MIT License; see [LICENSE](https://cmckiel.github.io/hal/md____w_hal_hal_docs_license.html) for details.

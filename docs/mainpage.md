@@ -22,7 +22,7 @@ The HAL provides a small set of purpose-built drivers (UART, I2C, PWM, timers, G
 
 For more detailed architecture, see [Detailed Architecture](architecture.md).
 
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 - A `UNIX-style command line` environment.
@@ -65,8 +65,6 @@ Build for target hardware:
 ```
 
 Target firmware should be visible in `build/embedded-debug/` as `.elf` and `.bin` files.
-
-To see detailed build instructions, troubleshooting steps, and instructions for deploying firmware to target hardware, see the [Full Documenation](https://cmckiel.github.io/hal/).
 
 ### Example Application
 ```C

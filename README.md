@@ -73,7 +73,7 @@ To see detailed build instructions, troubleshooting steps, and instructions for 
 
 int main(void)
 {
-    hal_gpio_init(NULL);
+    hal_gpio_init();
     hal_uart_init(HAL_UART2, NULL);
 
     uint8_t message[] = "Hello from HAL!";

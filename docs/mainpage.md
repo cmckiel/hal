@@ -74,7 +74,7 @@ Target firmware should be visible in `build/embedded-debug/` as `.elf` and `.bin
 
 int main(void)
 {
-    hal_gpio_init(NULL);
+    hal_gpio_init();
     hal_uart_init(HAL_UART2, NULL);
 
     uint8_t message[] = "Hello from HAL!";

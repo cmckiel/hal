@@ -16,9 +16,9 @@ int __io_putchar(int ch)
 	return ch;
 }
 
-HalStatus_t hal_uart_init(HalUart_t uart, void *config)
+hal_status_t hal_uart_init(HalUart_t uart, void *config)
 {
-	HalStatus_t hal_status = HAL_STATUS_ERROR;
+	hal_status_t hal_status = HAL_STATUS_ERROR;
 
 	if (uart == HAL_UART1)
 	{
@@ -36,9 +36,9 @@ HalStatus_t hal_uart_init(HalUart_t uart, void *config)
 	return hal_status;
 }
 
-HalStatus_t hal_uart_deinit(HalUart_t uart)
+hal_status_t hal_uart_deinit(HalUart_t uart)
 {
-	HalStatus_t hal_status = HAL_STATUS_ERROR;
+	hal_status_t hal_status = HAL_STATUS_ERROR;
 
 	if (uart == HAL_UART1)
 	{
@@ -56,9 +56,9 @@ HalStatus_t hal_uart_deinit(HalUart_t uart)
 	return hal_status;
 }
 
-HalStatus_t hal_uart_read(HalUart_t uart, uint8_t *data, size_t len, size_t *bytes_read, uint32_t timeout_ms)
+hal_status_t hal_uart_read(HalUart_t uart, uint8_t *data, size_t len, size_t *bytes_read, uint32_t timeout_ms)
 {
-	HalStatus_t hal_status = HAL_STATUS_ERROR;
+	hal_status_t hal_status = HAL_STATUS_ERROR;
 
 	if (uart == HAL_UART1)
 	{
@@ -76,9 +76,9 @@ HalStatus_t hal_uart_read(HalUart_t uart, uint8_t *data, size_t len, size_t *byt
 	return hal_status;
 }
 
-HalStatus_t hal_uart_write(HalUart_t uart, const uint8_t *data, size_t len, size_t *bytes_written)
+hal_status_t hal_uart_write(HalUart_t uart, const uint8_t *data, size_t len, size_t *bytes_written)
 {
-	HalStatus_t hal_status = HAL_STATUS_ERROR;
+	hal_status_t hal_status = HAL_STATUS_ERROR;
 
 	if (uart == HAL_UART1)
 	{

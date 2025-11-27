@@ -18,7 +18,7 @@
 #define PIN5    (1U << 5) /*!< Pin five for GPIO port A. */
 #define LED_PIN    (PIN5) /*!< The onboard LED is wired to GPIO port A, pin 5. */
 
-HalStatus_t hal_gpio_init()
+hal_status_t hal_gpio_init()
 {
 	// Enable the peripheral bus clock.
 	RCC->AHB1ENR |= GPIOAEN;
@@ -32,7 +32,7 @@ HalStatus_t hal_gpio_init()
 	return HAL_STATUS_OK;
 }
 
-HalStatus_t hal_gpio_toggle_led()
+hal_status_t hal_gpio_toggle_led()
 {
 	// XOR flips bit each call.
 	GPIOA->ODR ^= LED_PIN;

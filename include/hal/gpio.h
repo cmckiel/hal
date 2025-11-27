@@ -13,15 +13,15 @@
 /**
  * @brief Initialize the module. Must be called only once prior to using toggle.
  *
- * @return HAL_STATUS_OK on success.
+ * @return @ref HAL_STATUS_OK on success.
  */
-HalStatus_t hal_gpio_init();
+hal_status_t hal_gpio_init();
 
 /**
  * @brief Toggle the onboard LED.
  *
- * @return HAL_STATUS_OK on success.
+ * @return @ref HAL_STATUS_OK on success.
  */
-HalStatus_t hal_gpio_toggle_led();
+hal_status_t hal_gpio_toggle_led();
 
 #endif /* _GPIO_H */

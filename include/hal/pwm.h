@@ -24,7 +24,7 @@
  *
  * @return HAL_STATUS_OK on success.
  */
-HalStatus_t hal_pwm_init(uint32_t pwm_frequency_hz);
+hal_status_t hal_pwm_init(uint32_t pwm_frequency_hz);
 
 /**
  * @brief enable or disable the pwm signal. If disabled, nothing will show up on pins.

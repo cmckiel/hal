@@ -36,7 +36,7 @@ typedef enum {
  * @return The status of the request. SUCCESS is the only return value indicating
  * the request was queued.
  */
-i2c_queue_status_t i2c_transaction_queue_add(HalI2C_Txn_t *txn);
+i2c_queue_status_t i2c_transaction_queue_add(hal_i2c_txn_t *txn);
 
 /**
  * @brief Get the next transaction from the queue. Removes the transaction from the queue.
@@ -50,7 +50,7 @@ i2c_queue_status_t i2c_transaction_queue_add(HalI2C_Txn_t *txn);
  * @return The status of the request. SUCCESS is the only return value indicating
  * the next transaction was properly dequeued.
  */
-i2c_queue_status_t i2c_transaction_queue_get_next(HalI2C_Txn_t **txn);
+i2c_queue_status_t i2c_transaction_queue_get_next(hal_i2c_txn_t **txn);
 
 /**
  * @brief Resets the queue.

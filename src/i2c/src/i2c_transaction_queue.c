@@ -1,7 +1,7 @@
 #include "i2c_transaction_queue.h"
 
 typedef struct {
-    HalI2C_Txn_t *transactions[I2C_TRANSACTION_QUEUE_SIZE];
+    hal_i2c_txn_t *transactions[I2C_TRANSACTION_QUEUE_SIZE];
     size_t head;
     size_t tail; // the current message
     size_t transaction_count;
@@ -13,7 +13,7 @@ static i2c_transaction_queue_t queue = {
     .transaction_count = 0
 };
 
-i2c_queue_status_t i2c_transaction_queue_add(HalI2C_Txn_t *txn)
+i2c_queue_status_t i2c_transaction_queue_add(hal_i2c_txn_t *txn)
 {
     i2c_queue_status_t status = I2C_QUEUE_STATUS_FAIL;
 
@@ -45,7 +45,7 @@ i2c_queue_status_t i2c_transaction_queue_add(HalI2C_Txn_t *txn)
 // The desire is to actually set the pointer passed to this function, and to set
 // a parameter, there needs to be a reference. In conclusion, this is a reference to
 // a pointer type.
-i2c_queue_status_t i2c_transaction_queue_get_next(HalI2C_Txn_t **txn)
+i2c_queue_status_t i2c_transaction_queue_get_next(hal_i2c_txn_t **txn)
 {
     i2c_queue_status_t status = I2C_QUEUE_STATUS_FAIL;
 

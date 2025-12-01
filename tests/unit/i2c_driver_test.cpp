@@ -34,7 +34,7 @@ protected:
 
 TEST_F(I2CDriverTest, InitsGPIOPinsCorrectly)
 {
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Clock enabled to port b.
     ASSERT_TRUE(Sim_RCC.AHB1ENR & RCC_AHB1ENR_GPIOBEN);
@@ -64,7 +64,7 @@ TEST_F(I2CDriverTest, InitsPeripheralCorrectly)
     // Set bit high to prove init() sets it low.
     Sim_I2C1.CCR |= I2C_CCR_FS;
 
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Clock is enabled to I2C1
     ASSERT_TRUE(Sim_RCC.APB1ENR & RCC_APB1ENR_I2C1EN);
@@ -87,7 +87,7 @@ TEST_F(I2CDriverTest, InitsPeripheralCorrectly)
 
 TEST_F(I2CDriverTest, InitsInterruptsCorrectly)
 {
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Event interrupt enabled in peripheral
     ASSERT_TRUE(Sim_I2C1.CR2 & I2C_CR2_ITEVTEN);
@@ -109,8 +109,8 @@ TEST_F(I2CDriverTest, InitsInterruptsCorrectly)
 TEST_F(I2CDriverTest, TransactionServicerLoadsTransaction)
 {
     // Given an I2C transaction and an initialized I2C driver.
-    HalI2C_Txn_t transaction = {0};
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    hal_i2c_txn_t transaction = {0};
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Given that the transaction has been submitted successfully.
     ASSERT_EQ(hal_i2c_submit_transaction(&transaction), HAL_STATUS_OK);
@@ -127,9 +127,9 @@ TEST_F(I2CDriverTest, TransactionServicerLoadsTransaction)
 TEST_F(I2CDriverTest, TransactionServicerRejectsInvalidTransaction)
 {
     // Given an invalid I2C transaction and an initialized I2C driver.
-    HalI2C_Txn_t transaction;
+    hal_i2c_txn_t transaction;
     transaction.i2c_op = _HAL_I2C_OP_MAX; // invalid operation value
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // @todo change how this the transaction is injected once this api also validates.
     // Given that the transaction has been submitted successfully.
@@ -148,8 +148,8 @@ TEST_F(I2CDriverTest, TransactionServicerRejectsInvalidTransaction)
 TEST_F(I2CDriverTest, TransactionServicerSendsStartSignal)
 {
     // Given an I2C transaction and an initialized I2C driver.
-    HalI2C_Txn_t transaction = {0};
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    hal_i2c_txn_t transaction = {0};
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Given that the transaction has been submitted successfully.
     ASSERT_EQ(hal_i2c_submit_transaction(&transaction), HAL_STATUS_OK);
@@ -164,8 +164,8 @@ TEST_F(I2CDriverTest, TransactionServicerSendsStartSignal)
 TEST_F(I2CDriverTest, TransactionServicerSendsStartSignalOnlyOnce)
 {
     // Given an I2C transaction and an initialized I2C driver.
-    HalI2C_Txn_t transaction = {0};
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    hal_i2c_txn_t transaction = {0};
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Given that the transaction has been submitted successfully.
     ASSERT_EQ(hal_i2c_submit_transaction(&transaction), HAL_STATUS_OK);
@@ -192,13 +192,13 @@ TEST_F(I2CDriverTest, TransactionServicerSendsStartSignalOnlyOnce)
 TEST_F(I2CDriverTest, ISRHandlesZeroLengthTransmit)
 {
     // Given an initialized I2C driver
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Given a simple WRITE transaction of 0 bytes
-    HalI2C_Txn_t txn = {};
+    hal_i2c_txn_t txn = {};
     txn.target_addr               = 0x56;
     txn.i2c_op                    = HAL_I2C_OP_WRITE;
-    txn.num_of_bytes_to_tx        = 0;
+    txn.expected_bytes_to_tx      = 0;
     txn.expected_bytes_to_rx      = 0;
     txn.processing_state          = HAL_I2C_TXN_STATE_CREATED;
     txn.transaction_result        = HAL_I2C_TXN_RESULT_NONE;
@@ -260,15 +260,15 @@ TEST_F(I2CDriverTest, ISRHandlesZeroLengthTransmit)
 TEST_F(I2CDriverTest, ISRHandlesBasicWrite)
 {
     // Given an initialized I2C driver
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Given a simple WRITE transaction of 2 bytes
-    HalI2C_Txn_t txn = {};
+    hal_i2c_txn_t txn = {};
     txn.target_addr               = 0x50;
     txn.i2c_op                    = HAL_I2C_OP_WRITE;
     txn.tx_data[0]                = 0x01;
     txn.tx_data[1]                = 0xAB;
-    txn.num_of_bytes_to_tx        = 2;
+    txn.expected_bytes_to_tx      = 2;
     txn.expected_bytes_to_rx      = 0;
     txn.processing_state          = HAL_I2C_TXN_STATE_CREATED;
     txn.transaction_result        = HAL_I2C_TXN_RESULT_NONE;
@@ -357,13 +357,13 @@ TEST_F(I2CDriverTest, ISRHandlesBasicWriteRead)
     uint32_t shift_register = 0;
 
     // Given an initialized I2C driver
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Given a simple WRITE-READ transaction of 1 byte write, 2 byte read.
-    HalI2C_Txn_t txn = {};
+    hal_i2c_txn_t txn = {};
     txn.target_addr               = 0xFE;
     txn.i2c_op                    = HAL_I2C_OP_WRITE_READ;
-    txn.num_of_bytes_to_tx        = 1;
+    txn.expected_bytes_to_tx      = 1;
     txn.tx_data[0]                = 0xF4;
     txn.expected_bytes_to_rx      = 2;
     txn.processing_state          = HAL_I2C_TXN_STATE_CREATED;
@@ -523,13 +523,13 @@ TEST_F(I2CDriverTest, ISRHandlesBasicRead4Bytes)
     uint32_t shift_register = 0;
 
     // Given an initialized I2C driver
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Given a simple READ transaction of 4 bytes
-    HalI2C_Txn_t txn = {};
+    hal_i2c_txn_t txn = {};
     txn.target_addr               = 0xDD;
     txn.i2c_op                    = HAL_I2C_OP_READ;
-    txn.num_of_bytes_to_tx        = 0;
+    txn.expected_bytes_to_tx      = 0;
     txn.expected_bytes_to_rx      = 4;
     txn.processing_state          = HAL_I2C_TXN_STATE_CREATED;
     txn.transaction_result        = HAL_I2C_TXN_RESULT_NONE;
@@ -665,13 +665,13 @@ TEST_F(I2CDriverTest, ISRHandlesBasicRead3Bytes)
     uint32_t shift_register = 0;
 
     // Given an initialized I2C driver
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Given a simple READ transaction of 3 bytes
-    HalI2C_Txn_t txn = {};
+    hal_i2c_txn_t txn = {};
     txn.target_addr               = 0x3C;
     txn.i2c_op                    = HAL_I2C_OP_READ;
-    txn.num_of_bytes_to_tx        = 0;
+    txn.expected_bytes_to_tx      = 0;
     txn.expected_bytes_to_rx      = 3;
     txn.processing_state          = HAL_I2C_TXN_STATE_CREATED;
     txn.transaction_result        = HAL_I2C_TXN_RESULT_NONE;
@@ -790,13 +790,13 @@ TEST_F(I2CDriverTest, ISRHandlesBasicRead2Bytes)
     uint32_t shift_register = 0;
 
     // Given an initialized I2C driver
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Given a simple READ transaction of 2 bytes
-    HalI2C_Txn_t txn = {};
+    hal_i2c_txn_t txn = {};
     txn.target_addr               = 0x4F;
     txn.i2c_op                    = HAL_I2C_OP_READ;
-    txn.num_of_bytes_to_tx        = 0;
+    txn.expected_bytes_to_tx      = 0;
     txn.expected_bytes_to_rx      = 2;
     txn.processing_state          = HAL_I2C_TXN_STATE_CREATED;
     txn.transaction_result        = HAL_I2C_TXN_RESULT_NONE;
@@ -905,13 +905,13 @@ TEST_F(I2CDriverTest, ISRHandlesBasicRead2Bytes)
 TEST_F(I2CDriverTest, ISRHandlesBasicRead1Byte)
 {
     // Given an initialized I2C driver
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Given a simple READ transaction of 1 byte
-    HalI2C_Txn_t txn = {};
+    hal_i2c_txn_t txn = {};
     txn.target_addr               = 0xAA;
     txn.i2c_op                    = HAL_I2C_OP_READ;
-    txn.num_of_bytes_to_tx        = 0;
+    txn.expected_bytes_to_tx      = 0;
     txn.expected_bytes_to_rx      = 1;
     txn.processing_state          = HAL_I2C_TXN_STATE_CREATED;
     txn.transaction_result        = HAL_I2C_TXN_RESULT_NONE;
@@ -984,14 +984,14 @@ TEST_F(I2CDriverTest, ISRHandlesBasicRead1Byte)
 TEST_F(I2CDriverTest, ISRHandlesAddressNACK)
 {
     // Given an initialized I2C driver
-    ASSERT_EQ(hal_i2c_init(nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_i2c_init(), HAL_STATUS_OK);
 
     // Prepare a simple 1-byte WRITE so we can hit the address phase.
-    HalI2C_Txn_t txn = {};
+    hal_i2c_txn_t txn = {};
     txn.target_addr               = 0x2A;
     txn.i2c_op                    = HAL_I2C_OP_WRITE;
     txn.tx_data[0]                = 0xDE;
-    txn.num_of_bytes_to_tx        = 1;
+    txn.expected_bytes_to_tx      = 1;
     txn.expected_bytes_to_rx      = 0;
     txn.processing_state          = HAL_I2C_TXN_STATE_CREATED;
     txn.transaction_result        = HAL_I2C_TXN_RESULT_NONE;

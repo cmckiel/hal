@@ -1,3 +1,10 @@
+/**
+ * @file stm32f4_hal.h
+ * @brief Common defines to the STM32F4 implementation of HAL.
+ *
+ * Copyright (c) 2025 Cory McKiel.
+ * Licensed under the MIT License. See LICENSE file in the project root.
+ */
 #ifndef _STM32F4_HAL_H
 #define _STM32F4_HAL_H
 

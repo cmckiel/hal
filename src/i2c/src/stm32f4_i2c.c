@@ -1,6 +1,9 @@
 /**
  * @file stm32f4_i2c.c
  * @brief STM32F4 I2C HAL implementation
+ *
+ * Copyright (c) 2025 Cory McKiel.
+ * Licensed under the MIT License. See LICENSE file in the project root.
  */
 
 #ifdef DESKTOP_BUILD

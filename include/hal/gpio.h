@@ -1,6 +1,6 @@
 /**
  * @file gpio.h
- * @brief This module toggles the onboard LED.
+ * @brief Toggles the onboard LED.
  *
  * Copyright (c) 2025 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.

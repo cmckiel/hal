@@ -10,6 +10,9 @@
  *
  * At this point a PWM signal of your chosen frequency and
  * duty cycle is being output to pin.
+ *
+ * Copyright (c) 2025 Cory McKiel.
+ * Licensed under the MIT License. See LICENSE file in the project root.
  */
 #ifndef _PWM_H
 #define _PWM_H

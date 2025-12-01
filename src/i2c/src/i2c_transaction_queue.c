@@ -1,10 +1,22 @@
+/**
+ * @file i2c_transaction_queue.c
+ * @brief Implementation for the transaction queue.
+ *
+ * Copyright (c) 2025 Cory McKiel.
+ * Licensed under the MIT License. See LICENSE file in the project root.
+ */
 #include "i2c_transaction_queue.h"
 
+/**
+ * @brief A queue that holds references to the transactions to be processed.
+ *
+ * Implemented as a ring buffer with no data overwrite.
+ */
 typedef struct {
-    hal_i2c_txn_t *transactions[I2C_TRANSACTION_QUEUE_SIZE];
-    size_t head;
-    size_t tail; // the current message
-    size_t transaction_count;
+    hal_i2c_txn_t *transactions[I2C_TRANSACTION_QUEUE_SIZE]; /*!< Array that holds all the references to transactions. */
+    size_t head;                                             /*!< head points to either an empty slot (space in queue) or to tail (no space in queue). */
+    size_t tail;                                             /*!< tail points to the next message to be dequeued. */
+    size_t transaction_count;                                /*!< A current count of the number of transactions in the queue. */
 } i2c_transaction_queue_t;
 
 static i2c_transaction_queue_t queue = {

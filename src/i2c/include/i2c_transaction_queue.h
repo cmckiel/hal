@@ -8,21 +8,25 @@
  *
  * @warning Undefined behavior will occur if the transaction added to queue was
  * located on a function's call stack that then returns.
+ *
+ * Copyright (c) 2025 Cory McKiel.
+ * Licensed under the MIT License. See LICENSE file in the project root.
  */
 #include "i2c.h"
 
-// Determines the maximum number of transaction requests
-// that can be queued simultaneously.
+/// @brief Adjust to increase/decrease the queue size.
 #define I2C_TRANSACTION_QUEUE_SIZE 10
 
-// Return type indicating the result of the requested queue operation.
+/**
+ * @brief Possible return types for queue operations.
+ */
 typedef enum {
-    _I2C_QUEUE_STATUS_ENUM_MIN = 0,
-    I2C_QUEUE_STATUS_SUCCESS = _I2C_QUEUE_STATUS_ENUM_MIN,
-    I2C_QUEUE_STATUS_FAIL,
-    I2C_QUEUE_STATUS_QUEUE_FULL,
-    I2C_QUEUE_STATUS_QUEUE_EMPTY,
-    _I2C_QUEUE_STATUS_ENUM_MAX,
+    _I2C_QUEUE_STATUS_ENUM_MIN = 0,                        /*!< Lower bound of enum. Inclusive. */
+    I2C_QUEUE_STATUS_SUCCESS = _I2C_QUEUE_STATUS_ENUM_MIN, /*!< The queue operation was successful. */
+    I2C_QUEUE_STATUS_FAIL,                                 /*!< The queue operation encountered an error and was not successful. */
+    I2C_QUEUE_STATUS_QUEUE_FULL,                           /*!< The queue operation could not be performed because the queue is full. */
+    I2C_QUEUE_STATUS_QUEUE_EMPTY,                          /*!< The queue operation could not be performed because the queue is empty. */
+    _I2C_QUEUE_STATUS_ENUM_MAX,                            /*!< Upper bound of enum. Exclusive. */
 } i2c_queue_status_t;
 
 /**

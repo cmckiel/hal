@@ -19,8 +19,8 @@ int main(void)
 	uint8_t rx_data_uart2[MAX_RX_BYTES] = { 0 };
 
 	// Initialize drivers.
-	hal_uart_init(HAL_UART1, NULL);
-	hal_uart_init(HAL_UART2, NULL);
+	hal_uart_init(HAL_UART1);
+	hal_uart_init(HAL_UART2);
 
 	while (1)
 	{

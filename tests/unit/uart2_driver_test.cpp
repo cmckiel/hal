@@ -24,7 +24,7 @@ protected:
 TEST_F(Uart2DriverTest, Uart2InitializesAllRegistersCorrectly)
 {
     // Call UART2 init directly to test low-level register configuration
-    ASSERT_EQ(stm32f4_uart2_init(nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(stm32f4_uart2_init(), HAL_STATUS_OK);
 
     // ========== GPIO Configuration Verification ==========
 

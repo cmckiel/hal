@@ -52,7 +52,7 @@ void USART2_IRQHandler(void)
 /**
  * @brief Initialize the UART2. (Connected to the USB)
  */
-hal_status_t stm32f4_uart2_init(void *config)
+hal_status_t stm32f4_uart2_init()
 {
 	// Prevent multiple initialization
 	if (uart2_initialized)

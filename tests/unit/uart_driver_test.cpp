@@ -44,11 +44,11 @@ bool UartDriverTest::seed_is_set = false;
 
 TEST_F(UartDriverTest, InitializesCorrectly)
 {
-    ASSERT_EQ(hal_uart_init((HalUart_t)(-1), nullptr), HAL_STATUS_ERROR);
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
-    ASSERT_EQ(hal_uart_init(HAL_UART3, nullptr), HAL_STATUS_ERROR);
-    ASSERT_EQ(hal_uart_init((HalUart_t)(15), nullptr), HAL_STATUS_ERROR);
+    ASSERT_EQ(hal_uart_init((HalUart_t)(-1)), HAL_STATUS_ERROR);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init((HalUart_t)((int)HAL_UART2 + 1)), HAL_STATUS_ERROR);
+    ASSERT_EQ(hal_uart_init((HalUart_t)(15)), HAL_STATUS_ERROR);
 }
 
 TEST_F(UartDriverTest, ReadFailsForNullData)
@@ -58,11 +58,11 @@ TEST_F(UartDriverTest, ReadFailsForNullData)
     uint32_t timeout_ms = 0;
 
     // Uart1 test
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_read(HAL_UART1, nullptr, data_len, &bytes_read, timeout_ms), HAL_STATUS_ERROR);
 
     // Uart2 test
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_read(HAL_UART2, nullptr, data_len, &bytes_read, timeout_ms), HAL_STATUS_ERROR);
 }
 
@@ -73,11 +73,11 @@ TEST_F(UartDriverTest, ReadFailsForNullBytesRead)
     uint32_t timeout_ms = 0;
 
     /********** Uart1 test *********/
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_read(HAL_UART1, &data, data_len, nullptr, timeout_ms), HAL_STATUS_ERROR);
 
     /********** Uart2 test *********/
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_read(HAL_UART2, &data, data_len, nullptr, timeout_ms), HAL_STATUS_ERROR);
 }
 
@@ -89,7 +89,7 @@ TEST_F(UartDriverTest, ReadsAByte)
     uint32_t timeout_ms = 0;
 
     /********** Uart1 test *********/
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     Sim_USART1.DR = 'A';
     Sim_USART1.SR |= USART_SR_RXNE;
@@ -99,7 +99,7 @@ TEST_F(UartDriverTest, ReadsAByte)
     ASSERT_EQ(data, 'A');
 
     /********** Uart2 test *********/
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
 
     Sim_USART2.DR = 'A';
     Sim_USART2.SR |= USART_SR_RXNE;
@@ -116,7 +116,7 @@ TEST_F(UartDriverTest, Uart1ReadsMultipleBytes)
     size_t bytes_read = 0;
     uint32_t timeout_ms = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // Receive 100 random bytes from incoming uart.
     for (int i = 0; i < DATA_LEN; i++)
@@ -144,7 +144,7 @@ TEST_F(UartDriverTest, Uart2ReadsMultipleBytes)
     size_t bytes_read = 0;
     uint32_t timeout_ms = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
 
     // Receive 100 random bytes from incoming uart.
     for (int i = 0; i < DATA_LEN; i++)
@@ -172,7 +172,7 @@ TEST_F(UartDriverTest, Uart1ReadsMaxBytes)
     size_t bytes_read = 0;
     uint32_t timeout_ms = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // Receive random bytes from incoming uart.
     for (int i = 0; i < DATA_LEN; i++)
@@ -200,7 +200,7 @@ TEST_F(UartDriverTest, Uart2ReadsMaxBytes)
     size_t bytes_read = 0;
     uint32_t timeout_ms = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
 
     // Receive random bytes from incoming uart.
     for (int i = 0; i < DATA_LEN; i++)
@@ -229,7 +229,7 @@ TEST_F(UartDriverTest, Uart1HandlesRXOverflow)
     size_t bytes_read = 0;
     uint32_t timeout_ms = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // Receive random bytes from incoming uart.
     for (int i = 0; i < DATA_LEN; i++)
@@ -260,7 +260,7 @@ TEST_F(UartDriverTest, Uart2HandlesRXOverflow)
     size_t bytes_read = 0;
     uint32_t timeout_ms = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
 
     // Receive random bytes from incoming uart.
     for (int i = 0; i < DATA_LEN; i++)
@@ -291,7 +291,7 @@ TEST_F(UartDriverTest, Uart1DoesNotReadPastDataLen)
     size_t bytes_read = 0;
     uint32_t timeout_ms = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // Receive more bytes from incoming uart than we intend to read.
     for (int i = 0; i < DATA_LEN; i++)
@@ -315,7 +315,7 @@ TEST_F(UartDriverTest, Uart2DoesNotReadPastDataLen)
     size_t bytes_read = 0;
     uint32_t timeout_ms = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
 
     // Receive more bytes from incoming uart than we intend to read.
     for (int i = 0; i < DATA_LEN; i++)
@@ -337,8 +337,8 @@ TEST_F(UartDriverTest, ReadOnEmptyReturnsZeroBytesRead)
     size_t bytes_read = 0;
     uint32_t timeout_ms = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
 
     ASSERT_EQ(hal_uart_read(HAL_UART1, &data[0], DATA_LEN, &bytes_read, timeout_ms), HAL_STATUS_OK);
     ASSERT_EQ(bytes_read, 0);
@@ -353,7 +353,7 @@ TEST_F(UartDriverTest, ReadWithVeryLargeLengthRequest)
     uint8_t single_byte;
     size_t bytes_read = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // Put one byte in buffer
     Sim_USART1.DR = 'A';
@@ -372,8 +372,8 @@ TEST_F(UartDriverTest, ReadWithZeroLengthReturnsOK)
     size_t bytes_read = 999; // Initialize to non-zero to verify it gets set
     uint32_t timeout_ms = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
 
     // Put some data in the buffer
     Sim_USART1.DR = 'A';
@@ -401,7 +401,6 @@ TEST_F(UartDriverTest, ReadWithInvalidUartEnum)
 
     // Test various invalid UART enum values
     ASSERT_EQ(hal_uart_read((HalUart_t)(-1), data, sizeof(data), &bytes_read, timeout_ms), HAL_STATUS_ERROR);
-    ASSERT_EQ(hal_uart_read(HAL_UART3, data, sizeof(data), &bytes_read, timeout_ms), HAL_STATUS_ERROR); // Not implemented
     ASSERT_EQ(hal_uart_read((HalUart_t)(99), data, sizeof(data), &bytes_read, timeout_ms), HAL_STATUS_ERROR);
     ASSERT_EQ(hal_uart_read((HalUart_t)(SIZE_MAX), data, sizeof(data), &bytes_read, timeout_ms), HAL_STATUS_ERROR);
 }
@@ -414,7 +413,7 @@ TEST_F(UartDriverTest, Uart1ReadDuringSimulatedInterrupt)
     size_t bytes_read = 0;
     uint32_t timeout_ms = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // Put initial data in buffer via simulated interrupts
     for (int i = 0; i < INITIAL_DATA_LEN; i++) {
@@ -454,7 +453,7 @@ TEST_F(UartDriverTest, Uart2BufferStateConsistency)
     size_t bytes_read = 0;
     uint32_t timeout_ms = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
 
     // Fill buffer to half capacity with known pattern
     for (int i = 0; i < HALF_BUFFER; i++) {
@@ -502,7 +501,6 @@ TEST_F(UartDriverTest, WriteFailsForInvalidUart)
     size_t bytes_written = 0;
 
     ASSERT_EQ(hal_uart_write((HalUart_t)(-1), data, data_len, &bytes_written), HAL_STATUS_ERROR);
-    ASSERT_EQ(hal_uart_write(HAL_UART3, data, data_len, &bytes_written), HAL_STATUS_ERROR); // Not implemented
     ASSERT_EQ(hal_uart_write((HalUart_t)(99), data, data_len, &bytes_written), HAL_STATUS_ERROR);
 }
 
@@ -512,11 +510,11 @@ TEST_F(UartDriverTest, WriteFailsForNullData)
     size_t bytes_written = 0;
 
     // UART1 test
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART1, nullptr, data_len, &bytes_written), HAL_STATUS_ERROR);
 
     // UART2 test
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART2, nullptr, data_len, &bytes_written), HAL_STATUS_ERROR);
 }
 
@@ -526,11 +524,11 @@ TEST_F(UartDriverTest, WriteFailsForZeroLength)
     size_t bytes_written = 0;
 
     // UART1 test
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART1, data, 0, &bytes_written), HAL_STATUS_ERROR);
 
     // UART2 test
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART2, data, 0, &bytes_written), HAL_STATUS_ERROR);
 }
 
@@ -540,11 +538,11 @@ TEST_F(UartDriverTest, WriteFailsForNullBytesWritten)
     size_t data_len = sizeof(data);
 
     // UART1 test
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART1, data, data_len, nullptr), HAL_STATUS_ERROR);
 
     // UART2 test
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART2, data, data_len, nullptr), HAL_STATUS_ERROR);
 }
 
@@ -553,7 +551,7 @@ TEST_F(UartDriverTest, Uart1WritesSingleByte)
     uint8_t data[] = {'A'};
     size_t bytes_written = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART1, data, 1, &bytes_written), HAL_STATUS_OK);
     ASSERT_EQ(bytes_written, sizeof(data));
 
@@ -580,7 +578,7 @@ TEST_F(UartDriverTest, Uart2WritesSingleByte)
     uint8_t data[] = {'A'};
     size_t bytes_written = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART2, data, 1, &bytes_written), HAL_STATUS_OK);
     ASSERT_EQ(bytes_written, sizeof(data));
 
@@ -611,7 +609,7 @@ TEST_F(UartDriverTest, Uart1WritesMultipleBytes)
         data[i] = 'A' + i;
     }
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART1, data, DATA_LEN, &bytes_written), HAL_STATUS_OK);
     ASSERT_EQ(bytes_written, sizeof(data));
 
@@ -643,7 +641,7 @@ TEST_F(UartDriverTest, Uart2WritesMultipleBytes)
         data[i] = 'A' + i;
     }
 
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART2, data, DATA_LEN, &bytes_written), HAL_STATUS_OK);
     ASSERT_EQ(bytes_written, sizeof(data));
 
@@ -672,7 +670,7 @@ TEST_F(UartDriverTest, Uart1WritesMaxBufferSize)
         data[i] = (uint8_t)(i & 0xFF);
     }
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART1, data, DATA_LEN, &bytes_written), HAL_STATUS_OK);
     ASSERT_EQ(bytes_written, sizeof(data));
 
@@ -694,7 +692,7 @@ TEST_F(UartDriverTest, Uart2WritesMaxBufferSize)
         data[i] = (uint8_t)(i & 0xFF);
     }
 
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART2, data, DATA_LEN, &bytes_written), HAL_STATUS_OK);
     ASSERT_EQ(bytes_written, sizeof(data));
 
@@ -715,7 +713,7 @@ TEST_F(UartDriverTest, Uart1WriteFailsWhenBufferFull)
         data[i] = 'X';
     }
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // This should fail because we're trying to write more than buffer capacity
     ASSERT_EQ(hal_uart_write(HAL_UART1, data, DATA_LEN, &bytes_written), HAL_STATUS_ERROR);
@@ -739,7 +737,7 @@ TEST_F(UartDriverTest, Uart2WriteFailsWhenBufferFull)
         data[i] = 'X';
     }
 
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART2, data, DATA_LEN, &bytes_written), HAL_STATUS_ERROR);
 
     ASSERT_EQ(bytes_written, CIRCULAR_BUFFER_MAX_SIZE);
@@ -763,7 +761,7 @@ TEST_F(UartDriverTest, Uart1WritePartialThenComplete)
         data2[i] = 'B';
     }
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // First write
     ASSERT_EQ(hal_uart_write(HAL_UART1, data1, FIRST_WRITE, &bytes_written), HAL_STATUS_OK);
@@ -816,7 +814,7 @@ TEST_F(UartDriverTest, Uart2WritePartialThenComplete)
         data2[i] = 'B';
     }
 
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
 
     ASSERT_EQ(hal_uart_write(HAL_UART2, data1, FIRST_WRITE, &bytes_written), HAL_STATUS_OK);
     ASSERT_EQ(bytes_written, FIRST_WRITE);
@@ -855,7 +853,7 @@ TEST_F(UartDriverTest, WriteDoesNotEnableTXEIEWhenBufferNotEmpty)
     uint8_t data2[] = {'B'};
     size_t bytes_written = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // First write - should enable TXE
     ASSERT_EQ(hal_uart_write(HAL_UART1, data1, 1, &bytes_written), HAL_STATUS_OK);
@@ -881,7 +879,7 @@ TEST_F(UartDriverTest, WriteHandlesRandomData)
         data_sent[i] = random_uint8();
     }
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART1, data_sent, DATA_LEN, &bytes_written), HAL_STATUS_OK);
     ASSERT_EQ(bytes_written, DATA_LEN);
 
@@ -905,7 +903,7 @@ TEST_F(UartDriverTest, WriteHandlesSpecialByteValues)
     size_t len = sizeof(special_bytes);
     size_t bytes_written = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_write(HAL_UART2, special_bytes, len, &bytes_written), HAL_STATUS_OK);
     ASSERT_EQ(bytes_written, len);
 
@@ -919,7 +917,7 @@ TEST_F(UartDriverTest, WriteHandlesSpecialByteValues)
 // Interrupt timing edge cases
 TEST_F(UartDriverTest, HandlesTXEInterruptWithEmptyBuffer)
 {
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // Simulate spurious TXE interrupt (no data to send)
     Sim_USART1.SR |= USART_SR_TXE;
@@ -927,27 +925,6 @@ TEST_F(UartDriverTest, HandlesTXEInterruptWithEmptyBuffer)
 
     // Should disable TXE interrupt
     ASSERT_FALSE(Sim_USART1.CR1 & USART_CR1_TXEIE);
-}
-
-// Configuration parameter handling
-TEST_F(UartDriverTest, InitIgnoresConfigParameter)
-{
-    uint8_t data = 0;
-    size_t data_len = 1;
-    size_t bytes_read = 0;
-    uint32_t timeout_ms = 0;
-
-    uint32_t config_data = 0xDEADBEEF;
-    ASSERT_EQ(hal_uart_init(HAL_UART1, &config_data), HAL_STATUS_OK);
-
-    // Verify initialization proceeds normally regardless of config content
-    // Can read a byte.
-    Sim_USART1.DR = 'A';
-    Sim_USART1.SR |= USART_SR_RXNE;
-    USART1_IRQHandler();  // simulate interrupt
-
-    ASSERT_EQ(hal_uart_read(HAL_UART1, &data, data_len, &bytes_read, timeout_ms), HAL_STATUS_OK);
-    ASSERT_EQ(data, 'A');
 }
 
 TEST_F(UartDriverTest, ReadFailsOnUninitializedUart)
@@ -975,10 +952,10 @@ TEST_F(UartDriverTest, Uart1MultipleInitsFail)
     size_t bytes_written = 0;
 
     // First init should succeed
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // Second init should fail
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_ERROR);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_ERROR);
 
     // Operations should still work after failed re-init
     uint8_t data[] = "test";
@@ -991,10 +968,10 @@ TEST_F(UartDriverTest, Uart2MultipleInitsFail)
     size_t bytes_written = 0;
 
     // First init should succeed
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
 
     // Second init should fail
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_ERROR);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_ERROR);
 
     // Operations should still work after failed re-init
     uint8_t data[] = "test";
@@ -1005,13 +982,13 @@ TEST_F(UartDriverTest, Uart2MultipleInitsFail)
 TEST_F(UartDriverTest, ReinitAfterDeinitSucceeds)
 {
     // Init -> Deinit -> Init should work
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_deinit(HAL_UART1), HAL_STATUS_OK);
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
     ASSERT_EQ(hal_uart_deinit(HAL_UART2), HAL_STATUS_OK);
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
 }
 
 TEST_F(UartDriverTest, Uart1DeinitRestoresHardwareToSafeState)
@@ -1019,7 +996,7 @@ TEST_F(UartDriverTest, Uart1DeinitRestoresHardwareToSafeState)
     size_t bytes_written = 0;
 
     // Initialize UART1 and verify it's configured correctly
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // Verify initial configuration is correct (lock in expected state)
     ASSERT_TRUE(Sim_RCC.APB2ENR & RCC_APB2ENR_USART1EN);     // Clock enabled
@@ -1077,8 +1054,8 @@ TEST_F(UartDriverTest, DeinitDoesNotAffectOtherUARTs)
     size_t bytes_written = 0;
 
     // Initialize both UARTs
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
-    ASSERT_EQ(hal_uart_init(HAL_UART2, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART2), HAL_STATUS_OK);
 
     // Verify both are working
     uint8_t test_data[] = "test";
@@ -1105,7 +1082,7 @@ TEST_F(UartDriverTest, ReinitAfterDeinitRestoresFullFunctionality)
     size_t bytes_written = 0;
 
     // Initial setup and operation
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     uint8_t original_data[] = "original";
     ASSERT_EQ(hal_uart_write(HAL_UART1, original_data, sizeof(original_data)-1, &bytes_written), HAL_STATUS_OK);
@@ -1114,7 +1091,7 @@ TEST_F(UartDriverTest, ReinitAfterDeinitRestoresFullFunctionality)
     ASSERT_EQ(hal_uart_deinit(HAL_UART1), HAL_STATUS_OK);
 
     // Reinit should succeed
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // Verify hardware is reconfigured correctly after reinit
     ASSERT_TRUE(Sim_RCC.APB2ENR & RCC_APB2ENR_USART1EN);     // Clock enabled
@@ -1144,7 +1121,7 @@ TEST_F(UartDriverTest, DeinitClearsBufferState)
 {
     size_t bytes_written = 0;
 
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // Fill buffers with data
     uint8_t write_data[] = "buffer_data";
@@ -1161,7 +1138,7 @@ TEST_F(UartDriverTest, DeinitClearsBufferState)
     ASSERT_EQ(hal_uart_deinit(HAL_UART1), HAL_STATUS_OK);
 
     // Reinit
-    ASSERT_EQ(hal_uart_init(HAL_UART1, nullptr), HAL_STATUS_OK);
+    ASSERT_EQ(hal_uart_init(HAL_UART1), HAL_STATUS_OK);
 
     // Buffers should be empty after reinit
     uint8_t read_data[20];

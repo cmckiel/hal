@@ -49,7 +49,7 @@ void USART1_IRQHandler(void)
 	}
 }
 
-hal_status_t stm32f4_uart1_init(void *config)
+hal_status_t stm32f4_uart1_init()
 {
 	// Prevent multiple initialization
     if (uart1_initialized)

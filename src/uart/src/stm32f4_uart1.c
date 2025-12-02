@@ -92,7 +92,7 @@ hal_status_t stm32f4_uart1_deinit()
     return HAL_STATUS_OK;
 }
 
-hal_status_t stm32f4_uart1_read(uint8_t *data, size_t len, size_t *bytes_read, uint32_t timeout_ms)
+hal_status_t stm32f4_uart1_read(uint8_t *data, size_t len, size_t *bytes_read)
 {
 	hal_status_t res = HAL_STATUS_ERROR;
 

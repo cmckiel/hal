@@ -1,3 +1,10 @@
+/**
+ * @file stm32f4_uart2.c
+ * @brief Implements serial communcation over UART2.
+ *
+ * Copyright (c) 2025 Cory McKiel.
+ * Licensed under the MIT License. See LICENSE file in the project root.
+ */
 #ifdef DESKTOP_BUILD
 #include "registers.h"
 #include "nvic.h"

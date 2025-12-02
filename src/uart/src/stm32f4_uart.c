@@ -9,9 +9,6 @@
 #include "stm32f4_uart1.h"
 #include "stm32f4_uart2.h"
 
-/**
- * @brief Redefine the putchar() function.
- */
 int __io_putchar(int ch)
 {
 	uint8_t data[1] = { 0 };

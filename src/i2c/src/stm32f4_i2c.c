@@ -307,17 +307,6 @@ hal_status_t hal_i2c_init()
     return HAL_STATUS_OK;
 }
 
-hal_status_t hal_i2c_deinit()
-{
-    // TODO: Implement I2C deinitialization
-    // - Disable I2C peripheral
-    // - Disable I2C clock
-    // - Reset GPIO pins
-    // - Clear interrupts
-
-    return HAL_STATUS_OK;
-}
-
 hal_status_t hal_i2c_submit_transaction(hal_i2c_txn_t *txn)
 {
     // @todo: Some transaction validation here.

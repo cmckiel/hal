@@ -127,16 +127,6 @@ typedef struct {
 hal_status_t hal_i2c_init();
 
 /**
- * @brief Deinitialize the I2C Module.
- *
- * @return @ref HAL_STATUS_OK on success.
- *
- * @note Will bring down the peripheral, but not the gpio port. The gpio ports
- * are shared so it is dangerous for one module to bring it down without consideration.
- */
-hal_status_t hal_i2c_deinit();
-
-/**
  * @brief Submit a transaction to be processed by the driver.
  *
  * @param txn A reference to a transaction with the appropriate fields already filled out.

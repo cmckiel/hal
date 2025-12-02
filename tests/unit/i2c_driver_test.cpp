@@ -24,7 +24,7 @@ protected:
     }
 
     void TearDown() override {
-        hal_i2c_deinit();
+
     }
 };
 

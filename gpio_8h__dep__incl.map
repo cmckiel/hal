@@ -1,0 +1,4 @@
+<map id="/__w/hal/hal/include/hal/gpio.h" name="/__w/hal/hal/include/hal/gpio.h">
+<area shape="rect" id="node1" title="Toggles the onboard LED." alt="" coords="7,5,158,47"/>
+<area shape="rect" id="node2" href="$stm32f4__gpio_8c.html" title="Implementation for toggling the red LED onboard the stm32f446re development board." alt="" coords="5,95,160,136"/>
+</map>

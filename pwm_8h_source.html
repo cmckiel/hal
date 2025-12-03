@@ -89,25 +89,27 @@ $(document).ready(function(){initNavTree('pwm_8h_source.html',''); initResizable
 </div><!--header-->
 <div class="contents">
 <a href="pwm_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160; </div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#ifndef _PWM_H</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#define _PWM_H</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;hal_types.h&quot;</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#ifndef _PWM_H</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#define _PWM_H</span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;HalStatus_t <a class="code" href="pwm_8h.html#ae90f3c61bfdfe6ed3994235fba3489ba">hal_pwm_init</a>(uint32_t pwm_frequency_hz);</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keywordtype">void</span> <a class="code" href="pwm_8h.html#a4078603850edb05ed0829f55fa5a0d81">hal_pwm_enable</a>(<span class="keywordtype">bool</span> enable);</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keywordtype">void</span> <a class="code" href="pwm_8h.html#a40d7a2b062d2575c44941bc7fca9b79c">hal_pwm_set_duty_cycle</a>(uint8_t percent);</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keywordtype">void</span> <a class="code" href="pwm_8h.html#a88fc8ee1d10e864b862f1db3c0ee0b6f">hal_pwm_set_frequency</a>(uint32_t pwm_frequency_hz);</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* _PWM_H */</span><span class="preprocessor"></span></div>
-<div class="ttc" id="apwm_8h_html_a4078603850edb05ed0829f55fa5a0d81"><div class="ttname"><a href="pwm_8h.html#a4078603850edb05ed0829f55fa5a0d81">hal_pwm_enable</a></div><div class="ttdeci">void hal_pwm_enable(bool enable)</div><div class="ttdoc">enable or disable the pwm signal. If disabled, nothing will show up on pins.</div><div class="ttdef"><b>Definition:</b> stm32f4_pwm.c:144</div></div>
-<div class="ttc" id="apwm_8h_html_a40d7a2b062d2575c44941bc7fca9b79c"><div class="ttname"><a href="pwm_8h.html#a40d7a2b062d2575c44941bc7fca9b79c">hal_pwm_set_duty_cycle</a></div><div class="ttdeci">void hal_pwm_set_duty_cycle(uint8_t percent)</div><div class="ttdoc">Sets the duty cycle 0% - 100% for the PWM signal.</div><div class="ttdef"><b>Definition:</b> stm32f4_pwm.c:162</div></div>
-<div class="ttc" id="apwm_8h_html_a88fc8ee1d10e864b862f1db3c0ee0b6f"><div class="ttname"><a href="pwm_8h.html#a88fc8ee1d10e864b862f1db3c0ee0b6f">hal_pwm_set_frequency</a></div><div class="ttdeci">void hal_pwm_set_frequency(uint32_t pwm_frequency_hz)</div><div class="ttdoc">Sets the PWM signal frequency to a new value after the driver has already been initialized.</div><div class="ttdef"><b>Definition:</b> stm32f4_pwm.c:210</div></div>
-<div class="ttc" id="apwm_8h_html_ae90f3c61bfdfe6ed3994235fba3489ba"><div class="ttname"><a href="pwm_8h.html#ae90f3c61bfdfe6ed3994235fba3489ba">hal_pwm_init</a></div><div class="ttdeci">HalStatus_t hal_pwm_init(uint32_t pwm_frequency_hz)</div><div class="ttdoc">Initializes all the hardware (GPIO, TIMER, and CHANNEL) to deliver a PWM signal.</div><div class="ttdef"><b>Definition:</b> stm32f4_pwm.c:105</div></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="hal__types_8h.html">hal_types.h</a>&quot;</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> <a class="code" href="pwm_8h.html#a815ca92b5181386493be34a2f00f76fb">hal_pwm_init</a>(uint32_t pwm_frequency_hz);</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keywordtype">void</span> <a class="code" href="pwm_8h.html#a4078603850edb05ed0829f55fa5a0d81">hal_pwm_enable</a>(<span class="keywordtype">bool</span> enable);</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keywordtype">void</span> <a class="code" href="pwm_8h.html#a40d7a2b062d2575c44941bc7fca9b79c">hal_pwm_set_duty_cycle</a>(uint8_t percent);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keywordtype">void</span> <a class="code" href="pwm_8h.html#a88fc8ee1d10e864b862f1db3c0ee0b6f">hal_pwm_set_frequency</a>(uint32_t pwm_frequency_hz);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* _PWM_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="ahal__types_8h_html"><div class="ttname"><a href="hal__types_8h.html">hal_types.h</a></div><div class="ttdoc">Common types used across HAL modules.</div></div>
+<div class="ttc" id="ahal__types_8h_html_ac2231a7f3681886d9b35e08c23759e27"><div class="ttname"><a href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a></div><div class="ttdeci">hal_status_t</div><div class="ttdoc">Return type for HAL functions.</div><div class="ttdef"><b>Definition:</b> hal_types.h:17</div></div>
+<div class="ttc" id="apwm_8h_html_a4078603850edb05ed0829f55fa5a0d81"><div class="ttname"><a href="pwm_8h.html#a4078603850edb05ed0829f55fa5a0d81">hal_pwm_enable</a></div><div class="ttdeci">void hal_pwm_enable(bool enable)</div><div class="ttdoc">enable or disable the pwm signal. If disabled, nothing will show up on pins.</div><div class="ttdef"><b>Definition:</b> stm32f4_pwm.c:150</div></div>
+<div class="ttc" id="apwm_8h_html_a40d7a2b062d2575c44941bc7fca9b79c"><div class="ttname"><a href="pwm_8h.html#a40d7a2b062d2575c44941bc7fca9b79c">hal_pwm_set_duty_cycle</a></div><div class="ttdeci">void hal_pwm_set_duty_cycle(uint8_t percent)</div><div class="ttdoc">Sets the duty cycle 0% - 100% for the PWM signal.</div><div class="ttdef"><b>Definition:</b> stm32f4_pwm.c:168</div></div>
+<div class="ttc" id="apwm_8h_html_a815ca92b5181386493be34a2f00f76fb"><div class="ttname"><a href="pwm_8h.html#a815ca92b5181386493be34a2f00f76fb">hal_pwm_init</a></div><div class="ttdeci">hal_status_t hal_pwm_init(uint32_t pwm_frequency_hz)</div><div class="ttdoc">Initializes all the hardware (GPIO, TIMER, and CHANNEL) to deliver a PWM signal.</div><div class="ttdef"><b>Definition:</b> stm32f4_pwm.c:111</div></div>
+<div class="ttc" id="apwm_8h_html_a88fc8ee1d10e864b862f1db3c0ee0b6f"><div class="ttname"><a href="pwm_8h.html#a88fc8ee1d10e864b862f1db3c0ee0b6f">hal_pwm_set_frequency</a></div><div class="ttdeci">void hal_pwm_set_frequency(uint32_t pwm_frequency_hz)</div><div class="ttdoc">Sets the PWM signal frequency to a new value after the driver has already been initialized.</div><div class="ttdef"><b>Definition:</b> stm32f4_pwm.c:216</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

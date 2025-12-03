@@ -25,28 +25,35 @@
 var NAVTREE =
 [
   [ "hal", "index.html", [
-    [ "Overview", "index.html#autotoc_md2", null ],
-    [ "Architecture", "index.html#autotoc_md3", [
-      [ "Layer Descriptions", "index.html#autotoc_md4", null ]
+    [ "Overview", "index.html#autotoc_md3", null ],
+    [ "Architecture", "index.html#autotoc_md4", [
+      [ "Layer Descriptions", "index.html#autotoc_md5", null ]
     ] ],
-    [ "Getting Started", "index.html#autotoc_md5", [
-      [ "Prerequisites", "index.html#autotoc_md6", null ],
-      [ "Clone", "index.html#autotoc_md7", null ],
-      [ "Build", "index.html#autotoc_md8", null ],
-      [ "Example Application", "index.html#autotoc_md9", null ]
+    [ "Quick Start", "index.html#autotoc_md6", [
+      [ "Prerequisites", "index.html#autotoc_md7", null ],
+      [ "Clone", "index.html#autotoc_md8", null ],
+      [ "Build", "index.html#autotoc_md9", null ],
+      [ "Example Application", "index.html#autotoc_md10", null ]
     ] ],
-    [ "License", "index.html#autotoc_md10", null ],
+    [ "License", "index.html#autotoc_md11", null ],
     [ "Detailed Architecture", "md____w_hal_hal_docs_architecture.html", null ],
     [ "LICENSE", "md____w_hal_hal_docs_license.html", null ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
-      [ "Class Index", "classes.html", null ]
+      [ "Class Index", "classes.html", null ],
+      [ "Class Members", "functions.html", [
+        [ "All", "functions.html", null ],
+        [ "Variables", "functions_vars.html", null ]
+      ] ]
     ] ],
     [ "Files", "files.html", [
       [ "File List", "files.html", "files_dup" ],
       [ "File Members", "globals.html", [
         [ "All", "globals.html", null ],
-        [ "Functions", "globals_func.html", null ]
+        [ "Functions", "globals_func.html", null ],
+        [ "Enumerations", "globals_enum.html", null ],
+        [ "Enumerator", "globals_eval.html", null ],
+        [ "Macros", "globals_defs.html", null ]
       ] ]
     ] ]
   ] ]
@@ -54,7 +61,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"annotated.html"
+"annotated.html",
+"structhal__i2c__txn__t.html#ae38c3f15dfaa5111f03dfcde52d77586"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

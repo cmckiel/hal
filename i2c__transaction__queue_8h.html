@@ -95,15 +95,15 @@ $(document).ready(function(){initNavTree('i2c__transaction__queue_8h.html',''); 
 
 <p>FIFO data structure used to store handles to client I2C transaction requests.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;i2c.h&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="i2c_8h_source.html">i2c.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for i2c_transaction_queue.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="i2c__transaction__queue_8h__incl.png" border="0" usemap="#a_2____w_2hal_2hal_2src_2i2c_2include_2i2c__transaction__queue_8h" alt=""/></div>
 <map name="a_2____w_2hal_2hal_2src_2i2c_2include_2i2c__transaction__queue_8h" id="a_2____w_2hal_2hal_2src_2i2c_2include_2i2c__transaction__queue_8h">
 <area shape="rect" title="FIFO data structure used to store handles to client I2C transaction requests." alt="" coords="5,5,181,61"/>
-<area shape="rect" href="i2c_8h_source.html" title=" " alt="" coords="67,109,120,136"/>
-<area shape="rect" href="hal__types_8h_source.html" title=" " alt="" coords="45,184,142,211"/>
+<area shape="rect" href="i2c_8h.html" title="Interface for the I2C module." alt="" coords="67,109,120,136"/>
+<area shape="rect" href="hal__types_8h.html" title="Common types used across HAL modules." alt="" coords="45,184,142,211"/>
 <area shape="rect" title=" " alt="" coords="11,259,82,285"/>
 <area shape="rect" title=" " alt="" coords="106,259,177,285"/>
 </map>
@@ -113,8 +113,9 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="i2c__transaction__queue_8h__dep__incl.png" border="0" usemap="#a_2____w_2hal_2hal_2src_2i2c_2include_2i2c__transaction__queue_8hdep" alt=""/></div>
 <map name="a_2____w_2hal_2hal_2src_2i2c_2include_2i2c__transaction__queue_8hdep" id="a_2____w_2hal_2hal_2src_2i2c_2include_2i2c__transaction__queue_8hdep">
-<area shape="rect" title="FIFO data structure used to store handles to client I2C transaction requests." alt="" coords="5,5,181,61"/>
-<area shape="rect" href="stm32f4__i2c_8c.html" title="STM32F4 I2C HAL implementation." alt="" coords="21,109,166,151"/>
+<area shape="rect" title="FIFO data structure used to store handles to client I2C transaction requests." alt="" coords="77,5,253,61"/>
+<area shape="rect" href="i2c__transaction__queue_8c.html" title="Implementation for the transaction queue." alt="" coords="5,109,153,165"/>
+<area shape="rect" href="stm32f4__i2c_8c.html" title="STM32F4 I2C HAL implementation." alt="" coords="177,117,323,158"/>
 </map>
 </div>
 </div>
@@ -123,31 +124,33 @@ This graph shows which files directly or indirectly include this file:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
 <tr class="memitem:aa407c2427069dd72ead27075cb258509"><td class="memItemLeft" align="right" valign="top"><a id="aa407c2427069dd72ead27075cb258509"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>I2C_TRANSACTION_QUEUE_SIZE</b>&#160;&#160;&#160;10</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="i2c__transaction__queue_8h.html#aa407c2427069dd72ead27075cb258509">I2C_TRANSACTION_QUEUE_SIZE</a>&#160;&#160;&#160;10</td></tr>
+<tr class="memdesc:aa407c2427069dd72ead27075cb258509"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adjust to increase/decrease the queue size. <br /></td></tr>
 <tr class="separator:aa407c2427069dd72ead27075cb258509"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:a48494cb8ecea731a51c87100c9f09a5a"><td class="memItemLeft" align="right" valign="top"><a id="a48494cb8ecea731a51c87100c9f09a5a"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>i2c_queue_status_t</b> { <br />
-&#160;&#160;<b>_I2C_QUEUE_STATUS_ENUM_MIN</b> = 0
-, <b>I2C_QUEUE_STATUS_SUCCESS</b> = _I2C_QUEUE_STATUS_ENUM_MIN
-, <b>I2C_QUEUE_STATUS_FAIL</b>
-, <b>I2C_QUEUE_STATUS_QUEUE_FULL</b>
+<tr class="memitem:a48494cb8ecea731a51c87100c9f09a5a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5a">i2c_queue_status_t</a> { <br />
+&#160;&#160;<a class="el" href="i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5aaf2d4f67994271f6fd48bd41b4712280a">_I2C_QUEUE_STATUS_ENUM_MIN</a> = 0
+, <a class="el" href="i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5aa4daa22d192706e4393d8b2a80a32293d">I2C_QUEUE_STATUS_SUCCESS</a> = _I2C_QUEUE_STATUS_ENUM_MIN
+, <a class="el" href="i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5aabd9e60d0cb01fe3f9f198dbef9b3c39c">I2C_QUEUE_STATUS_FAIL</a>
+, <a class="el" href="i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5aa72b2316e68fa9fb345300e8c007d916f">I2C_QUEUE_STATUS_QUEUE_FULL</a>
 , <br />
-&#160;&#160;<b>I2C_QUEUE_STATUS_QUEUE_EMPTY</b>
-, <b>_I2C_QUEUE_STATUS_ENUM_MAX</b>
+&#160;&#160;<a class="el" href="i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5aa3443683aeccf07c5c99daf02c24e8f65">I2C_QUEUE_STATUS_QUEUE_EMPTY</a>
+, <a class="el" href="i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5aa4ed6f81cc05efa413b6b1c74596a85da">_I2C_QUEUE_STATUS_ENUM_MAX</a>
 <br />
  }</td></tr>
+<tr class="memdesc:a48494cb8ecea731a51c87100c9f09a5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Possible return types for queue operations.  <a href="i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5a">More...</a><br /></td></tr>
 <tr class="separator:a48494cb8ecea731a51c87100c9f09a5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aa8283137a3573d2ca877a2dbb999b4b2"><td class="memItemLeft" align="right" valign="top">i2c_queue_status_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="i2c__transaction__queue_8h.html#aa8283137a3573d2ca877a2dbb999b4b2">i2c_transaction_queue_add</a> (<a class="el" href="structHalI2C__Txn__t.html">HalI2C_Txn_t</a> *txn)</td></tr>
-<tr class="memdesc:aa8283137a3573d2ca877a2dbb999b4b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a transaction to the queue.  <a href="i2c__transaction__queue_8h.html#aa8283137a3573d2ca877a2dbb999b4b2">More...</a><br /></td></tr>
-<tr class="separator:aa8283137a3573d2ca877a2dbb999b4b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a636e17e210a38010ee504248efdf7802"><td class="memItemLeft" align="right" valign="top">i2c_queue_status_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="i2c__transaction__queue_8h.html#a636e17e210a38010ee504248efdf7802">i2c_transaction_queue_get_next</a> (<a class="el" href="structHalI2C__Txn__t.html">HalI2C_Txn_t</a> **txn)</td></tr>
-<tr class="memdesc:a636e17e210a38010ee504248efdf7802"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the next transaction from the queue. Removes the transaction from the queue.  <a href="i2c__transaction__queue_8h.html#a636e17e210a38010ee504248efdf7802">More...</a><br /></td></tr>
-<tr class="separator:a636e17e210a38010ee504248efdf7802"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f0a0e3adb52bede7bca22714268cb0c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5a">i2c_queue_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="i2c__transaction__queue_8h.html#a6f0a0e3adb52bede7bca22714268cb0c">i2c_transaction_queue_add</a> (<a class="el" href="structhal__i2c__txn__t.html">hal_i2c_txn_t</a> *txn)</td></tr>
+<tr class="memdesc:a6f0a0e3adb52bede7bca22714268cb0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a transaction to the queue.  <a href="i2c__transaction__queue_8h.html#a6f0a0e3adb52bede7bca22714268cb0c">More...</a><br /></td></tr>
+<tr class="separator:a6f0a0e3adb52bede7bca22714268cb0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71a0c0979658c4b0d270402572f06c34"><td class="memItemLeft" align="right" valign="top"><a class="el" href="i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5a">i2c_queue_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="i2c__transaction__queue_8h.html#a71a0c0979658c4b0d270402572f06c34">i2c_transaction_queue_get_next</a> (<a class="el" href="structhal__i2c__txn__t.html">hal_i2c_txn_t</a> **txn)</td></tr>
+<tr class="memdesc:a71a0c0979658c4b0d270402572f06c34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the next transaction from the queue. Removes the transaction from the queue.  <a href="i2c__transaction__queue_8h.html#a71a0c0979658c4b0d270402572f06c34">More...</a><br /></td></tr>
+<tr class="separator:a71a0c0979658c4b0d270402572f06c34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adbcc4c9f98f178d258d72945e5c1881a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="i2c__transaction__queue_8h.html#adbcc4c9f98f178d258d72945e5c1881a">i2c_transaction_queue_reset</a> ()</td></tr>
 <tr class="memdesc:adbcc4c9f98f178d258d72945e5c1881a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the queue.  <a href="i2c__transaction__queue_8h.html#adbcc4c9f98f178d258d72945e5c1881a">More...</a><br /></td></tr>
 <tr class="separator:adbcc4c9f98f178d258d72945e5c1881a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -155,18 +158,50 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>FIFO data structure used to store handles to client I2C transaction requests. </p>
 <dl class="section note"><dt>Note</dt><dd>Clients are responsible for owning the memory for their transactions. This queue only holds handles to the transactions so they may be processed in order.</dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>Undefined behavior will occur if the transaction added to queue was located on a function's call stack that then returns. </dd></dl>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a id="aa8283137a3573d2ca877a2dbb999b4b2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa8283137a3573d2ca877a2dbb999b4b2">&#9670;&nbsp;</a></span>i2c_transaction_queue_add()</h2>
+<dl class="section warning"><dt>Warning</dt><dd>Undefined behavior will occur if the transaction added to queue was located on a function's call stack that then returns.</dd></dl>
+<p>Copyright (c) 2025 Cory McKiel. Licensed under the MIT License. See LICENSE file in the project root. </p>
+</div><h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a48494cb8ecea731a51c87100c9f09a5a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a48494cb8ecea731a51c87100c9f09a5a">&#9670;&nbsp;</a></span>i2c_queue_status_t</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">i2c_queue_status_t i2c_transaction_queue_add </td>
+          <td class="memname">enum <a class="el" href="i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5a">i2c_queue_status_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Possible return types for queue operations. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a48494cb8ecea731a51c87100c9f09a5aaf2d4f67994271f6fd48bd41b4712280a"></a>_I2C_QUEUE_STATUS_ENUM_MIN&#160;</td><td class="fielddoc"><p>Lower bound of enum. Inclusive. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a48494cb8ecea731a51c87100c9f09a5aa4daa22d192706e4393d8b2a80a32293d"></a>I2C_QUEUE_STATUS_SUCCESS&#160;</td><td class="fielddoc"><p>The queue operation was successful. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a48494cb8ecea731a51c87100c9f09a5aabd9e60d0cb01fe3f9f198dbef9b3c39c"></a>I2C_QUEUE_STATUS_FAIL&#160;</td><td class="fielddoc"><p>The queue operation encountered an error and was not successful. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a48494cb8ecea731a51c87100c9f09a5aa72b2316e68fa9fb345300e8c007d916f"></a>I2C_QUEUE_STATUS_QUEUE_FULL&#160;</td><td class="fielddoc"><p>The queue operation could not be performed because the queue is full. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a48494cb8ecea731a51c87100c9f09a5aa3443683aeccf07c5c99daf02c24e8f65"></a>I2C_QUEUE_STATUS_QUEUE_EMPTY&#160;</td><td class="fielddoc"><p>The queue operation could not be performed because the queue is empty. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a48494cb8ecea731a51c87100c9f09a5aa4ed6f81cc05efa413b6b1c74596a85da"></a>_I2C_QUEUE_STATUS_ENUM_MAX&#160;</td><td class="fielddoc"><p>Upper bound of enum. Exclusive. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a6f0a0e3adb52bede7bca22714268cb0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f0a0e3adb52bede7bca22714268cb0c">&#9670;&nbsp;</a></span>i2c_transaction_queue_add()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5a">i2c_queue_status_t</a> i2c_transaction_queue_add </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structHalI2C__Txn__t.html">HalI2C_Txn_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structhal__i2c__txn__t.html">hal_i2c_txn_t</a> *&#160;</td>
           <td class="paramname"><em>txn</em></td><td>)</td>
           <td></td>
         </tr>
@@ -176,7 +211,7 @@ Functions</h2></td></tr>
 <p>Add a transaction to the queue. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">txn</td><td>A reference to the tranaction to queue.</td></tr>
+    <tr><td class="paramname">txn</td><td>A reference to the transaction to queue.</td></tr>
   </table>
   </dd>
 </dl>
@@ -185,16 +220,16 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a636e17e210a38010ee504248efdf7802"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a636e17e210a38010ee504248efdf7802">&#9670;&nbsp;</a></span>i2c_transaction_queue_get_next()</h2>
+<a id="a71a0c0979658c4b0d270402572f06c34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71a0c0979658c4b0d270402572f06c34">&#9670;&nbsp;</a></span>i2c_transaction_queue_get_next()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">i2c_queue_status_t i2c_transaction_queue_get_next </td>
+          <td class="memname"><a class="el" href="i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5a">i2c_queue_status_t</a> i2c_transaction_queue_get_next </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structHalI2C__Txn__t.html">HalI2C_Txn_t</a> **&#160;</td>
+          <td class="paramtype"><a class="el" href="structhal__i2c__txn__t.html">hal_i2c_txn_t</a> **&#160;</td>
           <td class="paramname"><em>txn</em></td><td>)</td>
           <td></td>
         </tr>

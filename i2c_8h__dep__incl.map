@@ -1,0 +1,6 @@
+<map id="/__w/hal/hal/include/hal/i2c.h" name="/__w/hal/hal/include/hal/i2c.h">
+<area shape="rect" id="node1" title="Interface for the I2C module." alt="" coords="112,5,263,47"/>
+<area shape="rect" id="node2" href="$i2c__transaction__queue_8h.html" title="FIFO data structure used to store handles to client I2C transaction requests." alt="" coords="37,95,213,151"/>
+<area shape="rect" id="node4" href="$stm32f4__i2c_8c.html" title="STM32F4 I2C HAL implementation." alt="" coords="177,206,323,247"/>
+<area shape="rect" id="node3" href="$i2c__transaction__queue_8c.html" title="Implementation for the transaction queue." alt="" coords="5,199,153,255"/>
+</map>

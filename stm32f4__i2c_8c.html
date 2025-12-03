@@ -95,9 +95,9 @@ $(document).ready(function(){initNavTree('stm32f4__i2c_8c.html',''); initResizab
 <p>STM32F4 I2C HAL implementation.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;stm32f4xx.h&quot;</code><br />
-<code>#include &quot;i2c.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="i2c_8h_source.html">i2c.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="i2c__transaction__queue_8h_source.html">i2c_transaction_queue.h</a>&quot;</code><br />
-<code>#include &quot;stm32f4_hal.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="stm32f4__hal_8h_source.html">stm32f4_hal.h</a>&quot;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
 <code>#include &lt;stdbool.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -107,12 +107,12 @@ Include dependency graph for stm32f4_i2c.c:</div>
 <map name="a_2____w_2hal_2hal_2src_2i2c_2src_2stm32f4__i2c_8c" id="a_2____w_2hal_2hal_2src_2i2c_2src_2stm32f4__i2c_8c">
 <area shape="rect" title="STM32F4 I2C HAL implementation." alt="" coords="287,5,433,47"/>
 <area shape="rect" title=" " alt="" coords="5,95,109,121"/>
-<area shape="rect" href="i2c_8h_source.html" title=" " alt="" coords="184,169,237,196"/>
+<area shape="rect" href="i2c_8h.html" title="Interface for the I2C module." alt="" coords="184,169,237,196"/>
 <area shape="rect" href="i2c__transaction__queue_8h.html" title="FIFO data structure used to store handles to client I2C transaction requests." alt="" coords="185,95,365,121"/>
-<area shape="rect" href="stm32f4__hal_8h_source.html" title=" " alt="" coords="389,95,504,121"/>
+<area shape="rect" href="stm32f4__hal_8h.html" title="Common defines to the STM32F4 implementation of HAL." alt="" coords="389,95,504,121"/>
 <area shape="rect" title=" " alt="" coords="529,95,599,121"/>
 <area shape="rect" title=" " alt="" coords="624,95,707,121"/>
-<area shape="rect" href="hal__types_8h_source.html" title=" " alt="" coords="162,244,259,271"/>
+<area shape="rect" href="hal__types_8h.html" title="Common types used across HAL modules." alt="" coords="162,244,259,271"/>
 <area shape="rect" title=" " alt="" coords="129,319,199,345"/>
 <area shape="rect" title=" " alt="" coords="223,319,294,345"/>
 </map>
@@ -140,27 +140,22 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>I2C1_EV_IRQHandler</b
 <tr class="memitem:a055a6003d8ac7781a3f22e1f1a7edec7"><td class="memItemLeft" align="right" valign="top"><a id="a055a6003d8ac7781a3f22e1f1a7edec7"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>I2C1_ER_IRQHandler</b> ()</td></tr>
 <tr class="separator:a055a6003d8ac7781a3f22e1f1a7edec7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6687358bb0b87e58f988fff9167eabdc"><td class="memItemLeft" align="right" valign="top">HalStatus_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32f4__i2c_8c.html#a6687358bb0b87e58f988fff9167eabdc">hal_i2c_init</a> (void *config)</td></tr>
-<tr class="memdesc:a6687358bb0b87e58f988fff9167eabdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize I2C peripheral.  <a href="stm32f4__i2c_8c.html#a6687358bb0b87e58f988fff9167eabdc">More...</a><br /></td></tr>
-<tr class="separator:a6687358bb0b87e58f988fff9167eabdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a293bafcdf3304cd59638ec3bfb60a65d"><td class="memItemLeft" align="right" valign="top">HalStatus_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32f4__i2c_8c.html#a293bafcdf3304cd59638ec3bfb60a65d">hal_i2c_deinit</a> (void)</td></tr>
-<tr class="memdesc:a293bafcdf3304cd59638ec3bfb60a65d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deinitialize I2C peripheral.  <a href="stm32f4__i2c_8c.html#a293bafcdf3304cd59638ec3bfb60a65d">More...</a><br /></td></tr>
-<tr class="separator:a293bafcdf3304cd59638ec3bfb60a65d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5cd98f004f29ad74ce830fbb5ddf488a"><td class="memItemLeft" align="right" valign="top"><a id="a5cd98f004f29ad74ce830fbb5ddf488a"></a>
-HalStatus_t&#160;</td><td class="memItemRight" valign="bottom"><b>hal_i2c_submit_transaction</b> (<a class="el" href="structHalI2C__Txn__t.html">HalI2C_Txn_t</a> *txn)</td></tr>
-<tr class="separator:a5cd98f004f29ad74ce830fbb5ddf488a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c479b89f68db278ad12202ef78935ad"><td class="memItemLeft" align="right" valign="top"><a id="a4c479b89f68db278ad12202ef78935ad"></a>
-HalStatus_t&#160;</td><td class="memItemRight" valign="bottom"><b>hal_i2c_transaction_servicer</b> ()</td></tr>
-<tr class="separator:a4c479b89f68db278ad12202ef78935ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afaf813e4608fd4b1c0c2021cea3dd320"><td class="memItemLeft" align="right" valign="top">HalStatus_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32f4__i2c_8c.html#afaf813e4608fd4b1c0c2021cea3dd320">hal_i2c_get_stats</a> (<a class="el" href="structHalI2C__Stats__t.html">HalI2C_Stats_t</a> *stats)</td></tr>
-<tr class="memdesc:afaf813e4608fd4b1c0c2021cea3dd320"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get I2C statistics.  <a href="stm32f4__i2c_8c.html#afaf813e4608fd4b1c0c2021cea3dd320">More...</a><br /></td></tr>
-<tr class="separator:afaf813e4608fd4b1c0c2021cea3dd320"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae71ba27c092d63b406bbef2bef24d989"><td class="memItemLeft" align="right" valign="top"><a id="ae71ba27c092d63b406bbef2bef24d989"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>_test_fixture_hal_i2c_reset_internals</b> ()</td></tr>
+<tr class="memitem:a84061c3f3bce491b1d3347716ca6d211"><td class="memItemLeft" align="right" valign="top"><a class="el" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32f4__i2c_8c.html#a84061c3f3bce491b1d3347716ca6d211">hal_i2c_init</a> ()</td></tr>
+<tr class="memdesc:a84061c3f3bce491b1d3347716ca6d211"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the I2C Module. Must be called prior to using the I2C Module.  <a href="stm32f4__i2c_8c.html#a84061c3f3bce491b1d3347716ca6d211">More...</a><br /></td></tr>
+<tr class="separator:a84061c3f3bce491b1d3347716ca6d211"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a7d3f9d0e0b8575989c65bbe023e514"><td class="memItemLeft" align="right" valign="top"><a class="el" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32f4__i2c_8c.html#a5a7d3f9d0e0b8575989c65bbe023e514">hal_i2c_submit_transaction</a> (<a class="el" href="structhal__i2c__txn__t.html">hal_i2c_txn_t</a> *txn)</td></tr>
+<tr class="memdesc:a5a7d3f9d0e0b8575989c65bbe023e514"><td class="mdescLeft">&#160;</td><td class="mdescRight">Submit a transaction to be processed by the driver.  <a href="stm32f4__i2c_8c.html#a5a7d3f9d0e0b8575989c65bbe023e514">More...</a><br /></td></tr>
+<tr class="separator:a5a7d3f9d0e0b8575989c65bbe023e514"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada2552ad4f1a497f1db8a99b0e04b5bc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32f4__i2c_8c.html#ada2552ad4f1a497f1db8a99b0e04b5bc">hal_i2c_transaction_servicer</a> ()</td></tr>
+<tr class="memdesc:ada2552ad4f1a497f1db8a99b0e04b5bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called periodically to manage the loading and unloading of transactions.  <a href="stm32f4__i2c_8c.html#ada2552ad4f1a497f1db8a99b0e04b5bc">More...</a><br /></td></tr>
+<tr class="separator:ada2552ad4f1a497f1db8a99b0e04b5bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae71ba27c092d63b406bbef2bef24d989"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32f4__i2c_8c.html#ae71ba27c092d63b406bbef2bef24d989">_test_fixture_hal_i2c_reset_internals</a> ()</td></tr>
+<tr class="memdesc:ae71ba27c092d63b406bbef2bef24d989"><td class="mdescLeft">&#160;</td><td class="mdescRight">Just for testing.  <a href="stm32f4__i2c_8c.html#ae71ba27c092d63b406bbef2bef24d989">More...</a><br /></td></tr>
 <tr class="separator:ae71ba27c092d63b406bbef2bef24d989"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>STM32F4 I2C HAL implementation. </p>
+<p>Copyright (c) 2025 Cory McKiel. Licensed under the MIT License. See LICENSE file in the project root. </p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="abf279be40708549c4f718a6374aa77ad"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abf279be40708549c4f718a6374aa77ad">&#9670;&nbsp;</a></span>_SET_ERROR_FLAG_AND_ABORT_TRANSACTION</h2>
@@ -176,7 +171,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>_test_fixture_hal_i2c
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">_error_occured = <span class="keyword">true</span>; \</div>
+<b>Value:</b><div class="fragment"><div class="line">_error_occurred = <span class="keyword">true</span>; \</div>
 <div class="line">I2C1-&gt;CR2 &amp;= ~I2C_CR2_ITBUFEN; \</div>
 <div class="line">I2C1-&gt;CR1 |= I2C_CR1_STOP; \</div>
 <div class="line">_tx_in_progress = <span class="keyword">false</span>; \</div>
@@ -185,78 +180,93 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>_test_fixture_hal_i2c
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a293bafcdf3304cd59638ec3bfb60a65d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a293bafcdf3304cd59638ec3bfb60a65d">&#9670;&nbsp;</a></span>hal_i2c_deinit()</h2>
+<a id="ae71ba27c092d63b406bbef2bef24d989"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae71ba27c092d63b406bbef2bef24d989">&#9670;&nbsp;</a></span>_test_fixture_hal_i2c_reset_internals()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HalStatus_t hal_i2c_deinit </td>
+          <td class="memname">void _test_fixture_hal_i2c_reset_internals </td>
           <td>(</td>
-          <td class="paramtype">void&#160;</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Deinitialize I2C peripheral. </p>
-<dl class="section return"><dt>Returns</dt><dd>HAL_STATUS_OK on success, error code otherwise </dd></dl>
+<p>Just for testing. </p>
+<dl class="section warning"><dt>Warning</dt><dd>Grave consequences if used in production code. </dd></dl>
 
 </div>
 </div>
-<a id="afaf813e4608fd4b1c0c2021cea3dd320"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afaf813e4608fd4b1c0c2021cea3dd320">&#9670;&nbsp;</a></span>hal_i2c_get_stats()</h2>
+<a id="a84061c3f3bce491b1d3347716ca6d211"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84061c3f3bce491b1d3347716ca6d211">&#9670;&nbsp;</a></span>hal_i2c_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HalStatus_t hal_i2c_get_stats </td>
+          <td class="memname"><a class="el" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> hal_i2c_init </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structHalI2C__Stats__t.html">HalI2C_Stats_t</a> *&#160;</td>
-          <td class="paramname"><em>stats</em></td><td>)</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Get I2C statistics. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">stats</td><td>Pointer to statistics structure to fill </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>HAL_STATUS_OK on success, error code otherwise </dd></dl>
+<p>Initialize the I2C Module. Must be called prior to using the I2C Module. </p>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27aca9cb8926d38b93a5fc514af2a1627b0">HAL_STATUS_OK</a> on success. </dd></dl>
 
 </div>
 </div>
-<a id="a6687358bb0b87e58f988fff9167eabdc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6687358bb0b87e58f988fff9167eabdc">&#9670;&nbsp;</a></span>hal_i2c_init()</h2>
+<a id="a5a7d3f9d0e0b8575989c65bbe023e514"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a7d3f9d0e0b8575989c65bbe023e514">&#9670;&nbsp;</a></span>hal_i2c_submit_transaction()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HalStatus_t hal_i2c_init </td>
+          <td class="memname"><a class="el" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> hal_i2c_submit_transaction </td>
           <td>(</td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>config</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="structhal__i2c__txn__t.html">hal_i2c_txn_t</a> *&#160;</td>
+          <td class="paramname"><em>txn</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Initialize I2C peripheral. </p>
+<p>Submit a transaction to be processed by the driver. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">config</td><td>Pointer to I2C configuration structure </td></tr>
+    <tr><td class="paramname">txn</td><td>A reference to a transaction with the appropriate fields already filled out. See <a class="el" href="structhal__i2c__txn__t.html">hal_i2c_txn_t</a> for details about filling out the transaction correctly, as well as information about checking progress.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>HAL_STATUS_OK on success, error code otherwise </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27aca9cb8926d38b93a5fc514af2a1627b0">HAL_STATUS_OK</a> if transaction was submitted successfully.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Successful return from this function <em>only</em> represents that the transaction was successfully queued.</dd>
+<dd>
+Clients must maintain the memory of their transactions. Only a <em>reference</em> to the transaction is queued. </dd></dl>
+
+</div>
+</div>
+<a id="ada2552ad4f1a497f1db8a99b0e04b5bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada2552ad4f1a497f1db8a99b0e04b5bc">&#9670;&nbsp;</a></span>hal_i2c_transaction_servicer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> hal_i2c_transaction_servicer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Called periodically to manage the loading and unloading of transactions. </p>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27aca9cb8926d38b93a5fc514af2a1627b0">HAL_STATUS_OK</a> on success. </dd></dl>
 
 </div>
 </div>

@@ -1,0 +1,8 @@
+<map id="/__w/hal/hal/src/gpio/stm32f4_gpio.c" name="/__w/hal/hal/src/gpio/stm32f4_gpio.c">
+<area shape="rect" id="node1" title="Implementation for toggling the red LED onboard the stm32f446re development board." alt="" coords="33,5,188,47"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,95,109,121"/>
+<area shape="rect" id="node3" href="$gpio_8h.html" title="Toggles the onboard LED." alt="" coords="134,95,197,121"/>
+<area shape="rect" id="node4" href="$hal__types_8h.html" title="Common types used across HAL modules." alt="" coords="117,169,214,196"/>
+<area shape="rect" id="node5" title=" " alt="" coords="83,244,154,271"/>
+<area shape="rect" id="node6" title=" " alt="" coords="178,244,249,271"/>
+</map>

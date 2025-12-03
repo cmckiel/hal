@@ -1,0 +1,4 @@
+<map id="/__w/hal/hal/include/hal/hal_system.h" name="/__w/hal/hal/include/hal/hal_system.h">
+<area shape="rect" id="node1" title="Handles target hardware initialization tasks prior to main application loop." alt="" coords="17,5,168,47"/>
+<area shape="rect" id="node2" href="$stm32f4__hal__system_8c.html" title="Handles target hardware initialization tasks prior to main application loop." alt="" coords="5,95,180,136"/>
+</map>

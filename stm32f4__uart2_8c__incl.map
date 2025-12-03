@@ -1,0 +1,12 @@
+<map id="/__w/hal/hal/src/uart/src/stm32f4_uart2.c" name="/__w/hal/hal/src/uart/src/stm32f4_uart2.c">
+<area shape="rect" id="node1" title="Implements serial communication over UART2." alt="" coords="208,5,363,47"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,95,109,121"/>
+<area shape="rect" id="node3" href="$stm32f4__hal_8h.html" title="Common defines to the STM32F4 implementation of HAL." alt="" coords="133,95,248,121"/>
+<area shape="rect" id="node4" href="$stm32f4__uart__util_8h.html" title="Provides common calculations for UART channels." alt="" coords="197,169,347,196"/>
+<area shape="rect" id="node6" href="$stm32f4__uart2_8h.html" title="Provides serial communication over UART2." alt="" coords="323,95,453,121"/>
+<area shape="rect" id="node10" title=" " alt="" coords="477,95,603,121"/>
+<area shape="rect" id="node5" title=" " alt="" coords="262,319,333,345"/>
+<area shape="rect" id="node7" href="$uart_8h.html" title="Provides serial communication over UART1 and UART2." alt="" coords="371,169,431,196"/>
+<area shape="rect" id="node8" href="$hal__types_8h.html" title="Common types used across HAL modules." alt="" coords="347,244,445,271"/>
+<area shape="rect" id="node9" title=" " alt="" coords="361,319,431,345"/>
+</map>

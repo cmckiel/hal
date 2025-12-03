@@ -91,33 +91,96 @@ $(document).ready(function(){initNavTree('structi2c__transaction__queue__t.html'
 <div class="title">i2c_transaction_queue_t Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>A queue that holds references to the transactions to be processed.  
+ <a href="structi2c__transaction__queue__t.html#details">More...</a></p>
 <div class="dynheader">
 Collaboration diagram for i2c_transaction_queue_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="structi2c__transaction__queue__t__coll__graph.png" border="0" usemap="#ai2c__transaction__queue__t_coll__map" alt="Collaboration graph"/></div>
 <map name="ai2c__transaction__queue__t_coll__map" id="ai2c__transaction__queue__t_coll__map">
-<area shape="rect" title=" " alt="" coords="5,95,185,121"/>
-<area shape="rect" href="structHalI2C__Txn__t.html" title=" " alt="" coords="41,5,149,32"/>
+<area shape="rect" title="A queue that holds references to the transactions to be processed." alt="" coords="5,95,185,121"/>
+<area shape="rect" href="structhal__i2c__txn__t.html" title="The main data structure for interacting with the I2C module." alt="" coords="41,5,149,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ad08c830f9c2c60f3d52682cc609982ab"><td class="memItemLeft" align="right" valign="top"><a id="ad08c830f9c2c60f3d52682cc609982ab"></a>
-<a class="el" href="structHalI2C__Txn__t.html">HalI2C_Txn_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>transactions</b> [I2C_TRANSACTION_QUEUE_SIZE]</td></tr>
-<tr class="separator:ad08c830f9c2c60f3d52682cc609982ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c6ee54686001de20a2af2a8be6ffd10"><td class="memItemLeft" align="right" valign="top"><a id="a2c6ee54686001de20a2af2a8be6ffd10"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><b>head</b></td></tr>
+<tr class="memitem:a53983a89cf4afbb9bb475af16d34339c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structhal__i2c__txn__t.html">hal_i2c_txn_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structi2c__transaction__queue__t.html#a53983a89cf4afbb9bb475af16d34339c">transactions</a> [<a class="el" href="i2c__transaction__queue_8h.html#aa407c2427069dd72ead27075cb258509">I2C_TRANSACTION_QUEUE_SIZE</a>]</td></tr>
+<tr class="separator:a53983a89cf4afbb9bb475af16d34339c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c6ee54686001de20a2af2a8be6ffd10"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structi2c__transaction__queue__t.html#a2c6ee54686001de20a2af2a8be6ffd10">head</a></td></tr>
 <tr class="separator:a2c6ee54686001de20a2af2a8be6ffd10"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3873ad9eb3acd9cce3e8c5ffe20d15b4"><td class="memItemLeft" align="right" valign="top"><a id="a3873ad9eb3acd9cce3e8c5ffe20d15b4"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><b>tail</b></td></tr>
+<tr class="memitem:a3873ad9eb3acd9cce3e8c5ffe20d15b4"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structi2c__transaction__queue__t.html#a3873ad9eb3acd9cce3e8c5ffe20d15b4">tail</a></td></tr>
 <tr class="separator:a3873ad9eb3acd9cce3e8c5ffe20d15b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66670e9edaa0910d0b23e8eafb7b1802"><td class="memItemLeft" align="right" valign="top"><a id="a66670e9edaa0910d0b23e8eafb7b1802"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><b>transaction_count</b></td></tr>
+<tr class="memitem:a66670e9edaa0910d0b23e8eafb7b1802"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structi2c__transaction__queue__t.html#a66670e9edaa0910d0b23e8eafb7b1802">transaction_count</a></td></tr>
 <tr class="separator:a66670e9edaa0910d0b23e8eafb7b1802"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>A queue that holds references to the transactions to be processed. </p>
+<p>Implemented as a ring buffer with no data overwrite. </p>
+</div><h2 class="groupheader">Member Data Documentation</h2>
+<a id="a2c6ee54686001de20a2af2a8be6ffd10"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c6ee54686001de20a2af2a8be6ffd10">&#9670;&nbsp;</a></span>head</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t i2c_transaction_queue_t::head</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>head points to either an empty slot (space in queue) or to tail (no space in queue). </p>
+
+</div>
+</div>
+<a id="a3873ad9eb3acd9cce3e8c5ffe20d15b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3873ad9eb3acd9cce3e8c5ffe20d15b4">&#9670;&nbsp;</a></span>tail</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t i2c_transaction_queue_t::tail</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>tail points to the next message to be dequeued. </p>
+
+</div>
+</div>
+<a id="a66670e9edaa0910d0b23e8eafb7b1802"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a66670e9edaa0910d0b23e8eafb7b1802">&#9670;&nbsp;</a></span>transaction_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t i2c_transaction_queue_t::transaction_count</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>A current count of the number of transactions in the queue. </p>
+
+</div>
+</div>
+<a id="a53983a89cf4afbb9bb475af16d34339c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53983a89cf4afbb9bb475af16d34339c">&#9670;&nbsp;</a></span>transactions</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structhal__i2c__txn__t.html">hal_i2c_txn_t</a>* i2c_transaction_queue_t::transactions[<a class="el" href="i2c__transaction__queue_8h.html#aa407c2427069dd72ead27075cb258509">I2C_TRANSACTION_QUEUE_SIZE</a>]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Array that holds all the references to transactions. </p>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>/__w/hal/hal/src/i2c/src/i2c_transaction_queue.c</li>
+<li>/__w/hal/hal/src/i2c/src/<a class="el" href="i2c__transaction__queue_8c.html">i2c_transaction_queue.c</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

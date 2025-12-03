@@ -1,0 +1,7 @@
+<map id="/__w/hal/hal/src/include/stm32f4_hal.h" name="/__w/hal/hal/src/include/stm32f4_hal.h">
+<area shape="rect" id="node1" title="Common defines to the STM32F4 implementation of HAL." alt="" coords="258,5,431,47"/>
+<area shape="rect" id="node2" href="$stm32f4__i2c_8c.html" title="STM32F4 I2C HAL implementation." alt="" coords="5,95,151,136"/>
+<area shape="rect" id="node3" href="$stm32f4__pwm_8c.html" title="STM32F4 implementation of PWM." alt="" coords="175,95,333,136"/>
+<area shape="rect" id="node4" href="$stm32f4__uart1_8c.html" title="Implements serial communication over UART1." alt="" coords="358,95,513,136"/>
+<area shape="rect" id="node5" href="$stm32f4__uart2_8c.html" title="Implements serial communication over UART2." alt="" coords="537,95,691,136"/>
+</map>

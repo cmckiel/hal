@@ -1,10 +1,5 @@
 var searchData=
 [
-  ['hal_5fi2c_5fdeinit_27',['hal_i2c_deinit',['../stm32f4__i2c_8c.html#a293bafcdf3304cd59638ec3bfb60a65d',1,'stm32f4_i2c.c']]],
-  ['hal_5fi2c_5fget_5fstats_28',['hal_i2c_get_stats',['../stm32f4__i2c_8c.html#afaf813e4608fd4b1c0c2021cea3dd320',1,'stm32f4_i2c.c']]],
-  ['hal_5fi2c_5finit_29',['hal_i2c_init',['../stm32f4__i2c_8c.html#a6687358bb0b87e58f988fff9167eabdc',1,'stm32f4_i2c.c']]],
-  ['hal_5fpwm_5fenable_30',['hal_pwm_enable',['../pwm_8h.html#a4078603850edb05ed0829f55fa5a0d81',1,'stm32f4_pwm.c']]],
-  ['hal_5fpwm_5finit_31',['hal_pwm_init',['../pwm_8h.html#ae90f3c61bfdfe6ed3994235fba3489ba',1,'stm32f4_pwm.c']]],
-  ['hal_5fpwm_5fset_5fduty_5fcycle_32',['hal_pwm_set_duty_cycle',['../pwm_8h.html#a40d7a2b062d2575c44941bc7fca9b79c',1,'stm32f4_pwm.c']]],
-  ['hal_5fpwm_5fset_5ffrequency_33',['hal_pwm_set_frequency',['../pwm_8h.html#a88fc8ee1d10e864b862f1db3c0ee0b6f',1,'stm32f4_pwm.c']]]
+  ['_5f_5fio_5fputchar_140',['__io_putchar',['../stm32f4__uart_8c.html#abc513dd972081ae765b6949a62872eb7',1,'__io_putchar(int ch):&#160;stm32f4_uart.c'],['../uart_8h.html#abc513dd972081ae765b6949a62872eb7',1,'__io_putchar(int ch):&#160;stm32f4_uart.c']]],
+  ['_5ftest_5ffixture_5fhal_5fi2c_5freset_5finternals_141',['_test_fixture_hal_i2c_reset_internals',['../stm32f4__i2c_8c.html#ae71ba27c092d63b406bbef2bef24d989',1,'stm32f4_i2c.c']]]
 ];

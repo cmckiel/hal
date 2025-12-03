@@ -89,37 +89,37 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="mainpage"></a> </p>
-<h1><a class="anchor" id="autotoc_md2"></a>
+<h1><a class="anchor" id="autotoc_md3"></a>
 Overview</h1>
 <p>This project is an experiment in building a testable hardware-abstraction layer for the STM32F4 from first principles, oriented toward flight-control–class embedded systems. It addresses the tension between development speed and rigor through automated testing, modern tooling, containerized builds, and continuous integration.</p>
 <p>The HAL provides a small set of purpose-built drivers (UART, I2C, PWM, timers, GPIO) built around a classic embedded architecture: a super-loop execution model with interrupt-driven peripherals, no RTOS, no DMA, and strictly static memory. Its scope is intentionally narrow and includes only the primitives required for embedded control workloads, avoiding generic configuration layers, dynamic allocation, and broad peripheral coverage. The design favors simplicity, predictability, and testability over configurability or feature breadth.</p>
-<h1><a class="anchor" id="autotoc_md3"></a>
+<h1><a class="anchor" id="autotoc_md4"></a>
 Architecture</h1>
 <p><img src="HalArchitecture.svg" alt="" style="pointer-events: none;" width="600px" class="inline"/> </p>
-<h2><a class="anchor" id="autotoc_md4"></a>
+<h2><a class="anchor" id="autotoc_md5"></a>
 Layer Descriptions</h2>
 <ul>
 <li><b>Applications</b> - Logic executed in the project’s super-loop (<code>main.c</code>).</li>
-<li><b>Hardware Abstration Layer</b> - Public interfaces in <code>include/hal</code>.</li>
+<li><b>Hardware Abstraction Layer</b> - Public interfaces in <code>include/hal</code>.</li>
 <li><b>STM32F4 Peripheral Drivers</b> - Implementations in <code>src</code> that operate directly on device registers.</li>
 <li><b>Device Support Package</b> - CMSIS and vendor headers plus startup code and the linker script in <code>device</code>.</li>
 <li><b>STM32F4 Hardware</b> - The STM32F446RE development board.</li>
 </ul>
 <p>For more detailed architecture, see <a class="el" href="md____w_hal_hal_docs_architecture.html">Detailed Architecture</a>.</p>
-<h1><a class="anchor" id="autotoc_md5"></a>
-Getting Started</h1>
-<h2><a class="anchor" id="autotoc_md6"></a>
+<h1><a class="anchor" id="autotoc_md6"></a>
+Quick Start</h1>
+<h2><a class="anchor" id="autotoc_md7"></a>
 Prerequisites</h2>
 <ul>
 <li>A <code>UNIX-style command line</code> environment.</li>
 <li>Have <code>git</code> installed.</li>
 <li>Have <code>docker</code> installed</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md7"></a>
+<h2><a class="anchor" id="autotoc_md8"></a>
 Clone</h2>
 <div class="fragment"><div class="line">$ git clone git@github.com:cmckiel/hal.git &amp;&amp; cd hal</div>
 <div class="line">$ git submodule update --init</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md8"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md9"></a>
 Build</h2>
 <p>First, from inside the repo directory, build the docker image: </p><div class="fragment"><div class="line">$ docker build -t hal-build-env .</div>
 </div><!-- fragment --><p>Next, run the docker image, mounting the repo dir. This command launches an interactive shell inside the container. (Commands executed inside the container are distinguished by <code>#</code>) </p><div class="fragment"><div class="line">$ docker run --rm -it -v &quot;$PWD&quot;:/workspace -w /workspace hal-build-env</div>
@@ -132,26 +132,25 @@ Build</h2>
 </div><!-- fragment --><p>Build for target hardware: </p><div class="fragment"><div class="line"># cmake --preset embedded-debug</div>
 <div class="line"># cmake --build --preset embedded-debug</div>
 </div><!-- fragment --><p>Target firmware should be visible in <code>build/embedded-debug/</code> as <code>.elf</code> and <code>.bin</code> files.</p>
-<p>To see detailed build instructions, troubleshooting steps, and instructions for deploying firmware to target hardware, see the <a href="https://cmckiel.github.io/hal/">Full Documenation</a>.</p>
-<h2><a class="anchor" id="autotoc_md9"></a>
+<h2><a class="anchor" id="autotoc_md10"></a>
 Example Application</h2>
-<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;uart.h&quot;</span></div>
-<div class="line"><span class="preprocessor">#include &quot;gpio.h&quot;</span></div>
-<div class="line"><span class="preprocessor">#include &quot;systick.h&quot;</span></div>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="uart_8h.html">uart.h</a>&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="gpio_8h.html">gpio.h</a>&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="systick_8h.html">systick.h</a>&quot;</span></div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">void</span>)</div>
 <div class="line">{</div>
-<div class="line">    hal_gpio_init(NULL);</div>
-<div class="line">    hal_uart_init(HAL_UART2, NULL);</div>
+<div class="line">    <a class="code" href="stm32f4__gpio_8c.html#a74329d6184725e22b277a55f70d38d29">hal_gpio_init</a>();</div>
+<div class="line">    <a class="code" href="stm32f4__uart_8c.html#acf538d7f02b6373d22c886aaca664d8f">hal_uart_init</a>(<a class="code" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b">HAL_UART2</a>);</div>
 <div class="line"> </div>
 <div class="line">    uint8_t message[] = <span class="stringliteral">&quot;Hello from HAL!&quot;</span>;</div>
 <div class="line">    <span class="keywordtype">size_t</span> bytes_successfully_writen = 0;</div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">// Print hello message over serial.</span></div>
-<div class="line">    HalStatus_t status = hal_uart_write(HAL_UART2, message, <span class="keyword">sizeof</span>(message), &amp;bytes_successfully_writen);</div>
+<div class="line">    <a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> status = <a class="code" href="stm32f4__uart_8c.html#a7db623b4fbcc73da22d807a65d692f0b">hal_uart_write</a>(<a class="code" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b">HAL_UART2</a>, message, <span class="keyword">sizeof</span>(message), &amp;bytes_successfully_writen);</div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">// Easy error checking.</span></div>
-<div class="line">    <span class="keywordflow">if</span> (status != HAL_STATUS_OK || bytes_successfully_writen != <span class="keyword">sizeof</span>(message))</div>
+<div class="line">    <span class="keywordflow">if</span> (status != <a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27aca9cb8926d38b93a5fc514af2a1627b0">HAL_STATUS_OK</a> || bytes_successfully_writen != <span class="keyword">sizeof</span>(message))</div>
 <div class="line">    {</div>
 <div class="line">        <span class="comment">// Transmission error handling.</span></div>
 <div class="line">        <span class="keywordflow">return</span> 1;</div>
@@ -164,13 +163,24 @@ Example Application</h2>
 <div class="line"> </div>
 <div class="line">        <span class="comment">// Example application:</span></div>
 <div class="line">        <span class="comment">// Toggle onboard LED at 10 Hz.</span></div>
-<div class="line">        hal_delay_ms(100);</div>
-<div class="line">        hal_gpio_toggle_led();</div>
+<div class="line">        <a class="code" href="stm32f4__systick_8c.html#adc23b8130e72a445f76c68d62e8c95c5">hal_delay_ms</a>(100);</div>
+<div class="line">        <a class="code" href="stm32f4__gpio_8c.html#af12f986ae7fe8615ce4b076342b4c3de">hal_gpio_toggle_led</a>();</div>
 <div class="line">    }</div>
 <div class="line"> </div>
 <div class="line">    <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md10"></a>
+<div class="ttc" id="agpio_8h_html"><div class="ttname"><a href="gpio_8h.html">gpio.h</a></div><div class="ttdoc">Toggles the onboard LED.</div></div>
+<div class="ttc" id="ahal__types_8h_html_ac2231a7f3681886d9b35e08c23759e27"><div class="ttname"><a href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a></div><div class="ttdeci">hal_status_t</div><div class="ttdoc">Return type for HAL functions.</div><div class="ttdef"><b>Definition:</b> hal_types.h:17</div></div>
+<div class="ttc" id="ahal__types_8h_html_ac2231a7f3681886d9b35e08c23759e27aca9cb8926d38b93a5fc514af2a1627b0"><div class="ttname"><a href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27aca9cb8926d38b93a5fc514af2a1627b0">HAL_STATUS_OK</a></div><div class="ttdeci">@ HAL_STATUS_OK</div><div class="ttdef"><b>Definition:</b> hal_types.h:18</div></div>
+<div class="ttc" id="astm32f4__gpio_8c_html_a74329d6184725e22b277a55f70d38d29"><div class="ttname"><a href="stm32f4__gpio_8c.html#a74329d6184725e22b277a55f70d38d29">hal_gpio_init</a></div><div class="ttdeci">hal_status_t hal_gpio_init()</div><div class="ttdoc">Initialize the module. Must be called only once prior to using toggle.</div><div class="ttdef"><b>Definition:</b> stm32f4_gpio.c:21</div></div>
+<div class="ttc" id="astm32f4__gpio_8c_html_af12f986ae7fe8615ce4b076342b4c3de"><div class="ttname"><a href="stm32f4__gpio_8c.html#af12f986ae7fe8615ce4b076342b4c3de">hal_gpio_toggle_led</a></div><div class="ttdeci">hal_status_t hal_gpio_toggle_led()</div><div class="ttdoc">Toggle the onboard LED.</div><div class="ttdef"><b>Definition:</b> stm32f4_gpio.c:35</div></div>
+<div class="ttc" id="astm32f4__systick_8c_html_adc23b8130e72a445f76c68d62e8c95c5"><div class="ttname"><a href="stm32f4__systick_8c.html#adc23b8130e72a445f76c68d62e8c95c5">hal_delay_ms</a></div><div class="ttdeci">void hal_delay_ms(uint32_t delay)</div><div class="ttdoc">Delay for a given number of milliseconds.</div><div class="ttdef"><b>Definition:</b> stm32f4_systick.c:20</div></div>
+<div class="ttc" id="astm32f4__uart_8c_html_a7db623b4fbcc73da22d807a65d692f0b"><div class="ttname"><a href="stm32f4__uart_8c.html#a7db623b4fbcc73da22d807a65d692f0b">hal_uart_write</a></div><div class="ttdeci">hal_status_t hal_uart_write(hal_uart_t uart, const uint8_t *data, size_t len, size_t *bytes_written)</div><div class="ttdoc">Write an outgoing byte stream.</div><div class="ttdef"><b>Definition:</b> stm32f4_uart.c:71</div></div>
+<div class="ttc" id="astm32f4__uart_8c_html_acf538d7f02b6373d22c886aaca664d8f"><div class="ttname"><a href="stm32f4__uart_8c.html#acf538d7f02b6373d22c886aaca664d8f">hal_uart_init</a></div><div class="ttdeci">hal_status_t hal_uart_init(hal_uart_t uart)</div><div class="ttdoc">Initialize the UART channel associated with the parameter uart. Must be called prior to using the cha...</div><div class="ttdef"><b>Definition:</b> stm32f4_uart.c:23</div></div>
+<div class="ttc" id="asystick_8h_html"><div class="ttname"><a href="systick_8h.html">systick.h</a></div><div class="ttdoc">Provides millisecond delays.</div></div>
+<div class="ttc" id="auart_8h_html"><div class="ttname"><a href="uart_8h.html">uart.h</a></div><div class="ttdoc">Provides serial communication over UART1 and UART2.</div></div>
+<div class="ttc" id="auart_8h_html_a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b"><div class="ttname"><a href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b">HAL_UART2</a></div><div class="ttdeci">@ HAL_UART2</div><div class="ttdef"><b>Definition:</b> uart.h:18</div></div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md11"></a>
 License</h1>
 <p>Licensed under the MIT License; see <a class="el" href="md____w_hal_hal_docs_license.html">LICENSE</a> for details. </p>
 </div></div><!-- PageDoc -->

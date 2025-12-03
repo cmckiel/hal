@@ -1,0 +1,8 @@
+<map id="/__w/hal/hal/include/hal/uart.h" name="/__w/hal/hal/include/hal/uart.h">
+<area shape="rect" id="node1" title="Provides serial communication over UART1 and UART2." alt="" coords="185,5,335,47"/>
+<area shape="rect" id="node2" href="$stm32f4__uart1_8h.html" title="Provides serial communication over UART1." alt="" coords="39,95,223,136"/>
+<area shape="rect" id="node3" href="$stm32f4__uart_8c.html" title="Provides serial communication over UART1 and UART2." alt="" coords="184,184,336,225"/>
+<area shape="rect" id="node5" href="$stm32f4__uart2_8h.html" title="Provides serial communication over UART2." alt="" coords="297,95,481,136"/>
+<area shape="rect" id="node4" href="$stm32f4__uart1_8c.html" title="Implements serial communication over UART1." alt="" coords="5,184,160,225"/>
+<area shape="rect" id="node6" href="$stm32f4__uart2_8c.html" title="Implements serial communication over UART2." alt="" coords="360,184,515,225"/>
+</map>

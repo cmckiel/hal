@@ -88,21 +88,27 @@ $(document).ready(function(){initNavTree('gpio_8h_source.html',''); initResizabl
 <div class="title">gpio.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef _GPIO_H</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define _GPIO_H</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160; </div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;hal_types.h&quot;</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;HalStatus_t hal_gpio_init(<span class="keywordtype">void</span> *config);</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;HalStatus_t hal_gpio_toggle_led();</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* _GPIO_H */</span><span class="preprocessor"></span></div>
+<a href="gpio_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160; </div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#ifndef _GPIO_H</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#define _GPIO_H</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="hal__types_8h.html">hal_types.h</a>&quot;</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> <a class="code" href="gpio_8h.html#a74329d6184725e22b277a55f70d38d29">hal_gpio_init</a>();</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> <a class="code" href="gpio_8h.html#af12f986ae7fe8615ce4b076342b4c3de">hal_gpio_toggle_led</a>();</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* _GPIO_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="agpio_8h_html_a74329d6184725e22b277a55f70d38d29"><div class="ttname"><a href="gpio_8h.html#a74329d6184725e22b277a55f70d38d29">hal_gpio_init</a></div><div class="ttdeci">hal_status_t hal_gpio_init()</div><div class="ttdoc">Initialize the module. Must be called only once prior to using toggle.</div><div class="ttdef"><b>Definition:</b> stm32f4_gpio.c:21</div></div>
+<div class="ttc" id="agpio_8h_html_af12f986ae7fe8615ce4b076342b4c3de"><div class="ttname"><a href="gpio_8h.html#af12f986ae7fe8615ce4b076342b4c3de">hal_gpio_toggle_led</a></div><div class="ttdeci">hal_status_t hal_gpio_toggle_led()</div><div class="ttdoc">Toggle the onboard LED.</div><div class="ttdef"><b>Definition:</b> stm32f4_gpio.c:35</div></div>
+<div class="ttc" id="ahal__types_8h_html"><div class="ttname"><a href="hal__types_8h.html">hal_types.h</a></div><div class="ttdoc">Common types used across HAL modules.</div></div>
+<div class="ttc" id="ahal__types_8h_html_ac2231a7f3681886d9b35e08c23759e27"><div class="ttname"><a href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a></div><div class="ttdeci">hal_status_t</div><div class="ttdoc">Return type for HAL functions.</div><div class="ttdef"><b>Definition:</b> hal_types.h:17</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a413b7f902cba5167b433a6fe834d5bd.html">hal</a></li><li class="navelem"><b>gpio.h</b></li>
+    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a413b7f902cba5167b433a6fe834d5bd.html">hal</a></li><li class="navelem"><a class="el" href="gpio_8h.html">gpio.h</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>

@@ -88,39 +88,44 @@ $(document).ready(function(){initNavTree('uart_8h_source.html',''); initResizabl
 <div class="title">uart.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef _UART_H</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define _UART_H</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160; </div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;hal_types.h&quot;</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">typedef</span> <span class="keyword">enum</span> {</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;    HAL_UART1,</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    HAL_UART2,</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    HAL_UART3,</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;} HalUart_t;</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160; </div>
-<div class="line"><a name="l00012"></a><span class="lineno"><a class="line" href="structHalUartStats__t.html">   12</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    <span class="keywordtype">size_t</span> rx_dropped_bytes;</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    <span class="keywordtype">size_t</span> rx_buffer_capacity;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="keywordtype">size_t</span> rx_buffer_used;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;} <a class="code" href="structHalUartStats__t.html">HalUartStats_t</a>;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160; </div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keywordtype">int</span> __io_putchar(<span class="keywordtype">int</span> ch);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;HalStatus_t hal_uart_init(HalUart_t uart, <span class="keywordtype">void</span> *config);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;HalStatus_t hal_uart_deinit(HalUart_t uart);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;HalStatus_t hal_uart_read(HalUart_t uart, uint8_t *data, <span class="keywordtype">size_t</span> len, <span class="keywordtype">size_t</span> *bytes_read, uint32_t timeout_ms);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;HalStatus_t hal_uart_write(HalUart_t uart, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">size_t</span> len, <span class="keywordtype">size_t</span> *bytes_written);</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;HalStatus_t hal_uart_get_stats(HalUart_t uart, <a class="code" href="structHalUartStats__t.html">HalUartStats_t</a> *stats);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* _UART_H */</span><span class="preprocessor"></span></div>
-<div class="ttc" id="astructHalUartStats__t_html"><div class="ttname"><a href="structHalUartStats__t.html">HalUartStats_t</a></div><div class="ttdef"><b>Definition:</b> uart.h:12</div></div>
+<a href="uart_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160; </div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#ifndef _UART_H</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#define _UART_H</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="hal__types_8h.html">hal_types.h</a>&quot;</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
+<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1">   16</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">enum</span> {</div>
+<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1aa8f89588a44956d8a5a1cf9e9224b0be">   17</a></span>&#160;    <a class="code" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1aa8f89588a44956d8a5a1cf9e9224b0be">HAL_UART1</a>, </div>
+<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b">   18</a></span>&#160;    <a class="code" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b">HAL_UART2</a>, </div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;} <a class="code" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1">hal_uart_t</a>;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keywordtype">int</span> <a class="code" href="uart_8h.html#abc513dd972081ae765b6949a62872eb7">__io_putchar</a>(<span class="keywordtype">int</span> ch);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> <a class="code" href="uart_8h.html#acf538d7f02b6373d22c886aaca664d8f">hal_uart_init</a>(<a class="code" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1">hal_uart_t</a> uart);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> <a class="code" href="uart_8h.html#a72d3ca825b6d09c87587bf9b3e52854f">hal_uart_deinit</a>(<a class="code" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1">hal_uart_t</a> uart);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> <a class="code" href="uart_8h.html#a555553277b873ad29715ff836927f063">hal_uart_read</a>(<a class="code" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1">hal_uart_t</a> uart, uint8_t *data, <span class="keywordtype">size_t</span> len, <span class="keywordtype">size_t</span> *bytes_read);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> <a class="code" href="uart_8h.html#a7db623b4fbcc73da22d807a65d692f0b">hal_uart_write</a>(<a class="code" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1">hal_uart_t</a> uart, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">size_t</span> len, <span class="keywordtype">size_t</span> *bytes_written);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* _UART_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="ahal__types_8h_html"><div class="ttname"><a href="hal__types_8h.html">hal_types.h</a></div><div class="ttdoc">Common types used across HAL modules.</div></div>
+<div class="ttc" id="ahal__types_8h_html_ac2231a7f3681886d9b35e08c23759e27"><div class="ttname"><a href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a></div><div class="ttdeci">hal_status_t</div><div class="ttdoc">Return type for HAL functions.</div><div class="ttdef"><b>Definition:</b> hal_types.h:17</div></div>
+<div class="ttc" id="auart_8h_html_a1eb2dbbb5cd864c8d0e19f71d7f168d1"><div class="ttname"><a href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1">hal_uart_t</a></div><div class="ttdeci">hal_uart_t</div><div class="ttdoc">Defines the two available UART channels.</div><div class="ttdef"><b>Definition:</b> uart.h:16</div></div>
+<div class="ttc" id="auart_8h_html_a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b"><div class="ttname"><a href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b">HAL_UART2</a></div><div class="ttdeci">@ HAL_UART2</div><div class="ttdef"><b>Definition:</b> uart.h:18</div></div>
+<div class="ttc" id="auart_8h_html_a1eb2dbbb5cd864c8d0e19f71d7f168d1aa8f89588a44956d8a5a1cf9e9224b0be"><div class="ttname"><a href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1aa8f89588a44956d8a5a1cf9e9224b0be">HAL_UART1</a></div><div class="ttdeci">@ HAL_UART1</div><div class="ttdef"><b>Definition:</b> uart.h:17</div></div>
+<div class="ttc" id="auart_8h_html_a555553277b873ad29715ff836927f063"><div class="ttname"><a href="uart_8h.html#a555553277b873ad29715ff836927f063">hal_uart_read</a></div><div class="ttdeci">hal_status_t hal_uart_read(hal_uart_t uart, uint8_t *data, size_t len, size_t *bytes_read)</div><div class="ttdoc">Read an incoming byte stream.</div><div class="ttdef"><b>Definition:</b> stm32f4_uart.c:55</div></div>
+<div class="ttc" id="auart_8h_html_a72d3ca825b6d09c87587bf9b3e52854f"><div class="ttname"><a href="uart_8h.html#a72d3ca825b6d09c87587bf9b3e52854f">hal_uart_deinit</a></div><div class="ttdeci">hal_status_t hal_uart_deinit(hal_uart_t uart)</div><div class="ttdoc">Deinitialize the UART channel associated with the parameter uart.</div><div class="ttdef"><b>Definition:</b> stm32f4_uart.c:39</div></div>
+<div class="ttc" id="auart_8h_html_a7db623b4fbcc73da22d807a65d692f0b"><div class="ttname"><a href="uart_8h.html#a7db623b4fbcc73da22d807a65d692f0b">hal_uart_write</a></div><div class="ttdeci">hal_status_t hal_uart_write(hal_uart_t uart, const uint8_t *data, size_t len, size_t *bytes_written)</div><div class="ttdoc">Write an outgoing byte stream.</div><div class="ttdef"><b>Definition:</b> stm32f4_uart.c:71</div></div>
+<div class="ttc" id="auart_8h_html_abc513dd972081ae765b6949a62872eb7"><div class="ttname"><a href="uart_8h.html#abc513dd972081ae765b6949a62872eb7">__io_putchar</a></div><div class="ttdeci">int __io_putchar(int ch)</div><div class="ttdoc">syscall declaration for putchar so that printf may be used.</div><div class="ttdef"><b>Definition:</b> stm32f4_uart.c:12</div></div>
+<div class="ttc" id="auart_8h_html_acf538d7f02b6373d22c886aaca664d8f"><div class="ttname"><a href="uart_8h.html#acf538d7f02b6373d22c886aaca664d8f">hal_uart_init</a></div><div class="ttdeci">hal_status_t hal_uart_init(hal_uart_t uart)</div><div class="ttdoc">Initialize the UART channel associated with the parameter uart. Must be called prior to using the cha...</div><div class="ttdef"><b>Definition:</b> stm32f4_uart.c:23</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a413b7f902cba5167b433a6fe834d5bd.html">hal</a></li><li class="navelem"><b>uart.h</b></li>
+    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a413b7f902cba5167b433a6fe834d5bd.html">hal</a></li><li class="navelem"><a class="el" href="uart_8h.html">uart.h</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>

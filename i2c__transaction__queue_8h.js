@@ -9,7 +9,7 @@ var i2c__transaction__queue_8h =
       [ "I2C_QUEUE_STATUS_QUEUE_EMPTY", "i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5aa3443683aeccf07c5c99daf02c24e8f65", null ],
       [ "_I2C_QUEUE_STATUS_ENUM_MAX", "i2c__transaction__queue_8h.html#a48494cb8ecea731a51c87100c9f09a5aa4ed6f81cc05efa413b6b1c74596a85da", null ]
     ] ],
-    [ "i2c_transaction_queue_add", "i2c__transaction__queue_8h.html#aa8283137a3573d2ca877a2dbb999b4b2", null ],
-    [ "i2c_transaction_queue_get_next", "i2c__transaction__queue_8h.html#a636e17e210a38010ee504248efdf7802", null ],
+    [ "i2c_transaction_queue_add", "i2c__transaction__queue_8h.html#a6f0a0e3adb52bede7bca22714268cb0c", null ],
+    [ "i2c_transaction_queue_get_next", "i2c__transaction__queue_8h.html#a71a0c0979658c4b0d270402572f06c34", null ],
     [ "i2c_transaction_queue_reset", "i2c__transaction__queue_8h.html#adbcc4c9f98f178d258d72945e5c1881a", null ]
 ];

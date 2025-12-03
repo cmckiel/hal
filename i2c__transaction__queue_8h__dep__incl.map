@@ -1,4 +1,5 @@
 <map id="/__w/hal/hal/src/i2c/include/i2c_transaction_queue.h" name="/__w/hal/hal/src/i2c/include/i2c_transaction_queue.h">
-<area shape="rect" id="node1" title="FIFO data structure used to store handles to client I2C transaction requests." alt="" coords="5,5,181,61"/>
-<area shape="rect" id="node2" href="$stm32f4__i2c_8c.html" title="STM32F4 I2C HAL implementation." alt="" coords="21,109,166,151"/>
+<area shape="rect" id="node1" title="FIFO data structure used to store handles to client I2C transaction requests." alt="" coords="77,5,253,61"/>
+<area shape="rect" id="node2" href="$i2c__transaction__queue_8c.html" title="Implementation for the transaction queue." alt="" coords="5,109,153,165"/>
+<area shape="rect" id="node3" href="$stm32f4__i2c_8c.html" title="STM32F4 I2C HAL implementation." alt="" coords="177,117,323,158"/>
 </map>

@@ -1,0 +1,8 @@
+<map id="/__w/hal/hal/src/systick/stm32f4_systick.c" name="/__w/hal/hal/src/systick/stm32f4_systick.c">
+<area shape="rect" id="node1" title="STM32F4 implementation of millisecond delay." alt="" coords="29,5,201,47"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,95,109,121"/>
+<area shape="rect" id="node3" href="$systick_8h.html" title="Provides millisecond delays." alt="" coords="133,95,213,121"/>
+<area shape="rect" id="node4" href="$hal__types_8h.html" title="Common types used across HAL modules." alt="" coords="125,169,222,196"/>
+<area shape="rect" id="node5" title=" " alt="" coords="91,244,162,271"/>
+<area shape="rect" id="node6" title=" " alt="" coords="186,244,257,271"/>
+</map>

@@ -4,12 +4,12 @@ This page documents the minimal steps required to flash a pre-built firmware ima
 
 ## Prerequisites
 
-* Linux or macOS host
-* ST-Link connected to the STM32F4
-* `stlink` tools installed
+- Linux or macOS host
+- ST-Link connected to the STM32F4
+- `stlink` tools installed
 
-  * Linux: `sudo apt install stlink-tools`
-  * macOS: `brew install stlink`
+  - Linux: `sudo apt install stlink-tools`
+  - macOS: `brew install stlink`
 
 ## Verify Device Detection
 
@@ -34,8 +34,8 @@ If flashing fails, confirm the board is powered and the SWD connection is correc
 
 Serial device names vary by platform:
 
-* Linux: `/dev/ttyACM0`, `/dev/ttyUSB0`
-* macOS: `/dev/cu.usbmodem*`, `/dev/cu.usbserial*`
+- Linux: `/dev/ttyACM0`, `/dev/ttyUSB0`
+- macOS: `/dev/cu.usbmodem*`, `/dev/cu.usbserial*`
 
 Identify the device by comparing `ls /dev/tty*` before and after plugging in.
 
@@ -51,5 +51,5 @@ Exit screen with `Ctrl-A` then `k` then `y`.
 
 Windows workflows are not formally supported. Use:
 
-* SSH into a Linux host connected to the board; or
-* WSL2 with USB/IP passthrough (advanced).
+- SSH into a Linux host connected to the board; or
+- WSL2 with USB/IP passthrough (advanced).

@@ -398,7 +398,7 @@ TEST_F(I2CDriverTest, ISRHandlesBasicWriteRead)
     // HW-SIM: target ACKs address -> HW sets ADDR
     Sim_I2C1.SR1 |= I2C_SR1_ADDR;
     I2C1_EV_IRQHandler();
-    // TxE interupts should be enabled for the transmit phase.
+    // TxE interrupts should be enabled for the transmit phase.
     ASSERT_TRUE(Sim_I2C1.CR2 & I2C_CR2_ITBUFEN);
 
     // HW-SIM: User code reads SR1 followed by SR2 -> HW clears ADDR
@@ -459,7 +459,7 @@ TEST_F(I2CDriverTest, ISRHandlesBasicWriteRead)
     // We will deliver two data bytes: 0xA9, 0xB8
 
     // --- Byte #1 ---
-    // HW-SIM: First byte received -> RXNE set but no iterrupt since
+    // HW-SIM: First byte received -> RXNE set but no interrupt since
     // RxNE interrupts are not enabled.
     Sim_I2C1.DR  = static_cast<uint32_t>(0xA9);
     // Sim_I2C1.SR1 |= I2C_SR1_RXNE; // HW-SIM: Truthfully, the hardware sets this. But under test, I cannot
@@ -575,7 +575,7 @@ TEST_F(I2CDriverTest, ISRHandlesBasicRead4Bytes)
     // We will deliver four data bytes: 0xA9, 0xB8, 0xC7, 0xD6
 
     // --- Byte #1 ---
-    // HW-SIM: First byte received -> RXNE set but no iterrupt since
+    // HW-SIM: First byte received -> RXNE set but no interrupt since
     // RxNE interrupts are not enabled.
     Sim_I2C1.DR  = static_cast<uint32_t>(0xA9);
     Sim_I2C1.SR1 |= I2C_SR1_RXNE;
@@ -717,7 +717,7 @@ TEST_F(I2CDriverTest, ISRHandlesBasicRead3Bytes)
     // We will deliver three data bytes: 0xA1, 0xB2, 0xC3
 
     // --- Byte #1 ---
-    // HW-SIM: First byte received -> RXNE set but no iterrupt since
+    // HW-SIM: First byte received -> RXNE set but no interrupt since
     // RxNE interrupts are not enabled.
     Sim_I2C1.DR  = static_cast<uint32_t>(0xA1);
     Sim_I2C1.SR1 |= I2C_SR1_RXNE;
@@ -844,7 +844,7 @@ TEST_F(I2CDriverTest, ISRHandlesBasicRead2Bytes)
     // We will deliver two data bytes: 0xD4, 0xE5
 
     // --- Byte #1 ---
-    // HW-SIM: First byte received -> RXNE set but no iterrupt since
+    // HW-SIM: First byte received -> RXNE set but no interrupt since
     // RxNE interrupts are not enabled.
     Sim_I2C1.DR  = static_cast<uint32_t>(0xD4);
     // Sim_I2C1.SR1 |= I2C_SR1_RXNE; // HW-SIM: Truthfully, the hardware sets this. But under test, I cannot

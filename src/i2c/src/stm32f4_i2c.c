@@ -41,10 +41,10 @@ static volatile bool         _tx_last_byte_written = false;
 static volatile bool         _rx_last_byte_read = false;
 static volatile bool         _tx_in_progress = false;
 static volatile bool         _rx_in_progress = false;
-static volatile bool         _error_occured = false;
+static volatile bool         _error_occurred = false;
 
 #define _SET_ERROR_FLAG_AND_ABORT_TRANSACTION() \
-_error_occured = true; \
+_error_occurred = true; \
 I2C1->CR2 &= ~I2C_CR2_ITBUFEN; \
 I2C1->CR1 |= I2C_CR1_STOP; \
 _tx_in_progress = false; \
@@ -119,7 +119,7 @@ void I2C1_EV_IRQHandler(void)
                 I2C1->CR1 &= ~I2C_CR1_ACK;
                 _rx_in_progress = false;
                 _tx_in_progress = false;
-                _error_occured = true;
+                _error_occurred = true;
             }
         }
 
@@ -333,7 +333,7 @@ hal_status_t hal_i2c_transaction_servicer()
             current_i2c_transaction->actual_bytes_transmitted = _tx_position;
             current_i2c_transaction->actual_bytes_received = _rx_position;
             memcpy(current_i2c_transaction->rx_data, (const void*)_current_i2c_transaction.rx_data, current_i2c_transaction->actual_bytes_received);
-            current_i2c_transaction->transaction_result = (_error_occured) ? HAL_I2C_TXN_RESULT_FAIL : HAL_I2C_TXN_RESULT_SUCCESS;
+            current_i2c_transaction->transaction_result = (_error_occurred) ? HAL_I2C_TXN_RESULT_FAIL : HAL_I2C_TXN_RESULT_SUCCESS;
 
             // Complete the transaction.
             current_i2c_transaction->processing_state = HAL_I2C_TXN_STATE_COMPLETED;
@@ -354,7 +354,7 @@ hal_status_t hal_i2c_transaction_servicer()
                 _current_i2c_transaction = *current_i2c_transaction;
 
                 // Set up the control variables.
-                _error_occured = false;
+                _error_occurred = false;
                 _tx_position = 0;
                 _rx_position = 0;
 
@@ -416,7 +416,7 @@ void _test_fixture_hal_i2c_reset_internals()
     _rx_last_byte_read = false;
     _tx_in_progress = false;
     _rx_in_progress = false;
-    _error_occured = false;
+    _error_occurred = false;
 }
 
 // These pins are broken out right next to each other on the dev board.
@@ -459,9 +459,9 @@ static void configure_peripheral()
     I2C1->CR2 &= ~(I2C_CR2_FREQ);
     I2C1->CR2 |= (SYS_FREQ_MHZ & I2C_CR2_FREQ);
 
-    // Time to rise (TRISE) register. Set to 17 via the calcualtion
+    // Time to rise (TRISE) register. Set to 17 via the calculation
     // Assumed 1000 ns SCL clock rise time (maximum permitted for I2C Standard Mode)
-    // Periphal's clock period (1 / SYSTEM_FREQ_MHZ)
+    // Peripheral's clock period (1 / SYSTEM_FREQ_MHZ)
     // (1000ns / 62.5) = 17 OR SYSTEM_FREQ_MHZ + 1 = 17. Either calc works.
     size_t trise_reg_val = SYS_FREQ_MHZ + 1;
     I2C1->TRISE &= ~(I2C_TRISE_TRISE);

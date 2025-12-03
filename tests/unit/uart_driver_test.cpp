@@ -1029,7 +1029,7 @@ TEST_F(UartDriverTest, Uart1DeinitRestoresHardwareToSafeState)
     ASSERT_EQ(hal_uart_write(HAL_UART1, more_write_data, sizeof(more_write_data)-1, &bytes_written),
               HAL_STATUS_ERROR);
 
-    // Multiple deints should be safe (idempotent)
+    // Multiple deinits should be safe (idempotent)
     ASSERT_EQ(hal_uart_deinit(HAL_UART1), HAL_STATUS_ERROR); // Should fail gracefully
 }
 

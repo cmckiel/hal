@@ -1,6 +1,6 @@
 /**
  * @file uart.h
- * @brief Provides serial communcation over UART1 and UART2.
+ * @brief Provides serial communication over UART1 and UART2.
  *
  * Copyright (c) 2025 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.

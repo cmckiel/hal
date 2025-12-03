@@ -70,7 +70,7 @@ typedef enum {
  * @brief Result status of a completed transaction.
  *
  * After a transaction is completed, the transaction result can be
- * checked to inquire if the transaction was completed succesfully or not.
+ * checked to inquire if the transaction was completed successfully or not.
  *
  * @note The user never modifies this except to initialize to @ref HAL_I2C_TXN_RESULT_NONE.
  */
@@ -78,7 +78,7 @@ typedef enum {
     _HAL_I2C_TXN_RESULT_MIN = 0,                       /*!< Lower bound of enum. Inclusive. */
     HAL_I2C_TXN_RESULT_NONE = _HAL_I2C_TXN_RESULT_MIN, /*!< Default. Transaction result has not been set. */
     HAL_I2C_TXN_RESULT_SUCCESS,                        /*!< The transaction was successfully processed. */
-    HAL_I2C_TXN_RESULT_FAIL,                           /*!< The transaction was unabled to be processed. */
+    HAL_I2C_TXN_RESULT_FAIL,                           /*!< The transaction was unable to be processed. */
     _HAL_I2C_TX_RESULT_MAX                             /*!< Upper bound of enum. Exclusive. */
 } hal_i2c_txn_result_t;
 

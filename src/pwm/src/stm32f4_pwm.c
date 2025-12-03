@@ -187,7 +187,7 @@ void hal_pwm_set_duty_cycle(uint8_t percent)
         // percent is something between 1%-99%.
         set_pwm_mode1();
 
-        // Calulate CCR1
+        // Calculate CCR1
         uint32_t arrp1 = (uint32_t)TIM1->ARR + 1u;
         // CCR = round(percent/100 * (ARR+1))
         // Common rounding trick for integers:

@@ -32,7 +32,7 @@ typedef enum {
 /**
  * @brief Add a transaction to the queue.
  *
- * @param txn A reference to the tranaction to queue.
+ * @param txn A reference to the transaction to queue.
  *
  * @warning Clients are responsible for maintaining the memory for
  * their transactions. This merely queues a handle.

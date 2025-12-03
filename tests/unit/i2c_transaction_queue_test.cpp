@@ -32,7 +32,7 @@ TEST_F(I2CTransactionQueueTest, BasicPushPop)
         .i2c_op = HAL_I2C_OP_WRITE_READ, // Only init this.
     };
 
-    // The handle the dequeuer would receive.
+    // The handle the dequeue would receive.
     hal_i2c_txn_t *txn_out = nullptr;
 
     // Assert we can add the transaction to the queue.

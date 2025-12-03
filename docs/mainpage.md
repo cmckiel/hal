@@ -15,7 +15,7 @@ The HAL provides a small set of purpose-built drivers (UART, I2C, PWM, timers, G
 
 ### Layer Descriptions
 - **Applications** - Logic executed in the project’s super-loop (`main.c`).
-- **Hardware Abstration Layer** - Public interfaces in `include/hal`.
+- **Hardware Abstraction Layer** - Public interfaces in `include/hal`.
 - **STM32F4 Peripheral Drivers** - Implementations in `src` that operate directly on device registers.
 - **Device Support Package** - CMSIS and vendor headers plus startup code and the linker script in `device`.
 - **STM32F4 Hardware** - The STM32F446RE development board.

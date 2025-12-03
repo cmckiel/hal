@@ -1,6 +1,6 @@
 /**
  * @file stm32f4_uart2.h
- * @brief Provides serial communcation over UART2.
+ * @brief Provides serial communication over UART2.
  *
  * Copyright (c) 2025 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.

@@ -35,13 +35,13 @@ static hal_i2c_txn_t   *current_i2c_transaction = NULL;
 
 /* ISR variables */
 static volatile hal_i2c_txn_t _current_i2c_transaction;
-static volatile size_t       _tx_position = 0;
-static volatile size_t       _rx_position = 0;
-static volatile bool         _tx_last_byte_written = false;
-static volatile bool         _rx_last_byte_read = false;
-static volatile bool         _tx_in_progress = false;
-static volatile bool         _rx_in_progress = false;
-static volatile bool         _error_occurred = false;
+static volatile size_t        _tx_position = 0;
+static volatile size_t        _rx_position = 0;
+static volatile bool          _tx_last_byte_written = false;
+static volatile bool          _rx_last_byte_read = false;
+static volatile bool          _tx_in_progress = false;
+static volatile bool          _rx_in_progress = false;
+static volatile bool          _error_occurred = false;
 
 #define _SET_ERROR_FLAG_AND_ABORT_TRANSACTION() \
 _error_occurred = true; \

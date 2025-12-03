@@ -40,7 +40,7 @@ hal_status_t hal_uart_init(hal_uart_t uart);
 /**
  * @brief Deinitialize the UART channel associated with the parameter `uart`.
  *
- * Only the channel that has been initialized can be successfully deinitialized.
+ * Only a channel that has been initialized can be successfully deinitialized.
  *
  * @param uart The UART channel to deinitialize.
  *

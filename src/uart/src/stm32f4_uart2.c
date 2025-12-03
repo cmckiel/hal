@@ -1,3 +1,10 @@
+/**
+ * @file stm32f4_uart2.c
+ * @brief Implements serial communication over UART2.
+ *
+ * Copyright (c) 2025 Cory McKiel.
+ * Licensed under the MIT License. See LICENSE file in the project root.
+ */
 #ifdef DESKTOP_BUILD
 #include "registers.h"
 #include "nvic.h"
@@ -52,7 +59,7 @@ void USART2_IRQHandler(void)
 /**
  * @brief Initialize the UART2. (Connected to the USB)
  */
-HalStatus_t stm32f4_uart2_init(void *config)
+hal_status_t stm32f4_uart2_init()
 {
 	// Prevent multiple initialization
 	if (uart2_initialized)
@@ -74,7 +81,7 @@ HalStatus_t stm32f4_uart2_init(void *config)
 	return HAL_STATUS_OK;
 }
 
-HalStatus_t stm32f4_uart2_deinit()
+hal_status_t stm32f4_uart2_deinit()
 {
     if (!uart2_initialized)
 	{
@@ -98,9 +105,9 @@ HalStatus_t stm32f4_uart2_deinit()
 /**
  * @brief Reads data from UART2 register.
 */
-HalStatus_t stm32f4_uart2_read(uint8_t *data, size_t len, size_t *bytes_read, uint32_t timeout_ms)
+hal_status_t stm32f4_uart2_read(uint8_t *data, size_t len, size_t *bytes_read)
 {
-	HalStatus_t res = HAL_STATUS_ERROR;
+	hal_status_t res = HAL_STATUS_ERROR;
 
 	if (data && bytes_read && uart2_initialized)
 	{
@@ -140,9 +147,9 @@ HalStatus_t stm32f4_uart2_read(uint8_t *data, size_t len, size_t *bytes_read, ui
 /**
  * @brief Writes data to UART2 register.
 */
-HalStatus_t stm32f4_uart2_write(const uint8_t *data, size_t len, size_t *bytes_written)
+hal_status_t stm32f4_uart2_write(const uint8_t *data, size_t len, size_t *bytes_written)
 {
-	HalStatus_t res = HAL_STATUS_ERROR;
+	hal_status_t res = HAL_STATUS_ERROR;
 	bool push_success = true;
 
 	if (uart2_initialized && bytes_written && data && len > 0)

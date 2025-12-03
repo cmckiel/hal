@@ -15,14 +15,14 @@ The HAL provides a small set of purpose-built drivers (UART, I2C, PWM, timers, G
 
 ### Layer Descriptions
 - **Applications** - Logic executed in the project’s super-loop (`main.c`).
-- **Hardware Abstration Layer** - Public interfaces in `include/hal`.
+- **Hardware Abstraction Layer** - Public interfaces in `include/hal`.
 - **STM32F4 Peripheral Drivers** - Implementations in `src` that operate directly on device registers.
 - **Device Support Package** - CMSIS and vendor headers plus startup code and the linker script in `device`.
 - **STM32F4 Hardware** - The STM32F446RE development board.
 
 For more detailed architecture, see [Detailed Architecture](architecture.md).
 
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 - A `UNIX-style command line` environment.
@@ -66,8 +66,6 @@ Build for target hardware:
 
 Target firmware should be visible in `build/embedded-debug/` as `.elf` and `.bin` files.
 
-To see detailed build instructions, troubleshooting steps, and instructions for deploying firmware to target hardware, see the [Full Documenation](https://cmckiel.github.io/hal/).
-
 ### Example Application
 ```C
 #include "uart.h"
@@ -76,14 +74,14 @@ To see detailed build instructions, troubleshooting steps, and instructions for 
 
 int main(void)
 {
-    hal_gpio_init(NULL);
-    hal_uart_init(HAL_UART2, NULL);
+    hal_gpio_init();
+    hal_uart_init(HAL_UART2);
 
     uint8_t message[] = "Hello from HAL!";
     size_t bytes_successfully_writen = 0;
 
     // Print hello message over serial.
-    HalStatus_t status = hal_uart_write(HAL_UART2, message, sizeof(message), &bytes_successfully_writen);
+    hal_status_t status = hal_uart_write(HAL_UART2, message, sizeof(message), &bytes_successfully_writen);
 
     // Easy error checking.
     if (status != HAL_STATUS_OK || bytes_successfully_writen != sizeof(message))

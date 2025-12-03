@@ -1,3 +1,10 @@
+/**
+ * @file stm32f4_pwm.c
+ * @brief STM32F4 implementation of PWM.
+ *
+ * Copyright (c) 2025 Cory McKiel.
+ * Licensed under the MIT License. See LICENSE file in the project root.
+ */
 #include "pwm.h"
 #include "stm32f4_hal.h"
 
@@ -28,7 +35,6 @@ static bool pwm_state_enabled = false;
 // Forward declarations
 /*********************************************************************************************/
 static void configure_gpios();
-static void configure_timer(uint32_t pwm_frequency_hz);
 static void compute_psc_arr(uint32_t pwm_frequency_hz, uint16_t* psc_out, uint16_t* arr_out);
 
 /*********************************************************************************************/
@@ -102,7 +108,7 @@ static inline void set_pwm_mode1(void)
 // Public Interface
 /*********************************************************************************************/
 
-HalStatus_t hal_pwm_init(uint32_t pwm_frequency_hz)
+hal_status_t hal_pwm_init(uint32_t pwm_frequency_hz)
 {
     // Safe default values for psc and arr.
     uint16_t psc = 0;
@@ -181,7 +187,7 @@ void hal_pwm_set_duty_cycle(uint8_t percent)
         // percent is something between 1%-99%.
         set_pwm_mode1();
 
-        // Calulate CCR1
+        // Calculate CCR1
         uint32_t arrp1 = (uint32_t)TIM1->ARR + 1u;
         // CCR = round(percent/100 * (ARR+1))
         // Common rounding trick for integers:

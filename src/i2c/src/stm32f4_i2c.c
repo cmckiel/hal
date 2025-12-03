@@ -1,6 +1,9 @@
 /**
  * @file stm32f4_i2c.c
  * @brief STM32F4 I2C HAL implementation
+ *
+ * Copyright (c) 2025 Cory McKiel.
+ * Licensed under the MIT License. See LICENSE file in the project root.
  */
 
 #ifdef DESKTOP_BUILD
@@ -28,21 +31,20 @@ static bool load_new_transaction();
 static bool current_transaction_is_valid();
 
 /* Private variables */
-static HalI2C_Stats_t i2c_stats = {0};
-static HalI2C_Txn_t   *current_i2c_transaction = NULL;
+static hal_i2c_txn_t   *current_i2c_transaction = NULL;
 
 /* ISR variables */
-static volatile HalI2C_Txn_t _current_i2c_transaction;
-static volatile size_t       _tx_position = 0;
-static volatile size_t       _rx_position = 0;
-static volatile bool         _tx_last_byte_written = false;
-static volatile bool         _rx_last_byte_read = false;
-static volatile bool         _tx_in_progress = false;
-static volatile bool         _rx_in_progress = false;
-static volatile bool         _error_occured = false;
+static volatile hal_i2c_txn_t _current_i2c_transaction;
+static volatile size_t        _tx_position = 0;
+static volatile size_t        _rx_position = 0;
+static volatile bool          _tx_last_byte_written = false;
+static volatile bool          _rx_last_byte_read = false;
+static volatile bool          _tx_in_progress = false;
+static volatile bool          _rx_in_progress = false;
+static volatile bool          _error_occurred = false;
 
 #define _SET_ERROR_FLAG_AND_ABORT_TRANSACTION() \
-_error_occured = true; \
+_error_occurred = true; \
 I2C1->CR2 &= ~I2C_CR2_ITBUFEN; \
 I2C1->CR1 |= I2C_CR1_STOP; \
 _tx_in_progress = false; \
@@ -117,7 +119,7 @@ void I2C1_EV_IRQHandler(void)
                 I2C1->CR1 &= ~I2C_CR1_ACK;
                 _rx_in_progress = false;
                 _tx_in_progress = false;
-                _error_occured = true;
+                _error_occurred = true;
             }
         }
 
@@ -244,17 +246,17 @@ void I2C1_EV_IRQHandler(void)
     {
         if (_tx_in_progress)
         {
-            if (_tx_position < _current_i2c_transaction.num_of_bytes_to_tx)
+            if (_tx_position < _current_i2c_transaction.expected_bytes_to_tx)
             {
                 I2C1->DR = _current_i2c_transaction.tx_data[_tx_position];
                 _tx_position++;
-                if (_tx_position == _current_i2c_transaction.num_of_bytes_to_tx)
+                if (_tx_position == _current_i2c_transaction.expected_bytes_to_tx)
                 {
                     // we just queued the final byte; arm BTF to finish
                     _tx_last_byte_written = true;
                 }
             }
-            else if (_current_i2c_transaction.num_of_bytes_to_tx == 0)
+            else if (_current_i2c_transaction.expected_bytes_to_tx == 0)
             {
                 // Zero length write.
                 // Disable TxE interrupt, generate STOP, and close out transaction.
@@ -296,12 +298,7 @@ void I2C1_ER_IRQHandler()
     }
 }
 
-/**
- * @brief Initialize I2C peripheral
- * @param config Pointer to I2C configuration structure
- * @return HAL_STATUS_OK on success, error code otherwise
- */
-HalStatus_t hal_i2c_init(void *config)
+hal_status_t hal_i2c_init()
 {
     configure_gpio();
     configure_peripheral();
@@ -310,30 +307,15 @@ HalStatus_t hal_i2c_init(void *config)
     return HAL_STATUS_OK;
 }
 
-/**
- * @brief Deinitialize I2C peripheral
- * @return HAL_STATUS_OK on success, error code otherwise
- */
-HalStatus_t hal_i2c_deinit(void)
-{
-    // TODO: Implement I2C deinitialization
-    // - Disable I2C peripheral
-    // - Disable I2C clock
-    // - Reset GPIO pins
-    // - Clear interrupts
-
-    return HAL_STATUS_OK;
-}
-
-HalStatus_t hal_i2c_submit_transaction(HalI2C_Txn_t *txn)
+hal_status_t hal_i2c_submit_transaction(hal_i2c_txn_t *txn)
 {
     // @todo: Some transaction validation here.
     return (i2c_transaction_queue_add(txn) == I2C_QUEUE_STATUS_SUCCESS) ? HAL_STATUS_OK : HAL_STATUS_ERROR;
 }
 
-HalStatus_t hal_i2c_transaction_servicer()
+hal_status_t hal_i2c_transaction_servicer()
 {
-    HalStatus_t status = HAL_STATUS_BUSY;
+    hal_status_t status = HAL_STATUS_BUSY;
 
     // CRITICAL SECTION ENTER
     NVIC_DisableIRQ(I2C1_EV_IRQn);
@@ -351,7 +333,7 @@ HalStatus_t hal_i2c_transaction_servicer()
             current_i2c_transaction->actual_bytes_transmitted = _tx_position;
             current_i2c_transaction->actual_bytes_received = _rx_position;
             memcpy(current_i2c_transaction->rx_data, (const void*)_current_i2c_transaction.rx_data, current_i2c_transaction->actual_bytes_received);
-            current_i2c_transaction->transaction_result = (_error_occured) ? HAL_I2C_TXN_RESULT_FAIL : HAL_I2C_TXN_RESULT_SUCCESS;
+            current_i2c_transaction->transaction_result = (_error_occurred) ? HAL_I2C_TXN_RESULT_FAIL : HAL_I2C_TXN_RESULT_SUCCESS;
 
             // Complete the transaction.
             current_i2c_transaction->processing_state = HAL_I2C_TXN_STATE_COMPLETED;
@@ -372,7 +354,7 @@ HalStatus_t hal_i2c_transaction_servicer()
                 _current_i2c_transaction = *current_i2c_transaction;
 
                 // Set up the control variables.
-                _error_occured = false;
+                _error_occurred = false;
                 _tx_position = 0;
                 _rx_position = 0;
 
@@ -411,30 +393,15 @@ HalStatus_t hal_i2c_transaction_servicer()
     return status;
 }
 
-/**
- * @brief Get I2C statistics
- * @param stats Pointer to statistics structure to fill
- * @return HAL_STATUS_OK on success, error code otherwise
- */
-HalStatus_t hal_i2c_get_stats(HalI2C_Stats_t *stats)
-{
-    if (!stats) {
-        return HAL_STATUS_ERROR;
-    }
-
-    *stats = i2c_stats;
-    return HAL_STATUS_OK;
-}
-
-// @brief Just for testing.
-// @warning Grave consequences if used in production code.
+/// @brief Just for testing.
+/// @warning Grave consequences if used in production code.
 void _test_fixture_hal_i2c_reset_internals()
 {
     current_i2c_transaction = NULL;
 
     _current_i2c_transaction.target_addr = 0;
     _current_i2c_transaction.i2c_op = HAL_I2C_OP_WRITE;
-    _current_i2c_transaction.num_of_bytes_to_tx = 0;
+    _current_i2c_transaction.expected_bytes_to_tx = 0;
     _current_i2c_transaction.expected_bytes_to_rx = 0;
     _current_i2c_transaction.processing_state = HAL_I2C_TXN_STATE_CREATED;
     _current_i2c_transaction.transaction_result = HAL_I2C_TXN_RESULT_NONE;
@@ -449,7 +416,7 @@ void _test_fixture_hal_i2c_reset_internals()
     _rx_last_byte_read = false;
     _tx_in_progress = false;
     _rx_in_progress = false;
-    _error_occured = false;
+    _error_occurred = false;
 }
 
 // These pins are broken out right next to each other on the dev board.
@@ -492,9 +459,9 @@ static void configure_peripheral()
     I2C1->CR2 &= ~(I2C_CR2_FREQ);
     I2C1->CR2 |= (SYS_FREQ_MHZ & I2C_CR2_FREQ);
 
-    // Time to rise (TRISE) register. Set to 17 via the calcualtion
+    // Time to rise (TRISE) register. Set to 17 via the calculation
     // Assumed 1000 ns SCL clock rise time (maximum permitted for I2C Standard Mode)
-    // Periphal's clock period (1 / SYSTEM_FREQ_MHZ)
+    // Peripheral's clock period (1 / SYSTEM_FREQ_MHZ)
     // (1000ns / 62.5) = 17 OR SYSTEM_FREQ_MHZ + 1 = 17. Either calc works.
     size_t trise_reg_val = SYS_FREQ_MHZ + 1;
     I2C1->TRISE &= ~(I2C_TRISE_TRISE);

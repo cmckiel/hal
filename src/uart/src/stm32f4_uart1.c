@@ -1,3 +1,10 @@
+/**
+ * @file stm32f4_uart1.c
+ * @brief Implements serial communication over UART1.
+ *
+ * Copyright (c) 2025 Cory McKiel.
+ * Licensed under the MIT License. See LICENSE file in the project root.
+ */
 #ifdef DESKTOP_BUILD
 #include "registers.h"
 #include "nvic.h"
@@ -49,7 +56,7 @@ void USART1_IRQHandler(void)
 	}
 }
 
-HalStatus_t stm32f4_uart1_init(void *config)
+hal_status_t stm32f4_uart1_init()
 {
 	// Prevent multiple initialization
     if (uart1_initialized)
@@ -71,7 +78,7 @@ HalStatus_t stm32f4_uart1_init(void *config)
 	return HAL_STATUS_OK;
 }
 
-HalStatus_t stm32f4_uart1_deinit()
+hal_status_t stm32f4_uart1_deinit()
 {
     if (!uart1_initialized)
 	{
@@ -92,9 +99,9 @@ HalStatus_t stm32f4_uart1_deinit()
     return HAL_STATUS_OK;
 }
 
-HalStatus_t stm32f4_uart1_read(uint8_t *data, size_t len, size_t *bytes_read, uint32_t timeout_ms)
+hal_status_t stm32f4_uart1_read(uint8_t *data, size_t len, size_t *bytes_read)
 {
-	HalStatus_t res = HAL_STATUS_ERROR;
+	hal_status_t res = HAL_STATUS_ERROR;
 
 	if (data && bytes_read && uart1_initialized)
 	{
@@ -131,9 +138,9 @@ HalStatus_t stm32f4_uart1_read(uint8_t *data, size_t len, size_t *bytes_read, ui
     return res;
 }
 
-HalStatus_t stm32f4_uart1_write(const uint8_t *data, size_t len, size_t *bytes_written)
+hal_status_t stm32f4_uart1_write(const uint8_t *data, size_t len, size_t *bytes_written)
 {
-	HalStatus_t res = HAL_STATUS_ERROR;
+	hal_status_t res = HAL_STATUS_ERROR;
 	bool push_success = true;
 
 	if (uart1_initialized && bytes_written && data && len > 0)

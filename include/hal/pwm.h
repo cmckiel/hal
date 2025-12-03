@@ -10,6 +10,9 @@
  *
  * At this point a PWM signal of your chosen frequency and
  * duty cycle is being output to pin.
+ *
+ * Copyright (c) 2025 Cory McKiel.
+ * Licensed under the MIT License. See LICENSE file in the project root.
  */
 #ifndef _PWM_H
 #define _PWM_H
@@ -24,7 +27,7 @@
  *
  * @return HAL_STATUS_OK on success.
  */
-HalStatus_t hal_pwm_init(uint32_t pwm_frequency_hz);
+hal_status_t hal_pwm_init(uint32_t pwm_frequency_hz);
 
 /**
  * @brief enable or disable the pwm signal. If disabled, nothing will show up on pins.

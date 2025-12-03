@@ -20,8 +20,6 @@ The HAL provides a small set of purpose-built drivers (UART, I2C, PWM, timers, G
 - **Device Support Package** - CMSIS and vendor headers plus startup code and the linker script in `device`.
 - **STM32F4 Hardware** - The STM32F446RE development board.
 
-For more detailed architecture, see [Detailed Architecture](architecture.md).
-
 ## Quick Start
 
 ### Prerequisites
@@ -105,6 +103,10 @@ int main(void)
 }
 ```
 
+## Deployment
+
+See [Deployment](pages/deployment.md) for detailed instructions to deploy firmware to target hardware.
+
 ## License
 
-Licensed under the MIT License; see [LICENSE](license.md) for details.
+Licensed under the MIT License; see [LICENSE](pages/license.md) for details.

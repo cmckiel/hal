@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['detailed_20architecture_15',['Detailed Architecture',['../md____w_hal_hal_docs_architecture.html',1,'']]]
+  ['expected_5fbytes_5fto_5frx_15',['expected_bytes_to_rx',['../structhal__i2c__txn__t.html#a11ba9f2f3a27b374c7d0b7391c570c88',1,'hal_i2c_txn_t']]],
+  ['expected_5fbytes_5fto_5ftx_16',['expected_bytes_to_tx',['../structhal__i2c__txn__t.html#a307ab741e8c6db3d37672ffe640af02b',1,'hal_i2c_txn_t']]]
 ];

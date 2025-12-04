@@ -25,19 +25,26 @@
 var NAVTREE =
 [
   [ "hal", "index.html", [
-    [ "Overview", "index.html#autotoc_md3", null ],
-    [ "Architecture", "index.html#autotoc_md4", [
-      [ "Layer Descriptions", "index.html#autotoc_md5", null ]
+    [ "Overview", "index.html#autotoc_md0", null ],
+    [ "Architecture", "index.html#autotoc_md1", [
+      [ "Layer Descriptions", "index.html#autotoc_md2", null ]
     ] ],
-    [ "Quick Start", "index.html#autotoc_md6", [
-      [ "Prerequisites", "index.html#autotoc_md7", null ],
-      [ "Clone", "index.html#autotoc_md8", null ],
-      [ "Build", "index.html#autotoc_md9", null ],
-      [ "Example Application", "index.html#autotoc_md10", null ]
+    [ "Quick Start", "index.html#autotoc_md3", [
+      [ "Prerequisites", "index.html#autotoc_md4", null ],
+      [ "Clone", "index.html#autotoc_md5", null ],
+      [ "Build", "index.html#autotoc_md6", null ],
+      [ "Example Application", "index.html#autotoc_md7", null ]
     ] ],
-    [ "License", "index.html#autotoc_md11", null ],
-    [ "Detailed Architecture", "md____w_hal_hal_docs_architecture.html", null ],
-    [ "LICENSE", "md____w_hal_hal_docs_license.html", null ],
+    [ "Deployment", "index.html#autotoc_md8", null ],
+    [ "License", "index.html#autotoc_md9", null ],
+    [ "Firmware Deployment", "md____w_hal_hal_docs_pages_deployment.html", [
+      [ "Prerequisites", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md11", null ],
+      [ "Verify Device Detection", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md12", null ],
+      [ "Flash the Firmware", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md13", null ],
+      [ "View Serial Output", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md14", null ],
+      [ "Windows Notes", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md15", null ]
+    ] ],
+    [ "LICENSE", "md____w_hal_hal_docs_pages_license.html", null ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -62,7 +69,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"structhal__i2c__txn__t.html#ae38c3f15dfaa5111f03dfcde52d77586"
+"structhal__i2c__txn__t.html#a5c736e9b0064390485f21c5ea5e7a05e"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

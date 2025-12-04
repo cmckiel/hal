@@ -15,7 +15,7 @@ int __io_putchar(int ch)
 	size_t bytes_written = 0;
 
 	data[0] = ch;
-	hal_uart_write(HAL_UART1, data, sizeof(data), &bytes_written);
+	hal_uart_write(HAL_UART2, data, sizeof(data), &bytes_written);
 
 	return ch;
 }

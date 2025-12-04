@@ -17,6 +17,34 @@ function(GenerateVersionInfo)
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 
+    if (NOT HAL_GIT_HASH)
+        set(HAL_GIT_HASH "unknown")
+    endif()
+
+    # Determine clean/dirty
+    execute_process(
+        COMMAND git status --porcelain
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        OUTPUT_VARIABLE HAL_GIT_STATUS
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+        RESULT_VARIABLE HAL_GIT_STATUS_RESULT
+    )
+
+    if (HAL_GIT_STATUS_RESULT EQUAL 0)
+        if (HAL_GIT_STATUS STREQUAL "")
+            set(HAL_GIT_DIRTY 0)
+            set(HAL_GIT_DIRTY_STR "clean")
+        else()
+            set(HAL_GIT_DIRTY 1)
+            set(HAL_GIT_DIRTY_STR "dirty")
+        endif()
+    else()
+        # Not a git repo or git not available
+        set(HAL_GIT_DIRTY 0)
+        set(HAL_GIT_DIRTY_STR "unknown")
+    endif()
+
     # Build date
     string(TIMESTAMP HAL_BUILD_DATE "%Y-%m-%d")
 

@@ -8,7 +8,9 @@ static const hal_metadata_t META = {
     HAL_VERSION_PATCH,
     HAL_VERSION_STR,
     HAL_GIT_HASH,
-    HAL_BUILD_DATE
+    HAL_BUILD_DATE,
+    HAL_GIT_DIRTY,
+    HAL_GIT_DIRTY_STR
 };
 
 const hal_metadata_t *hal_get_metadata(void) {

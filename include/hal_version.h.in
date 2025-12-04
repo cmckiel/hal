@@ -7,6 +7,9 @@
 #define HAL_VERSION_STR   "@HAL_VERSION_STR@"
 
 #define HAL_GIT_HASH      "@HAL_GIT_HASH@"
-#define HAL_BUILD_DATE    "@HAL_BUILD_DATE@"
+#define HAL_BUILD_DATE    "@HAL_BUILD_DATE@"     /* year-month-day */
+
+#define HAL_GIT_DIRTY     @HAL_GIT_DIRTY@        /* 0 = clean, 1 = dirty */
+#define HAL_GIT_DIRTY_STR "@HAL_GIT_DIRTY_STR@"  /* "clean"/"dirty"/"unknown" */
 
 #endif /* _HAL_VERSION_H */

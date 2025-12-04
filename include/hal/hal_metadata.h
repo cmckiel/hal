@@ -8,6 +8,8 @@ typedef struct {
     const char *version_str;
     const char *git_hash;
     const char *build_date;
+    unsigned dirty;
+    const char *dirty_str;
 } hal_metadata_t;
 
 const hal_metadata_t *hal_get_metadata(void);

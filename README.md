@@ -13,7 +13,7 @@ Designed for flight-control-class embedded systems and developed with modern too
 - **GPIO** - Toggle onboard LED, GPIOA.
 
 ### Test and Tooling
-- **Unit Tests** - 135 unit tests with 94% code coverage.
+- **Unit Tests** - 134 unit tests with 94% code coverage.
 - **Integration Test** - Hardware-in-the-Loop (HIL) integration test.
 - **Static Analysis** - Two static analyzers, clang-tidy and cppcheck.
 - **Containerized Build Environment** - Reproducible builds and platform independent development.

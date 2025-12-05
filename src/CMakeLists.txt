@@ -4,6 +4,7 @@ add_library(
     gpio/stm32f4_gpio.c
     i2c/src/i2c_transaction_queue.c
     i2c/src/stm32f4_i2c.c
+    metadata/src/hal_metadata.c
     pwm/src/stm32f4_pwm.c
     uart/src/stm32f4_uart.c
     uart/src/stm32f4_uart1.c
@@ -20,6 +21,7 @@ target_include_directories(
     ${CMAKE_CURRENT_LIST_DIR}/include
     ${CMAKE_CURRENT_LIST_DIR}/i2c/include
     ${CMAKE_CURRENT_LIST_DIR}/uart/include
+    ${CMAKE_BINARY_DIR}/generated
 )
 
 # Link to the common libraries.

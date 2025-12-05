@@ -33,6 +33,10 @@ add_subdirectory(external/circular_buffer)
 add_subdirectory(include)
 add_subdirectory(src)
 
+# Generate the header including version and build metadata.
+include(Version)
+GenerateVersionInfo()
+
 if(DESKTOP_BUILD)
   message(STATUS "Building Desktop Debug...")
 

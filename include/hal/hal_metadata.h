@@ -29,6 +29,6 @@ typedef struct {
  *
  * @return A pointer to a static struct containing the build metadata.
  */
-const hal_metadata_t *hal_get_metadata(void);
+const hal_metadata_t *hal_get_metadata();
 
 #endif /* _HAL_METADATA_H */

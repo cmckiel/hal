@@ -19,6 +19,7 @@ static const hal_metadata_t META = {
     HAL_GIT_DIRTY_STR
 };
 
-const hal_metadata_t *hal_get_metadata(void) {
+const hal_metadata_t *hal_get_metadata()
+{
     return &META;
 }

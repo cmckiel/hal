@@ -76,13 +76,13 @@ int main(void)
     hal_uart_init(HAL_UART2);
 
     uint8_t message[] = "Hello from HAL!";
-    size_t bytes_successfully_writen = 0;
+    size_t bytes_successfully_written = 0;
 
     // Print hello message over serial.
-    hal_status_t status = hal_uart_write(HAL_UART2, message, sizeof(message), &bytes_successfully_writen);
+    hal_status_t status = hal_uart_write(HAL_UART2, message, sizeof(message), &bytes_successfully_written);
 
     // Easy error checking.
-    if (status != HAL_STATUS_OK || bytes_successfully_writen != sizeof(message))
+    if (status != HAL_STATUS_OK || bytes_successfully_written != sizeof(message))
     {
         // Transmission error handling.
         return 1;

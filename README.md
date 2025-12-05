@@ -17,7 +17,7 @@ Designed for flight-control-class embedded systems and developed with modern too
 - **Integration Test** - Hardware-in-the-Loop (HIL) integration test.
 - **Static Analysis** - Two static analyzers, clang-tidy and cppcheck.
 - **Containerized Build Environment** - Reproducible builds and platform independent development.
-- **Continous Integration** - Automated Build, Analysis, Testing, and Deployment.
+- **Continuous Integration** - Automated Build, Analysis, Testing, and Deployment.
 
 ## Quick Start
 
@@ -63,7 +63,7 @@ Build for target hardware:
 
 Target firmware should be visible in `build/embedded-debug/` as `.elf` and `.bin` files.
 
-To see detailed build instructions, troubleshooting steps, and instructions for deploying firmware to target hardware, see the [Full Documenation](https://cmckiel.github.io/hal/).
+To see detailed build instructions, troubleshooting steps, and instructions for deploying firmware to target hardware, see the [Full Documentation](https://cmckiel.github.io/hal/).
 
 ### Example Application
 ```C
@@ -77,13 +77,13 @@ int main(void)
     hal_uart_init(HAL_UART2);
 
     uint8_t message[] = "Hello from HAL!";
-    size_t bytes_successfully_writen = 0;
+    size_t bytes_successfully_written = 0;
 
     // Print hello message over serial.
-    hal_status_t status = hal_uart_write(HAL_UART2, message, sizeof(message), &bytes_successfully_writen);
+    hal_status_t status = hal_uart_write(HAL_UART2, message, sizeof(message), &bytes_successfully_written);
 
     // Easy error checking.
-    if (status != HAL_STATUS_OK || bytes_successfully_writen != sizeof(message))
+    if (status != HAL_STATUS_OK || bytes_successfully_written != sizeof(message))
     {
         // Transmission error handling.
         return 1;
@@ -106,7 +106,7 @@ int main(void)
 
 ## Full Documentation
 
-> Reference the project's [Full Documenation](https://cmckiel.github.io/hal/) to learn about project scope, architecture, usage, deployment, and more.
+> Reference the project's [Full Documentation](https://cmckiel.github.io/hal/) to learn about project scope, architecture, usage, deployment, and more.
 
 ## Project Structure
 
@@ -119,4 +119,4 @@ int main(void)
 
 ## License
 
-Licensed under the MIT License; see [LICENSE](https://cmckiel.github.io/hal/md____w_hal_hal_docs_license.html) for details.
+Licensed under the MIT License; see `LICENSE` file for details.

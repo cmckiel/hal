@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['firmware_20deployment_17',['Firmware Deployment',['../md____w_hal_hal_docs_pages_deployment.html',1,'']]]
+  ['dirty_16',['dirty',['../structhal__metadata__t.html#ac06a8a009a5683d5f03e0518d60ce38f',1,'hal_metadata_t']]],
+  ['dirty_5fstr_17',['dirty_str',['../structhal__metadata__t.html#af11d3222beb8a8114ea6705d4536945d',1,'hal_metadata_t']]]
 ];

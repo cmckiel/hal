@@ -1,26 +1,6 @@
 var searchData=
 [
-  ['stm32f4_5fgpio_2ec_85',['stm32f4_gpio.c',['../stm32f4__gpio_8c.html',1,'']]],
-  ['stm32f4_5fhal_2eh_86',['stm32f4_hal.h',['../stm32f4__hal_8h.html',1,'']]],
-  ['stm32f4_5fhal_5fcompute_5fuart_5fbd_87',['stm32f4_hal_compute_uart_bd',['../stm32f4__uart__util_8c.html#a0ee77757635159bfe921e799c2d58be5',1,'stm32f4_hal_compute_uart_bd(uint32_t periph_clk, uint32_t baud_rate):&#160;stm32f4_uart_util.c'],['../stm32f4__uart__util_8h.html#a0ee77757635159bfe921e799c2d58be5',1,'stm32f4_hal_compute_uart_bd(uint32_t periph_clk, uint32_t baud_rate):&#160;stm32f4_uart_util.c']]],
-  ['stm32f4_5fhal_5fsystem_2ec_88',['stm32f4_hal_system.c',['../stm32f4__hal__system_8c.html',1,'']]],
-  ['stm32f4_5fi2c_2ec_89',['stm32f4_i2c.c',['../stm32f4__i2c_8c.html',1,'']]],
-  ['stm32f4_5fpwm_2ec_90',['stm32f4_pwm.c',['../stm32f4__pwm_8c.html',1,'']]],
-  ['stm32f4_5fsystick_2ec_91',['stm32f4_systick.c',['../stm32f4__systick_8c.html',1,'']]],
-  ['stm32f4_5fuart_2ec_92',['stm32f4_uart.c',['../stm32f4__uart_8c.html',1,'']]],
-  ['stm32f4_5fuart1_2ec_93',['stm32f4_uart1.c',['../stm32f4__uart1_8c.html',1,'']]],
-  ['stm32f4_5fuart1_2eh_94',['stm32f4_uart1.h',['../stm32f4__uart1_8h.html',1,'']]],
-  ['stm32f4_5fuart1_5fdeinit_95',['stm32f4_uart1_deinit',['../stm32f4__uart1_8h.html#a45181aa90329435c3c42886c0c14a16c',1,'stm32f4_uart1_deinit():&#160;stm32f4_uart1.c'],['../stm32f4__uart1_8c.html#a45181aa90329435c3c42886c0c14a16c',1,'stm32f4_uart1_deinit():&#160;stm32f4_uart1.c']]],
-  ['stm32f4_5fuart1_5finit_96',['stm32f4_uart1_init',['../stm32f4__uart1_8h.html#ade06014f39deb7f40e539e5f57da1f74',1,'stm32f4_uart1_init():&#160;stm32f4_uart1.c'],['../stm32f4__uart1_8c.html#ade06014f39deb7f40e539e5f57da1f74',1,'stm32f4_uart1_init():&#160;stm32f4_uart1.c']]],
-  ['stm32f4_5fuart1_5fread_97',['stm32f4_uart1_read',['../stm32f4__uart1_8c.html#aa718dc797c8077833c7235f3fb1c6ed0',1,'stm32f4_uart1_read(uint8_t *data, size_t len, size_t *bytes_read):&#160;stm32f4_uart1.c'],['../stm32f4__uart1_8h.html#aa718dc797c8077833c7235f3fb1c6ed0',1,'stm32f4_uart1_read(uint8_t *data, size_t len, size_t *bytes_read):&#160;stm32f4_uart1.c']]],
-  ['stm32f4_5fuart1_5fwrite_98',['stm32f4_uart1_write',['../stm32f4__uart1_8c.html#a701078568c3504cdc4bf89077bcb05b4',1,'stm32f4_uart1_write(const uint8_t *data, size_t len, size_t *bytes_written):&#160;stm32f4_uart1.c'],['../stm32f4__uart1_8h.html#a701078568c3504cdc4bf89077bcb05b4',1,'stm32f4_uart1_write(const uint8_t *data, size_t len, size_t *bytes_written):&#160;stm32f4_uart1.c']]],
-  ['stm32f4_5fuart2_2ec_99',['stm32f4_uart2.c',['../stm32f4__uart2_8c.html',1,'']]],
-  ['stm32f4_5fuart2_2eh_100',['stm32f4_uart2.h',['../stm32f4__uart2_8h.html',1,'']]],
-  ['stm32f4_5fuart2_5fdeinit_101',['stm32f4_uart2_deinit',['../stm32f4__uart2_8h.html#ae8c3bdda2f98ac64602aafff5969ffcc',1,'stm32f4_uart2_deinit():&#160;stm32f4_uart2.c'],['../stm32f4__uart2_8c.html#ae8c3bdda2f98ac64602aafff5969ffcc',1,'stm32f4_uart2_deinit():&#160;stm32f4_uart2.c']]],
-  ['stm32f4_5fuart2_5finit_102',['stm32f4_uart2_init',['../stm32f4__uart2_8h.html#a507dd1a0457f932c9c8e832ebd734d2b',1,'stm32f4_uart2_init():&#160;stm32f4_uart2.c'],['../stm32f4__uart2_8c.html#a507dd1a0457f932c9c8e832ebd734d2b',1,'stm32f4_uart2_init():&#160;stm32f4_uart2.c']]],
-  ['stm32f4_5fuart2_5fread_103',['stm32f4_uart2_read',['../stm32f4__uart2_8h.html#a9118932febe81b79da772f65b3dd97c1',1,'stm32f4_uart2_read(uint8_t *data, size_t len, size_t *bytes_read):&#160;stm32f4_uart2.c'],['../stm32f4__uart2_8c.html#a9118932febe81b79da772f65b3dd97c1',1,'stm32f4_uart2_read(uint8_t *data, size_t len, size_t *bytes_read):&#160;stm32f4_uart2.c']]],
-  ['stm32f4_5fuart2_5fwrite_104',['stm32f4_uart2_write',['../stm32f4__uart2_8h.html#a4344f1260f7acd4c9b5461609a89826d',1,'stm32f4_uart2_write(const uint8_t *data, size_t len, size_t *bytes_written):&#160;stm32f4_uart2.c'],['../stm32f4__uart2_8c.html#a4344f1260f7acd4c9b5461609a89826d',1,'stm32f4_uart2_write(const uint8_t *data, size_t len, size_t *bytes_written):&#160;stm32f4_uart2.c']]],
-  ['stm32f4_5fuart_5futil_2ec_105',['stm32f4_uart_util.c',['../stm32f4__uart__util_8c.html',1,'']]],
-  ['stm32f4_5fuart_5futil_2eh_106',['stm32f4_uart_util.h',['../stm32f4__uart__util_8h.html',1,'']]],
-  ['systick_2eh_107',['systick.h',['../systick_8h.html',1,'']]]
+  ['oc_5fmode_5fforced_5fhigh_87',['OC_MODE_FORCED_HIGH',['../stm32f4__pwm_8c.html#a7680fccce442b5d1675b4d0e29f6e967',1,'stm32f4_pwm.c']]],
+  ['oc_5fmode_5fforced_5flow_88',['OC_MODE_FORCED_LOW',['../stm32f4__pwm_8c.html#a9d458ad70dab4c17fedd7665523d91a3',1,'stm32f4_pwm.c']]],
+  ['oc_5fmode_5fpwm_5f1_89',['OC_MODE_PWM_1',['../stm32f4__pwm_8c.html#a8ab2939d4dfe50d65d66ac5d60f2ab74',1,'stm32f4_pwm.c']]]
 ];

@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['expected_5fbytes_5fto_5frx_15',['expected_bytes_to_rx',['../structhal__i2c__txn__t.html#a11ba9f2f3a27b374c7d0b7391c570c88',1,'hal_i2c_txn_t']]],
-  ['expected_5fbytes_5fto_5ftx_16',['expected_bytes_to_tx',['../structhal__i2c__txn__t.html#a307ab741e8c6db3d37672ffe640af02b',1,'hal_i2c_txn_t']]]
+  ['cp10_13',['CP10',['../stm32f4__hal__system_8c.html#ab2f4a341ea3ab6921aba9d592aab9d5e',1,'stm32f4_hal_system.c']]],
+  ['cp11_14',['CP11',['../stm32f4__hal__system_8c.html#a9420e168384181e4caadc6c0b181a50e',1,'stm32f4_hal_system.c']]],
+  ['cp_5ffull_5faccess_15',['CP_FULL_ACCESS',['../stm32f4__hal__system_8c.html#a39443a57b1b5406d6a9e9887d38e4a02',1,'stm32f4_hal_system.c']]]
 ];

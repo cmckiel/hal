@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['i2c_5fop_174',['i2c_op',['../structhal__i2c__txn__t.html#a5c736e9b0064390485f21c5ea5e7a05e',1,'hal_i2c_txn_t']]]
+  ['expected_5fbytes_5fto_5frx_190',['expected_bytes_to_rx',['../structhal__i2c__txn__t.html#a11ba9f2f3a27b374c7d0b7391c570c88',1,'hal_i2c_txn_t']]],
+  ['expected_5fbytes_5fto_5ftx_191',['expected_bytes_to_tx',['../structhal__i2c__txn__t.html#a307ab741e8c6db3d37672ffe640af02b',1,'hal_i2c_txn_t']]]
 ];

@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['gpio_2eh_18',['gpio.h',['../gpio_8h.html',1,'']]],
-  ['gpioaen_19',['GPIOAEN',['../stm32f4__gpio_8c.html#a4fa1263231bb75f3fdee49f04b1441bc',1,'stm32f4_gpio.c']]]
+  ['expected_5fbytes_5fto_5frx_18',['expected_bytes_to_rx',['../structhal__i2c__txn__t.html#a11ba9f2f3a27b374c7d0b7391c570c88',1,'hal_i2c_txn_t']]],
+  ['expected_5fbytes_5fto_5ftx_19',['expected_bytes_to_tx',['../structhal__i2c__txn__t.html#a307ab741e8c6db3d37672ffe640af02b',1,'hal_i2c_txn_t']]]
 ];

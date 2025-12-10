@@ -22,7 +22,8 @@
             "cacheVariables": {
                 "EMBEDDED_BUILD": "ON",
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/debug"
             }
         },
         {
@@ -34,7 +35,8 @@
             "cacheVariables": {
                 "EMBEDDED_BUILD": "ON",
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/release"
             }
         }
     ],

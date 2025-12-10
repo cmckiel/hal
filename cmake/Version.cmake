@@ -57,4 +57,10 @@ function(GenerateVersionInfo)
         "${GENERATED_DIR}/hal_version.h"
         @ONLY
     )
+
+    # export the version definitions to the larger project
+    set(PROJECT_VERSION       "${HAL_VERSION_STR}"   PARENT_SCOPE)
+    set(PROJECT_VERSION_MAJOR "${HAL_VERSION_MAJOR}" PARENT_SCOPE)
+    set(PROJECT_VERSION_MINOR "${HAL_VERSION_MINOR}" PARENT_SCOPE)
+    set(PROJECT_VERSION_PATCH "${HAL_VERSION_PATCH}" PARENT_SCOPE)
 endfunction()

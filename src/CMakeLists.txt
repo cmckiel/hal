@@ -1,6 +1,6 @@
 # Add all the source files of our HAL to the stm32f4_hal library.
 add_library(
-    stm32f4_hal
+    stm32f4_hal STATIC
     gpio/stm32f4_gpio.c
     i2c/src/i2c_transaction_queue.c
     i2c/src/stm32f4_i2c.c

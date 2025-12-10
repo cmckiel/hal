@@ -25,7 +25,7 @@ include(Version)
 GenerateVersionInfo()
 
 # Declare project.
-project(Hal
+project(hal
   VERSION ${PROJECT_VERSION}
   LANGUAGES C ASM CXX
 )

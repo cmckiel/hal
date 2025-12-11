@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 # Include our custom cmake modules.
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/module")
 
 # Build options.
 option(DESKTOP_BUILD "Build for Desktop" OFF)
@@ -148,7 +148,7 @@ if(EMBEDDED_BUILD)
 
   # Configure the main package config file from a template
   configure_package_config_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/HalConfig.cmake.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/template/HalConfig.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/HalConfig.cmake"
     INSTALL_DESTINATION ${HAL_INSTALL_CMAKEDIR}
   )

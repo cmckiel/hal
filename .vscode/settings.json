@@ -1,5 +1,6 @@
 {
     "cmake.useCMakePresets": "always",
     "cmake.configureOnOpen": false,
-    "cmake.options.statusBarVisibility": "visible"
+    "cmake.options.statusBarVisibility": "visible",
+    "terminal.integrated.shellIntegration.enabled": false,
 }

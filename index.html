@@ -143,13 +143,13 @@ Example Application</h2>
 <div class="line">    <a class="code" href="stm32f4__uart_8c.html#acf538d7f02b6373d22c886aaca664d8f">hal_uart_init</a>(<a class="code" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b">HAL_UART2</a>);</div>
 <div class="line"> </div>
 <div class="line">    uint8_t message[] = <span class="stringliteral">&quot;Hello from HAL!&quot;</span>;</div>
-<div class="line">    <span class="keywordtype">size_t</span> bytes_successfully_writen = 0;</div>
+<div class="line">    <span class="keywordtype">size_t</span> bytes_successfully_written = 0;</div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">// Print hello message over serial.</span></div>
-<div class="line">    <a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> status = <a class="code" href="stm32f4__uart_8c.html#a7db623b4fbcc73da22d807a65d692f0b">hal_uart_write</a>(<a class="code" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b">HAL_UART2</a>, message, <span class="keyword">sizeof</span>(message), &amp;bytes_successfully_writen);</div>
+<div class="line">    <a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> status = <a class="code" href="stm32f4__uart_8c.html#a7db623b4fbcc73da22d807a65d692f0b">hal_uart_write</a>(<a class="code" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b">HAL_UART2</a>, message, <span class="keyword">sizeof</span>(message), &amp;bytes_successfully_written);</div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">// Easy error checking.</span></div>
-<div class="line">    <span class="keywordflow">if</span> (status != <a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27aca9cb8926d38b93a5fc514af2a1627b0">HAL_STATUS_OK</a> || bytes_successfully_writen != <span class="keyword">sizeof</span>(message))</div>
+<div class="line">    <span class="keywordflow">if</span> (status != <a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27aca9cb8926d38b93a5fc514af2a1627b0">HAL_STATUS_OK</a> || bytes_successfully_written != <span class="keyword">sizeof</span>(message))</div>
 <div class="line">    {</div>
 <div class="line">        <span class="comment">// Transmission error handling.</span></div>
 <div class="line">        <span class="keywordflow">return</span> 1;</div>

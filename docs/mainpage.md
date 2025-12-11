@@ -107,6 +107,10 @@ int main(void)
 
 See [Deployment](pages/deployment.md) for detailed instructions to deploy firmware to target hardware.
 
+## Coverage
+
+See the code coverage [here](coverage/index.html).
+
 ## License
 
 Licensed under the MIT License; see [LICENSE](pages/license.md) for details.

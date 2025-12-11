@@ -78,6 +78,14 @@ if(DESKTOP_BUILD)
   include(ClangTidy)
   AddClangTidyTarget("${HAL_ANALYSIS_SOURCES}")
 
+  # ------- CODE COVERAGE -------
+
+  target_compile_options(stm32f4_hal PRIVATE --coverage)
+  target_link_options(stm32f4_hal PUBLIC --coverage)
+
+  include(AddCoverage)
+  AddCoverage(desktop_unit_tests)
+
   # ------- DOCUMENTATION -------
 
   # Document the project with Doxygen.

@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
     clang-tidy \
     cppcheck \
     doxygen \
-    graphviz
+    graphviz \
+    lcov
 
 # Set working directory
 WORKDIR /workspace

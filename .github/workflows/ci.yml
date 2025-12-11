@@ -273,7 +273,7 @@ jobs:
 
   install-and-package:
     name: Package embedded-${{ matrix.preset }}
-    needs: analyze, unit-tests, hardware-test
+    needs: [analyze, unit-tests, hardware-test]
     runs-on: ubuntu-latest
     container:
       image: cmckiel/hal-build-environment:latest

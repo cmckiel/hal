@@ -1,5 +1,6 @@
 add_executable(
     desktop_unit_tests
+    gpio_driver_test.cpp
     i2c_driver_test.cpp
     i2c_transaction_queue_test.cpp
     pwm_driver_test.cpp

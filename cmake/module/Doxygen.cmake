@@ -8,7 +8,11 @@ function(AddDoxygenDocs)
     configure_file("${DOXYFILE_IN}" "${DOXYFILE_OUT}" @ONLY)
 
     add_custom_target(docs
+    DEPENDS coverage
     COMMAND ${DOXYGEN_EXECUTABLE} "${DOXYFILE_OUT}"
+    COMMAND ${CMAKE_COMMAND} -E rename
+        "${CMAKE_BINARY_DIR}/coverage"
+        "${CMAKE_BINARY_DIR}/docs/coverage"
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     COMMENT "Generating API documentation with Doxygen"
     )

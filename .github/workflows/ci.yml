@@ -308,6 +308,7 @@ jobs:
     - name: Consume package in mock project
       run: |
         mkdir -p /tmp/hal-consumer
+        cp build/embedded-${{ matrix.preset }}/Hal-*.tar.gz /tmp/hal-consumer/hal-package.tar.gz
         cd /tmp/hal-consumer
 
         # Create CMakeLists.txt
@@ -324,8 +325,7 @@ jobs:
         # Create main.c
         echo 'int main(void) { return 0; }' > main.c
 
-        # Move the package over and place it in hal-package/
-        mv ${{ github.workspace }}/build/embedded-${{ matrix.preset }}/Hal-*.tar.gz ./hal-package.tar.gz
+        # Extract the package over and place it in hal-package/
         mkdir hal-package
         tar -xzf hal-package.tar.gz --directory hal-package --strip-components=1
 

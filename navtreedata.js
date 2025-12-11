@@ -36,13 +36,14 @@ var NAVTREE =
       [ "Example Application", "index.html#autotoc_md7", null ]
     ] ],
     [ "Deployment", "index.html#autotoc_md8", null ],
-    [ "License", "index.html#autotoc_md9", null ],
+    [ "Coverage", "index.html#autotoc_md9", null ],
+    [ "License", "index.html#autotoc_md10", null ],
     [ "Firmware Deployment", "md____w_hal_hal_docs_pages_deployment.html", [
-      [ "Prerequisites", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md11", null ],
-      [ "Verify Device Detection", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md12", null ],
-      [ "Flash the Firmware", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md13", null ],
-      [ "View Serial Output", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md14", null ],
-      [ "Windows Notes", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md15", null ]
+      [ "Prerequisites", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md12", null ],
+      [ "Verify Device Detection", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md13", null ],
+      [ "Flash the Firmware", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md14", null ],
+      [ "View Serial Output", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md15", null ],
+      [ "Windows Notes", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md16", null ]
     ] ],
     [ "LICENSE", "md____w_hal_hal_docs_pages_license.html", null ],
     [ "Classes", "annotated.html", [
@@ -69,7 +70,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"stm32f4__uart__util_8h.html#a7d5ce7b79462bbfb630ee53075540b65"
+"stm32f4__uart__util_8h.html#a406b1a312c9bd51e463b4bf9e6066f2c"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

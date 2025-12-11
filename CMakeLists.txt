@@ -174,7 +174,6 @@ if(EMBEDDED_BUILD)
     DESTINATION ${CMAKE_INSTALL_DOCDIR}
   )
 
-
   # ------- PACKAGING -------
 
   set(CPACK_PACKAGE_NAME                "Hal")

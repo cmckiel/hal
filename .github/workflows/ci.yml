@@ -273,7 +273,7 @@ jobs:
 
   install-and-package:
     name: Package embedded-${{ matrix.preset }}
-    needs: [analyze, unit-tests, hardware-test]
+    needs: hardware-test
     runs-on: ubuntu-latest
     container:
       image: cmckiel/hal-build-environment:latest
@@ -325,7 +325,7 @@ jobs:
         echo 'int main(void) { return 0; }' > main.c
 
         # Move the package over and place it in hal-package/
-        mv ${{ github.workspace }}/hal/build/embedded-${{ matrix.preset }}/Hal-*.tar.gz ./hal-package.tar.gz
+        mv ${{ github.workspace }}/build/embedded-${{ matrix.preset }}/Hal-*.tar.gz ./hal-package.tar.gz
         mkdir hal-package
         tar -xzf hal-package.tar.gz --directory hal-package --strip-components=1
 

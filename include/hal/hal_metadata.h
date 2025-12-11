@@ -13,12 +13,12 @@
  */
 typedef struct {
     unsigned major;          /*!< Major version. API level breaking changes. */
-    unsigned minor;          /*!< Minor verion. Major feature additions without breaking changes. */
+    unsigned minor;          /*!< Minor version. Major feature additions without breaking changes. */
     unsigned patch;          /*!< Patch. Bug fixes and small additions without breaking changes. */
     const char *version_str; /*!< String containing major.minor.path ("x.y.z") */
     const char *git_hash;    /*!< Compact hash of the current commit during build. */
     const char *build_date;  /*!< Date of build. ("year-month-day") */
-    unsigned dirty;          /*!< 1 if there are uncommitted changes included in this build. (And therefore unknown changes) 0 otherwise. */
+    unsigned dirty;          /*!< `1` if there are uncommitted changes included in this build. (And therefore unknown changes) `0` otherwise. */
     const char *dirty_str;   /*!< Easily printable string representing dirty/clean status. ("dirty", "clean", "unknown") */
 } hal_metadata_t;
 

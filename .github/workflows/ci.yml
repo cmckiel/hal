@@ -27,8 +27,8 @@ jobs:
     - name: Build (${{ matrix.preset }})
       run: cmake --build --preset ${{ matrix.preset }}
 
-    # Upload embedded debug artifacts for further testing
-    - name: Upload firmware debug artifact
+    # Upload embedded-debug artifacts for further testing
+    - name: Upload embedded-debug test binary artifact
       if: matrix.preset == 'embedded-debug'
       uses: actions/upload-artifact@v4
       with:
@@ -38,8 +38,26 @@ jobs:
           build/embedded-debug/hal_integration_test.elf
         retention-days: 7
 
-    # Upload embedded release artifacts for further testing
-    - name: Upload firmware release artifact
+    # Create an embedded-debug build tree archive
+    - name: Create embedded-debug archive
+      if: matrix.preset == 'embedded-debug'
+      run: |
+        # Create a tarball that preserves permissions
+        cd build/embedded-debug
+        tar -czf ../../embedded-debug.tar.gz .
+        cd ../..
+
+    # Upload embedded-debug build tree for later packaging
+    - name: Upload embedded-debug archive
+      if: matrix.preset == 'embedded-debug'
+      uses: actions/upload-artifact@v4
+      with:
+        name: embedded-debug-${{ github.sha }}
+        path: embedded-debug.tar.gz
+        retention-days: 7
+
+    # Upload embedded-release artifacts for further testing
+    - name: Upload embedded-release test binary artifact
       if: matrix.preset == 'embedded-release'
       uses: actions/upload-artifact@v4
       with:
@@ -47,6 +65,24 @@ jobs:
         path: |
           build/embedded-release/hal_integration_test.bin
           build/embedded-release/hal_integration_test.elf
+        retention-days: 7
+
+    # Create an embedded-release build tree archive
+    - name: Create embedded-release archive
+      if: matrix.preset == 'embedded-release'
+      run: |
+        # Create a tarball that preserves permissions
+        cd build/embedded-release
+        tar -czf ../../embedded-release.tar.gz .
+        cd ../..
+
+    # Upload embedded-release build tree for later packaging
+    - name: Upload embedded-release archive
+      if: matrix.preset == 'embedded-release'
+      uses: actions/upload-artifact@v4
+      with:
+        name: embedded-release-${{ github.sha }}
+        path: embedded-release.tar.gz
         retention-days: 7
 
     - name: Create desktop-debug archive
@@ -234,3 +270,65 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./public
+
+  install-and-package:
+    name: Package embedded-${{ matrix.preset }}
+    needs: hardware-test
+    runs-on: ubuntu-latest
+    container:
+      image: cmckiel/hal-build-environment:latest
+
+    strategy:
+      matrix:
+        preset: [debug, release]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Download embedded-${{ matrix.preset }} archive
+      uses: actions/download-artifact@v4
+      with:
+        name: embedded-${{ matrix.preset }}-${{ github.sha }}
+        path: ./
+
+    - name: Extract embedded-${{ matrix.preset }} archive
+      run: |
+        mkdir -p build/embedded-${{ matrix.preset }}
+        tar -xzf embedded-${{ matrix.preset }}.tar.gz -C build/embedded-${{ matrix.preset }}
+
+    - name: Package embedded-${{ matrix.preset }}
+      run: |
+        cd build/embedded-${{ matrix.preset }}
+        cpack
+        cd ../..
+
+    - name: Consume package in mock project
+      run: |
+        mkdir -p /tmp/hal-consumer
+        cp build/embedded-${{ matrix.preset }}/Hal-*.tar.gz /tmp/hal-consumer/hal-package.tar.gz
+        cd /tmp/hal-consumer
+
+        # Create CMakeLists.txt
+        cat > CMakeLists.txt << 'EOF'
+        cmake_minimum_required(VERSION 3.20)
+        project(hal_consumer C)
+
+        find_package(Hal 0.1.0 REQUIRED CONFIG)
+
+        add_executable(hal_consumer main.c)
+        target_link_libraries(hal_consumer PRIVATE Hal::stm32f4_hal)
+        EOF
+
+        # Create main.c
+        echo 'int main(void) { return 0; }' > main.c
+
+        # Extract the package over and place it in hal-package/
+        mkdir hal-package
+        tar -xzf hal-package.tar.gz --directory hal-package --strip-components=1
+
+        # Build and link the project to Hal Package
+        cmake -S . -B build -DCMAKE_PREFIX_PATH="hal-package"
+        cmake --build build/

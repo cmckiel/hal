@@ -1,0 +1,8 @@
+@PACKAGE_INIT@
+
+# If there are external dependencies, add them here:
+# include(CMakeFindDependencyMacro)
+# find_dependency(CMSIS REQUIRED)
+# find_dependency(FreeRTOS REQUIRED)
+
+include("${CMAKE_CURRENT_LIST_DIR}/HalTargets.cmake")

@@ -1,0 +1,61 @@
+name: Release on tag
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Debug build + package
+      - name: Configure & build (embedded-debug)
+        run: |
+          cmake --preset embedded-debug
+          cmake --build --preset embedded-debug
+          cmake --build --preset embedded-debug --target package
+
+      # Release build + package
+      - name: Configure & build (embedded-release)
+        run: |
+          cmake --preset embedded-release
+          cmake --build --preset embedded-release
+          cmake --build --preset embedded-release --target package
+
+      # Final releases: v1.2.3
+      - name: Create GitHub Release (final)
+        if: "!contains(github.ref_name, '-rc')"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            build/embedded-debug/*.tar.*
+            build/embedded-debug/*.zip
+            build/embedded-release/*.tar.*
+            build/embedded-release/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # RC releases: v1.2.3-rc.1
+      - name: Create GitHub Release (RC prerelease)
+        if: contains(github.ref_name, '-rc')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          prerelease: true
+          generate_release_notes: true
+          files: |
+            build/embedded-debug/*.tar.*
+            build/embedded-debug/*.zip
+            build/embedded-release/*.tar.*
+            build/embedded-release/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

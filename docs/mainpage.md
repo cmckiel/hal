@@ -64,7 +64,7 @@ Build for target hardware:
 
 Target firmware should be visible in `build/embedded-debug/` as `.elf` and `.bin` files.
 
-### Example Application
+### Example Application {#example-application}
 ```C
 #include "uart.h"
 #include "gpio.h"
@@ -103,6 +103,10 @@ int main(void)
 }
 ```
 
+## Project Integration
+
+To integrate a pre-built HAL release into a CMake project, see [Project Integration](pages/project_integration.md).
+
 ## Deployment
 
 See [Deployment](pages/deployment.md) for detailed instructions to deploy firmware to target hardware.
@@ -110,6 +114,10 @@ See [Deployment](pages/deployment.md) for detailed instructions to deploy firmwa
 ## Coverage
 
 See the code coverage [here](coverage/index.html).
+
+## Waveforms
+
+See [Waveforms](pages/waveforms.md) to view representative waveforms captured on target hardware.
 
 ## License
 

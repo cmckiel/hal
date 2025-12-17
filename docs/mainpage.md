@@ -64,7 +64,7 @@ Build for target hardware:
 
 Target firmware should be visible in `build/embedded-debug/` as `.elf` and `.bin` files.
 
-### Example Application
+### Example Application {#example-application}
 ```C
 #include "uart.h"
 #include "gpio.h"

@@ -1,4 +1,4 @@
-# Firmware Deployment
+# Firmware Deployment {#deployment}
 
 This page documents the minimal steps required to flash a pre-built firmware image to an STM32F4 target and view its serial output. Instructions assume Linux or macOS. Windows users should SSH into a Linux machine connected to the hardware.
 

@@ -33,19 +33,45 @@ var NAVTREE =
       [ "Prerequisites", "index.html#autotoc_md4", null ],
       [ "Clone", "index.html#autotoc_md5", null ],
       [ "Build", "index.html#autotoc_md6", null ],
-      [ "Example Application", "index.html#autotoc_md7", null ]
+      [ "Example Application", "index.html#example-application", null ]
     ] ],
+    [ "Project Integration", "index.html#autotoc_md7", null ],
     [ "Deployment", "index.html#autotoc_md8", null ],
     [ "Coverage", "index.html#autotoc_md9", null ],
-    [ "License", "index.html#autotoc_md10", null ],
-    [ "Firmware Deployment", "md____w_hal_hal_docs_pages_deployment.html", [
-      [ "Prerequisites", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md12", null ],
-      [ "Verify Device Detection", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md13", null ],
-      [ "Flash the Firmware", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md14", null ],
-      [ "View Serial Output", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md15", null ],
-      [ "Windows Notes", "md____w_hal_hal_docs_pages_deployment.html#autotoc_md16", null ]
+    [ "Waveforms", "index.html#autotoc_md10", null ],
+    [ "License", "index.html#autotoc_md11", null ],
+    [ "Firmware Deployment", "deployment.html", [
+      [ "Prerequisites", "deployment.html#autotoc_md12", null ],
+      [ "Verify Device Detection", "deployment.html#autotoc_md13", null ],
+      [ "Flash the Firmware", "deployment.html#autotoc_md14", null ],
+      [ "View Serial Output", "deployment.html#autotoc_md15", null ],
+      [ "Windows Notes", "deployment.html#autotoc_md16", null ]
     ] ],
     [ "LICENSE", "md____w_hal_hal_docs_pages_license.html", null ],
+    [ "Pinout", "md____w_hal_hal_docs_pages_pinout.html", null ],
+    [ "Project Integration", "md____w_hal_hal_docs_pages_project_integration.html", [
+      [ "Create a CMake Project", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md21", [
+        [ "MIT License", "md____w_hal_hal_docs_pages_license.html#autotoc_md18", null ],
+        [ "Create a Root-Level CMakeLists.txt", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md22", null ],
+        [ "Create CMakePresets.json", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md23", null ],
+        [ "Create a CMake Toolchain File", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md24", null ]
+      ] ],
+      [ "Download Release Artifacts", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md25", null ],
+      [ "Place Linker Script in Project Directory", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md26", null ],
+      [ "Create Application Main", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md27", null ],
+      [ "HAL Build Environment", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md28", [
+        [ "Pull Down Build Environment", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md29", null ],
+        [ "Run the Image", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md30", null ]
+      ] ],
+      [ "Build the Application", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md31", null ]
+    ] ],
+    [ "Waveforms", "md____w_hal_hal_docs_pages_waveforms.html", [
+      [ "Representative Waveforms Captured on Target Hardware", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md33", [
+        [ "UART", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md34", null ],
+        [ "I2C", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md35", null ],
+        [ "PWM", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md36", null ]
+      ] ]
+    ] ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -70,7 +96,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"stm32f4__uart__util_8h.html#a406b1a312c9bd51e463b4bf9e6066f2c"
+"stm32f4__uart2_8c.html#a9118932febe81b79da772f65b3dd97c1"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

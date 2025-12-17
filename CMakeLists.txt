@@ -202,7 +202,7 @@ if(EMBEDDED_BUILD)
 
   # Set output file name convention
   set(CPACK_PACKAGE_FILE_NAME
-    "Hal-${PROJECT_VERSION}-stm32f4-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE}"
+    "Hal-v${PROJECT_VERSION}-stm32f4-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE}"
   )
 
   include(CPack)

@@ -108,7 +108,7 @@ static inline void set_pwm_mode1(void)
 // Public Interface
 /*********************************************************************************************/
 
-hal_status_t hal_pwm_init(uint32_t pwm_frequency_hz)
+hal_status_t hal_pwm_init(hal_pwm_channel_t channel, uint32_t pwm_frequency_hz)
 {
     // Safe default values for psc and arr.
     uint16_t psc = 0;
@@ -147,7 +147,7 @@ hal_status_t hal_pwm_init(uint32_t pwm_frequency_hz)
     return HAL_STATUS_OK;
 }
 
-void hal_pwm_enable(bool enable)
+void hal_pwm_enable(hal_pwm_channel_t channel, bool enable)
 {
     if (enable)
     {
@@ -165,7 +165,7 @@ void hal_pwm_enable(bool enable)
     }
 }
 
-void hal_pwm_set_duty_cycle(uint8_t percent)
+void hal_pwm_set_duty_cycle(hal_pwm_channel_t channel, uint8_t percent)
 {
     // Always set pwm low if called with 0%, regardless of pwm_state_enabled,
     // for safety.
@@ -213,7 +213,7 @@ void hal_pwm_set_duty_cycle(uint8_t percent)
     }
 }
 
-void hal_pwm_set_frequency(uint32_t pwm_frequency_hz)
+void hal_pwm_set_frequency(hal_pwm_channel_t channel, uint32_t pwm_frequency_hz)
 {
     if (pwm_state_enabled)
     {

@@ -39,27 +39,27 @@ typedef enum {
  *
  * @return HAL_STATUS_OK on success.
  */
-hal_status_t hal_pwm_init(uint32_t pwm_frequency_hz);
+hal_status_t hal_pwm_init(hal_pwm_channel_t channel, uint32_t pwm_frequency_hz);
 
 /**
  * @brief enable or disable the pwm signal. If disabled, nothing will show up on pins.
  *
  * @param enable true to enable the driver, false to disable.
  */
-void hal_pwm_enable(bool enable);
+void hal_pwm_enable(hal_pwm_channel_t channel, bool enable);
 
 /**
  * @brief Sets the duty cycle 0% - 100% for the PWM signal.
  *
  * @param percent Takes the values 0 through 100 as integers to express the desired DC.
  */
-void hal_pwm_set_duty_cycle(uint8_t percent);
+void hal_pwm_set_duty_cycle(hal_pwm_channel_t channel, uint8_t percent);
 
 /**
  * @brief Sets the PWM signal frequency to a new value after the driver has already been initialized.
  *
  * @param pwm_frequency_hz The frequency of the PWM signal you would like generated in Hz. eg for 20kHz -> 20,000.
  */
-void hal_pwm_set_frequency(uint32_t pwm_frequency_hz);
+void hal_pwm_set_frequency(hal_pwm_channel_t channel, uint32_t pwm_frequency_hz);
 
 #endif /* _PWM_H */

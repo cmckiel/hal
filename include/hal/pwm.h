@@ -21,6 +21,18 @@
 #include "hal_types.h"
 
 /**
+ * @brief Channel select type
+ */
+typedef enum {
+  _HAL_PWM_CH_MIN,
+  HAL_PWM_CH1 = _HAL_PWM_CH_MIN,
+  HAL_PWM_CH2,
+  HAL_PWM_CH3,
+  HAL_PWM_CH4,
+  _HAL_PWM_CH_MAX
+} hal_pwm_channel_t;
+
+/**
  * @brief Initializes all the hardware (GPIO, TIMER, and CHANNEL) to deliver a PWM signal.
  *
  * @param pwm_frequency_hz The frequency of the PWM signal you would like generated in Hz. eg for 20kHz -> 20,000.

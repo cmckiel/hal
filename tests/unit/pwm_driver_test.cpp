@@ -354,23 +354,33 @@ TEST_F(PWMDriverTest, SetDutyCycleHandlesAboveMaxDutyCycle)
 
 TEST_F(PWMDriverTest, ChannelDutyCyclesAreIndependent)
 {
-    // Arrange: bring up two channels.
+    // Arrange: bring up all four channels.
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_timer_init(20000));
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH1));
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH2));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH3));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH4));
     hal_pwm_enable(HAL_PWM_CH1, true);
     hal_pwm_enable(HAL_PWM_CH2, true);
+    hal_pwm_enable(HAL_PWM_CH3, true);
+    hal_pwm_enable(HAL_PWM_CH4, true);
 
-    // Act: set different duty cycles on each channel.
-    hal_pwm_set_duty_cycle(HAL_PWM_CH1, 30);
-    hal_pwm_set_duty_cycle(HAL_PWM_CH2, 70);
+    // Act: set a different duty cycle on each channel.
+    hal_pwm_set_duty_cycle(HAL_PWM_CH1, 25);
+    hal_pwm_set_duty_cycle(HAL_PWM_CH2, 50);
+    hal_pwm_set_duty_cycle(HAL_PWM_CH3, 65);
+    hal_pwm_set_duty_cycle(HAL_PWM_CH4, 80);
 
-    // Assert: each CCR reflects its own duty cycle.
+    // Assert: each CCR reflects its own duty cycle independently.
     double ch1_ratio = (double)Sim_TIM1.CCR1 / (double)Sim_TIM1.ARR;
     double ch2_ratio = (double)Sim_TIM1.CCR2 / (double)Sim_TIM1.ARR;
+    double ch3_ratio = (double)Sim_TIM1.CCR3 / (double)Sim_TIM1.ARR;
+    double ch4_ratio = (double)Sim_TIM1.CCR4 / (double)Sim_TIM1.ARR;
 
-    ASSERT_TRUE(0.29 < ch1_ratio && ch1_ratio < 0.31);
-    ASSERT_TRUE(0.69 < ch2_ratio && ch2_ratio < 0.71);
+    ASSERT_TRUE(0.24 < ch1_ratio && ch1_ratio < 0.26);
+    ASSERT_TRUE(0.49 < ch2_ratio && ch2_ratio < 0.51);
+    ASSERT_TRUE(0.64 < ch3_ratio && ch3_ratio < 0.66);
+    ASSERT_TRUE(0.79 < ch4_ratio && ch4_ratio < 0.81);
 }
 
 /***********************************************************************/
@@ -471,25 +481,36 @@ TEST_F(PWMDriverTest, ReenablingDriverResumesPreviousDutyCycle)
 
 TEST_F(PWMDriverTest, ChannelEnableIsIndependent)
 {
-    // Arrange: bring up two channels at 50% each.
+    // Arrange: bring up all four channels at 50% each.
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_timer_init(20000));
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH1));
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH2));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH3));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH4));
     hal_pwm_enable(HAL_PWM_CH1, true);
     hal_pwm_enable(HAL_PWM_CH2, true);
+    hal_pwm_enable(HAL_PWM_CH3, true);
+    hal_pwm_enable(HAL_PWM_CH4, true);
     hal_pwm_set_duty_cycle(HAL_PWM_CH1, 50);
     hal_pwm_set_duty_cycle(HAL_PWM_CH2, 50);
+    hal_pwm_set_duty_cycle(HAL_PWM_CH3, 50);
+    hal_pwm_set_duty_cycle(HAL_PWM_CH4, 50);
 
-    // Confirm both channels are in PWM Mode 1.
+    // Confirm all four channels are in PWM Mode 1.
     ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b110u);
     ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC2M) >> TIM_CCMR1_OC2M_Pos, 0b110u);
+    ASSERT_EQ((Sim_TIM1.CCMR2 & TIM_CCMR2_OC3M) >> TIM_CCMR2_OC3M_Pos, 0b110u);
+    ASSERT_EQ((Sim_TIM1.CCMR2 & TIM_CCMR2_OC4M) >> TIM_CCMR2_OC4M_Pos, 0b110u);
 
-    // Act: Disable only CH1.
+    // Act: Disable CH1 and CH3, leave CH2 and CH4 running.
     hal_pwm_enable(HAL_PWM_CH1, false);
+    hal_pwm_enable(HAL_PWM_CH3, false);
 
-    // Assert: CH1 is forced low, CH2 is still in PWM Mode 1.
+    // Assert: CH1 and CH3 are forced low; CH2 and CH4 are still in PWM Mode 1.
     ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b100u);
     ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC2M) >> TIM_CCMR1_OC2M_Pos, 0b110u);
+    ASSERT_EQ((Sim_TIM1.CCMR2 & TIM_CCMR2_OC3M) >> TIM_CCMR2_OC3M_Pos, 0b100u);
+    ASSERT_EQ((Sim_TIM1.CCMR2 & TIM_CCMR2_OC4M) >> TIM_CCMR2_OC4M_Pos, 0b110u);
 }
 
 /***********************************************************************/
@@ -539,24 +560,85 @@ TEST_F(PWMDriverTest, SetFrequencyRestoresPreviousDutyCycle)
 
 TEST_F(PWMDriverTest, SetFrequencyRescalesAllEnabledChannels)
 {
-    // Arrange: bring up two channels at different duty cycles.
+    // Arrange: bring up all four channels at different duty cycles.
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_timer_init(200));
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH1));
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH2));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH3));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH4));
     hal_pwm_enable(HAL_PWM_CH1, true);
     hal_pwm_enable(HAL_PWM_CH2, true);
+    hal_pwm_enable(HAL_PWM_CH3, true);
+    hal_pwm_enable(HAL_PWM_CH4, true);
     hal_pwm_set_duty_cycle(HAL_PWM_CH1, 30);
     hal_pwm_set_duty_cycle(HAL_PWM_CH2, 60);
+    hal_pwm_set_duty_cycle(HAL_PWM_CH3, 45);
+    hal_pwm_set_duty_cycle(HAL_PWM_CH4, 75);
 
     // Act: Change the base frequency.
     hal_pwm_set_frequency(20000);
 
-    // Assert: Both channels preserved their duty-cycle ratios.
+    // Assert: All four channels preserved their duty-cycle ratios.
     double ch1_ratio = (double)Sim_TIM1.CCR1 / (double)Sim_TIM1.ARR;
     double ch2_ratio = (double)Sim_TIM1.CCR2 / (double)Sim_TIM1.ARR;
+    double ch3_ratio = (double)Sim_TIM1.CCR3 / (double)Sim_TIM1.ARR;
+    double ch4_ratio = (double)Sim_TIM1.CCR4 / (double)Sim_TIM1.ARR;
 
     ASSERT_TRUE(0.29 < ch1_ratio && ch1_ratio < 0.31);
     ASSERT_TRUE(0.59 < ch2_ratio && ch2_ratio < 0.61);
+    ASSERT_TRUE(0.44 < ch3_ratio && ch3_ratio < 0.46);
+    ASSERT_TRUE(0.74 < ch4_ratio && ch4_ratio < 0.76);
+}
+
+/***********************************************************************/
+// Out-of-bounds channel tests
+/***********************************************************************/
+
+TEST_F(PWMDriverTest, ChannelInitRejectsOutOfBoundsChannel)
+{
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_timer_init(20000));
+
+    ASSERT_EQ(HAL_STATUS_ERROR, hal_pwm_channel_init(_HAL_PWM_CH_MAX));
+}
+
+TEST_F(PWMDriverTest, EnableIgnoresOutOfBoundsChannel)
+{
+    // Arrange: bring up CH1 at a known state.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_timer_init(20000));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH1));
+
+    uint32_t ccmr1_before = Sim_TIM1.CCMR1;
+    uint32_t ccmr2_before = Sim_TIM1.CCMR2;
+    uint32_t ccer_before  = Sim_TIM1.CCER;
+
+    // Act: enable with an invalid channel — should be a no-op.
+    hal_pwm_enable((hal_pwm_channel_t)_HAL_PWM_CH_MAX, true);
+
+    // Assert: no registers were touched.
+    ASSERT_EQ(Sim_TIM1.CCMR1, ccmr1_before);
+    ASSERT_EQ(Sim_TIM1.CCMR2, ccmr2_before);
+    ASSERT_EQ(Sim_TIM1.CCER,  ccer_before);
+}
+
+TEST_F(PWMDriverTest, SetDutyCycleIgnoresOutOfBoundsChannel)
+{
+    // Arrange: bring up CH1 at a known state.
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_timer_init(20000));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH1));
+    hal_pwm_enable(HAL_PWM_CH1, true);
+    hal_pwm_set_duty_cycle(HAL_PWM_CH1, 50);
+
+    uint32_t ccmr1_before = Sim_TIM1.CCMR1;
+    uint32_t ccmr2_before = Sim_TIM1.CCMR2;
+    uint32_t ccr1_before  = Sim_TIM1.CCR1;
+
+    // Act: set duty cycle with an invalid channel — should be a no-op.
+    hal_pwm_set_duty_cycle((hal_pwm_channel_t)_HAL_PWM_CH_MAX, 75);
+
+    // Assert: no registers were touched.
+    ASSERT_EQ(Sim_TIM1.CCMR1, ccmr1_before);
+    ASSERT_EQ(Sim_TIM1.CCMR2, ccmr2_before);
+    ASSERT_EQ(Sim_TIM1.CCR1,  ccr1_before);
 }
 
 /***********************************************************************/

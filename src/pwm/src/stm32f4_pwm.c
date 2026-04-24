@@ -222,6 +222,11 @@ hal_status_t hal_pwm_channel_init(hal_pwm_channel_t channel)
 
 void hal_pwm_enable(hal_pwm_channel_t channel, bool enable)
 {
+    if (!ENUM_IN_RANGE(channel, _HAL_PWM_CH_MIN, _HAL_PWM_CH_MAX))
+    {
+        return;
+    }
+
     int idx = (int)channel;
     if (enable)
     {
@@ -241,6 +246,11 @@ void hal_pwm_enable(hal_pwm_channel_t channel, bool enable)
 
 void hal_pwm_set_duty_cycle(hal_pwm_channel_t channel, uint8_t percent)
 {
+    if (!ENUM_IN_RANGE(channel, _HAL_PWM_CH_MIN, _HAL_PWM_CH_MAX))
+    {
+        return;
+    }
+
     // Always set low if called with 0%, regardless of pwm_channel_enabled, for safety.
     if (percent == 0)
     {

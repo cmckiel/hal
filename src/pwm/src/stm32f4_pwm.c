@@ -220,11 +220,11 @@ hal_status_t hal_pwm_channel_init(hal_pwm_channel_t channel)
     return HAL_STATUS_OK;
 }
 
-void hal_pwm_enable(hal_pwm_channel_t channel, bool enable)
+hal_status_t hal_pwm_enable(hal_pwm_channel_t channel, bool enable)
 {
     if (!ENUM_IN_RANGE(channel, _HAL_PWM_CH_MIN, _HAL_PWM_CH_MAX))
     {
-        return;
+        return HAL_STATUS_ERROR;
     }
 
     int idx = (int)channel;
@@ -242,13 +242,15 @@ void hal_pwm_enable(hal_pwm_channel_t channel, bool enable)
         pwm_channel_enabled[idx] = false;
         set_forced_inactive(channel);
     }
+
+    return HAL_STATUS_OK;
 }
 
-void hal_pwm_set_duty_cycle(hal_pwm_channel_t channel, uint8_t percent)
+hal_status_t hal_pwm_set_duty_cycle(hal_pwm_channel_t channel, uint8_t percent)
 {
     if (!ENUM_IN_RANGE(channel, _HAL_PWM_CH_MIN, _HAL_PWM_CH_MAX))
     {
-        return;
+        return HAL_STATUS_ERROR;
     }
 
     // Always set low if called with 0%, regardless of pwm_channel_enabled, for safety.
@@ -256,7 +258,7 @@ void hal_pwm_set_duty_cycle(hal_pwm_channel_t channel, uint8_t percent)
     {
         set_forced_inactive(channel);
         tim1_ch_set_ccr(channel, 0);
-        return;
+        return HAL_STATUS_OK;
     }
 
     if (pwm_channel_enabled[(int)channel])
@@ -264,7 +266,7 @@ void hal_pwm_set_duty_cycle(hal_pwm_channel_t channel, uint8_t percent)
         if (percent >= 100)
         {
             set_forced_active(channel);
-            return;
+            return HAL_STATUS_OK;
         }
 
         // percent is something between 1%-99%.
@@ -292,6 +294,8 @@ void hal_pwm_set_duty_cycle(hal_pwm_channel_t channel, uint8_t percent)
         // With OCxPE=1, CCR update latches on next UG/overflow. Force UG to apply now:
         tim1_force_update();
     }
+
+    return HAL_STATUS_OK;
 }
 
 void hal_pwm_set_frequency(uint32_t pwm_frequency_hz)

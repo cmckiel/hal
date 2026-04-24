@@ -601,7 +601,7 @@ TEST_F(PWMDriverTest, ChannelInitRejectsOutOfBoundsChannel)
     ASSERT_EQ(HAL_STATUS_ERROR, hal_pwm_channel_init(_HAL_PWM_CH_MAX));
 }
 
-TEST_F(PWMDriverTest, EnableIgnoresOutOfBoundsChannel)
+TEST_F(PWMDriverTest, EnableReturnsErrorForOutOfBoundsChannel)
 {
     // Arrange: bring up CH1 at a known state.
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_timer_init(20000));
@@ -611,8 +611,8 @@ TEST_F(PWMDriverTest, EnableIgnoresOutOfBoundsChannel)
     uint32_t ccmr2_before = Sim_TIM1.CCMR2;
     uint32_t ccer_before  = Sim_TIM1.CCER;
 
-    // Act: enable with an invalid channel — should be a no-op.
-    hal_pwm_enable((hal_pwm_channel_t)_HAL_PWM_CH_MAX, true);
+    // Act: enable with an invalid channel.
+    ASSERT_EQ(HAL_STATUS_ERROR, hal_pwm_enable((hal_pwm_channel_t)_HAL_PWM_CH_MAX, true));
 
     // Assert: no registers were touched.
     ASSERT_EQ(Sim_TIM1.CCMR1, ccmr1_before);
@@ -620,25 +620,45 @@ TEST_F(PWMDriverTest, EnableIgnoresOutOfBoundsChannel)
     ASSERT_EQ(Sim_TIM1.CCER,  ccer_before);
 }
 
-TEST_F(PWMDriverTest, SetDutyCycleIgnoresOutOfBoundsChannel)
+TEST_F(PWMDriverTest, EnableReturnsOkForValidChannel)
+{
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_timer_init(20000));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH1));
+
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_enable(HAL_PWM_CH1, true));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_enable(HAL_PWM_CH1, false));
+}
+
+TEST_F(PWMDriverTest, SetDutyCycleReturnsErrorForOutOfBoundsChannel)
 {
     // Arrange: bring up CH1 at a known state.
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_timer_init(20000));
     ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH1));
-    hal_pwm_enable(HAL_PWM_CH1, true);
-    hal_pwm_set_duty_cycle(HAL_PWM_CH1, 50);
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_enable(HAL_PWM_CH1, true));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_set_duty_cycle(HAL_PWM_CH1, 50));
 
     uint32_t ccmr1_before = Sim_TIM1.CCMR1;
     uint32_t ccmr2_before = Sim_TIM1.CCMR2;
     uint32_t ccr1_before  = Sim_TIM1.CCR1;
 
-    // Act: set duty cycle with an invalid channel — should be a no-op.
-    hal_pwm_set_duty_cycle((hal_pwm_channel_t)_HAL_PWM_CH_MAX, 75);
+    // Act: set duty cycle with an invalid channel.
+    ASSERT_EQ(HAL_STATUS_ERROR, hal_pwm_set_duty_cycle((hal_pwm_channel_t)_HAL_PWM_CH_MAX, 75));
 
     // Assert: no registers were touched.
     ASSERT_EQ(Sim_TIM1.CCMR1, ccmr1_before);
     ASSERT_EQ(Sim_TIM1.CCMR2, ccmr2_before);
     ASSERT_EQ(Sim_TIM1.CCR1,  ccr1_before);
+}
+
+TEST_F(PWMDriverTest, SetDutyCycleReturnsOkForValidChannel)
+{
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_timer_init(20000));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH1));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_enable(HAL_PWM_CH1, true));
+
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_set_duty_cycle(HAL_PWM_CH1, 0));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_set_duty_cycle(HAL_PWM_CH1, 50));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_set_duty_cycle(HAL_PWM_CH1, 100));
 }
 
 /***********************************************************************/

@@ -59,16 +59,20 @@ hal_status_t hal_pwm_channel_init(hal_pwm_channel_t channel);
  *
  * @param channel The channel to enable or disable.
  * @param enable  true to enable, false to disable.
+ *
+ * @return HAL_STATUS_OK on success, HAL_STATUS_ERROR if channel is out of range.
  */
-void hal_pwm_enable(hal_pwm_channel_t channel, bool enable);
+hal_status_t hal_pwm_enable(hal_pwm_channel_t channel, bool enable);
 
 /**
  * @brief Sets the duty cycle 0% - 100% for one channel. The channel must be enabled first.
  *
  * @param channel The target channel.
  * @param percent 0 through 100.
+ *
+ * @return HAL_STATUS_OK on success, HAL_STATUS_ERROR if channel is out of range.
  */
-void hal_pwm_set_duty_cycle(hal_pwm_channel_t channel, uint8_t percent);
+hal_status_t hal_pwm_set_duty_cycle(hal_pwm_channel_t channel, uint8_t percent);
 
 /**
  * @brief Changes the base PWM frequency shared by all channels. The duty-cycle ratio of every

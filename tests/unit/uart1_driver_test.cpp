@@ -16,7 +16,7 @@ protected:
     void SetUp() override {
         // Clear peripheral state before each test
         Sim_USART1 = {0};
-        Sim_GPIOA = {0};
+        Sim_GPIOB = {0};
         Sim_RCC = {0};
     }
 };
@@ -28,28 +28,28 @@ TEST_F(Uart1DriverTest, Uart1InitializesAllRegistersCorrectly)
 
     // ========== GPIO Configuration Verification ==========
 
-    // Verify GPIOA clock is enabled
-    ASSERT_TRUE(Sim_RCC.AHB1ENR & RCC_AHB1ENR_GPIOAEN);
+    // Verify GPIOB clock is enabled
+    ASSERT_TRUE(Sim_RCC.AHB1ENR & RCC_AHB1ENR_GPIOBEN);
 
-    // Verify PA9 (UART1 TX) is configured as alternate function
-    // MODER bits [19:18] should be 10 (alternate function mode)
-    ASSERT_FALSE(Sim_GPIOA.MODER & BIT_18);  // Bit 18 should be 0
-    ASSERT_TRUE(Sim_GPIOA.MODER & BIT_19);   // Bit 19 should be 1
+    // Verify PB6 (UART1 TX) is configured as alternate function
+    // MODER bits [13:12] should be 10 (alternate function mode)
+    ASSERT_FALSE(Sim_GPIOB.MODER & BIT_12);  // Bit 12 should be 0
+    ASSERT_TRUE(Sim_GPIOB.MODER & BIT_13);   // Bit 13 should be 1
 
-    // Verify PA10 (UART1 RX) is configured as alternate function
-    // MODER bits [21:20] should be 10 (alternate function mode)
-    ASSERT_FALSE(Sim_GPIOA.MODER & BIT_20);  // Bit 20 should be 0
-    ASSERT_TRUE(Sim_GPIOA.MODER & BIT_21);   // Bit 21 should be 1
+    // Verify PB7 (UART1 RX) is configured as alternate function
+    // MODER bits [15:14] should be 10 (alternate function mode)
+    ASSERT_FALSE(Sim_GPIOB.MODER & BIT_14);  // Bit 14 should be 0
+    ASSERT_TRUE(Sim_GPIOB.MODER & BIT_15);   // Bit 15 should be 1
 
-    // Verify PA9 alternate function is set to AF07 (UART)
-    // AFR[1] bits [7:4] should be 0111 (AF07)
-    uint32_t pa9_af = (Sim_GPIOA.AFR[1] >> (PIN_1 * AF_SHIFT_WIDTH)) & 0xF;
-    ASSERT_EQ(pa9_af, 0x7);  // AF07
+    // Verify PB6 alternate function is set to AF07 (UART)
+    // AFR[0] bits [27:24] should be 0111 (AF07)
+    uint32_t pb6_af = (Sim_GPIOB.AFR[0] >> (PIN_6 * AF_SHIFT_WIDTH)) & 0xF;
+    ASSERT_EQ(pb6_af, 0x7);  // AF07
 
-    // Verify PA10 alternate function is set to AF07 (UART)
-    // AFR[1] bits [11:8] should be 0111 (AF07)
-    uint32_t pa10_af = (Sim_GPIOA.AFR[1] >> (PIN_2 * AF_SHIFT_WIDTH)) & 0xF;
-    ASSERT_EQ(pa10_af, 0x7);  // AF07
+    // Verify PB7 alternate function is set to AF07 (UART)
+    // AFR[0] bits [31:28] should be 0111 (AF07)
+    uint32_t pb7_af = (Sim_GPIOB.AFR[0] >> (PIN_7 * AF_SHIFT_WIDTH)) & 0xF;
+    ASSERT_EQ(pb7_af, 0x7);  // AF07
 
     // ========== UART Configuration Verification ==========
 

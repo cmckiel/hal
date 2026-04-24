@@ -4,8 +4,8 @@ The HAL currently caters to the stm32f446re specific dev board. This will be fix
 
 | Pin  | Function |
 | ---- | -------- |
-| PA9  | UART1 TX |
-| PA10 | UART1 RX |
+| PB6  | UART1 TX |
+| PB7  | UART1 RX |
 | PA2  | UART2 TX |
 | PA3  | UART2 RX |
 | PB8  | I2C1 SCL |

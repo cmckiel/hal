@@ -19,7 +19,7 @@
  * service the transactions that are submitted to the I2C driver. Otherwise, they remain in
  * the queue untouched.
  *
- * Copyright (c) 2025 Cory McKiel.
+ * Copyright (c) 2025 - 2026 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.
  */
 #ifndef _I2C_H

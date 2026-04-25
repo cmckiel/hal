@@ -5,7 +5,7 @@
  *
  * Initializes the FPU to allow for floating-point calculations.
  *
- * Copyright (c) 2025 Cory McKiel.
+ * Copyright (c) 2025 - 2026 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.
  */
 #include "hal_system.h"

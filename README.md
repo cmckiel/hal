@@ -8,12 +8,12 @@ Designed for flight-control-class embedded systems and developed with modern too
 ### Drivers
 - **UART** - Two channels, UART1 and UART2.
 - **I2C** - One bus, I2C1.
-- **PWM** - One channel, TIM1 (Advanced Timer).
+- **PWM** - Four channels, TIM1 (Advanced Timer).
 - **Timer** - delay_ms(), Systick.
 - **GPIO** - Toggle onboard LED, GPIOA.
 
 ### Test and Tooling
-- **Unit Tests** - 134 unit tests with 94% code coverage.
+- **Unit Tests** - 152 unit tests with 94% code coverage.
 - **Integration Test** - Hardware-in-the-Loop (HIL) integration test.
 - **Static Analysis** - Two static analyzers, clang-tidy and cppcheck.
 - **Containerized Build Environment** - Reproducible builds and platform independent development.

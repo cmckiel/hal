@@ -9,7 +9,7 @@
  * @warning Undefined behavior will occur if the transaction added to queue was
  * located on a function's call stack that then returns.
  *
- * Copyright (c) 2025 Cory McKiel.
+ * Copyright (c) 2025 - 2026 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.
  */
 #include "i2c.h"

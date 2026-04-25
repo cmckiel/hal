@@ -2,7 +2,7 @@
  * @file hal_metadata.h
  * @brief Retrieve metadata baked into the HAL during build time.
  *
- * Copyright (c) 2025 Cory McKiel.
+ * Copyright (c) 2025 - 2026 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.
  */
 #ifndef _HAL_METADATA_H

@@ -1,5 +1,15 @@
 var NAVTREEINDEX1 =
 {
+"stm32f4__uart1_8h.html#a45181aa90329435c3c42886c0c14a16c":[14,0,1,7,0,0,0],
+"stm32f4__uart1_8h.html#a701078568c3504cdc4bf89077bcb05b4":[14,0,1,7,0,0,3],
+"stm32f4__uart1_8h.html#aa718dc797c8077833c7235f3fb1c6ed0":[14,0,1,7,0,0,2],
+"stm32f4__uart1_8h.html#ade06014f39deb7f40e539e5f57da1f74":[14,0,1,7,0,0,1],
+"stm32f4__uart1_8h_source.html":[14,0,1,7,0,0],
+"stm32f4__uart2_8c.html":[14,0,1,7,1,2],
+"stm32f4__uart2_8c.html#a0ca6fd0e6f77921dd1123539857ba0a8":[14,0,1,7,1,2,7],
+"stm32f4__uart2_8c.html#a2c7ed0283bd6f2f9d791860d6254ef4f":[14,0,1,7,1,2,0],
+"stm32f4__uart2_8c.html#a4344f1260f7acd4c9b5461609a89826d":[14,0,1,7,1,2,6],
+"stm32f4__uart2_8c.html#a507dd1a0457f932c9c8e832ebd734d2b":[14,0,1,7,1,2,4],
 "stm32f4__uart2_8c.html#a9118932febe81b79da772f65b3dd97c1":[14,0,1,7,1,2,5],
 "stm32f4__uart2_8c.html#ab0c84fe16aec96bd98f5b9935669ead3":[14,0,1,7,1,2,2],
 "stm32f4__uart2_8c.html#ac45833b1f6b4c8350423f95bfd661ced":[14,0,1,7,1,2,1],

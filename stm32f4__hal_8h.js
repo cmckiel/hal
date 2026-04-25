@@ -3,6 +3,7 @@ var stm32f4__hal_8h =
     [ "AF4_MASK", "stm32f4__hal_8h.html#a6211fae7da7ccf9b82d6b12b35e58fb8", null ],
     [ "AF7_MASK", "stm32f4__hal_8h.html#a1143a76e7883b8c62533c7e135a6ea3b", null ],
     [ "AF_SHIFT_WIDTH", "stm32f4__hal_8h.html#a0f0a365299b969bfab4a6a7cdf0fc266", null ],
+    [ "ARRAY_SIZE", "stm32f4__hal_8h.html#a6242a25f9d996f0cc4f4cdb911218b75", null ],
     [ "BIT_0", "stm32f4__hal_8h.html#add6d2693f5d356b091088437148f939b", null ],
     [ "BIT_1", "stm32f4__hal_8h.html#aec9fa7211b7c9a686f2cd522cad7989d", null ],
     [ "BIT_10", "stm32f4__hal_8h.html#a68c53eefb39121d3abb4967a2ac5c683", null ],

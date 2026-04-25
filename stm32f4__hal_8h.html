@@ -116,6 +116,9 @@ Macros</h2></td></tr>
 <tr class="memitem:a15cfc2fd5db41848d2514c97a17e3d45"><td class="memItemLeft" align="right" valign="top"><a id="a15cfc2fd5db41848d2514c97a17e3d45"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>CRITICAL_SECTION_EXIT</b>()&#160;&#160;&#160;__enable_irq()</td></tr>
 <tr class="separator:a15cfc2fd5db41848d2514c97a17e3d45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6242a25f9d996f0cc4f4cdb911218b75"><td class="memItemLeft" align="right" valign="top"><a id="a6242a25f9d996f0cc4f4cdb911218b75"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>ARRAY_SIZE</b>(x)&#160;&#160;&#160;(sizeof(x) / sizeof((x)[0]))</td></tr>
+<tr class="separator:a6242a25f9d996f0cc4f4cdb911218b75"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21b9fa8c87b8a8bae23d49dcd726b58a"><td class="memItemLeft" align="right" valign="top"><a id="a21b9fa8c87b8a8bae23d49dcd726b58a"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>ENUM_IN_RANGE</b>(x,  lowerbound_inclusive,  upperbound_exclusive)&#160;&#160;&#160;((lowerbound_inclusive) &lt;= (x) &amp;&amp; (x) &lt; (upperbound_exclusive))</td></tr>
 <tr class="separator:a21b9fa8c87b8a8bae23d49dcd726b58a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -275,7 +278,7 @@ Macros</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Common defines to the STM32F4 implementation of HAL. </p>
-<p>Copyright (c) 2025 Cory McKiel. Licensed under the MIT License. See LICENSE file in the project root. </p>
+<p>Copyright (c) 2025 - 2026 Cory McKiel. Licensed under the MIT License. See LICENSE file in the project root. </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

@@ -8,6 +8,8 @@
 #include "pwm.h"
 #include "stm32f4_hal.h"
 
+#include <assert.h>
+
 #ifdef DESKTOP_BUILD
 #include "registers.h"
 #include "nvic.h"
@@ -30,6 +32,7 @@
 
 // Per-channel enabled state. Indexed by hal_pwm_channel_t (CH1=0 ... CH4=3).
 static bool pwm_channel_enabled[4] = { false, false, false, false };
+static_assert(ARRAY_SIZE(pwm_channel_enabled) == _HAL_PWM_CH_MAX, "The size of channels enabled does not match number of channels");
 
 /*********************************************************************************************/
 // Forward declarations
@@ -306,14 +309,14 @@ void hal_pwm_set_frequency(uint32_t pwm_frequency_hz)
 
     // Capture each enabled channel's duty-cycle ratio before ARR changes.
     float ratios[4]   = { 0.0f, 0.0f, 0.0f, 0.0f };
-    bool  was_pwm1[4] = { false, false, false, false };
+    bool  was_pwm_mode[4] = { false, false, false, false };
 
     for (int i = 0; i < 4; i++)
     {
         hal_pwm_channel_t ch = (hal_pwm_channel_t)i;
         if (pwm_channel_enabled[i] && tim1_ch_is_pwm_mode1(ch))
         {
-            was_pwm1[i] = true;
+            was_pwm_mode[i] = true;
             ratios[i]   = (float)tim1_ch_get_ccr(ch) / (float)(TIM1->ARR + 1u);
         }
     }
@@ -323,7 +326,7 @@ void hal_pwm_set_frequency(uint32_t pwm_frequency_hz)
     // Rescale CCR for any channel that was in PWM Mode 1 to preserve its duty-cycle ratio.
     for (int i = 0; i < 4; i++)
     {
-        if (!pwm_channel_enabled[i] || !was_pwm1[i])
+        if (!pwm_channel_enabled[i] || !was_pwm_mode[i])
         {
             continue;
         }

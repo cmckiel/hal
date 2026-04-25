@@ -16,6 +16,8 @@
 #define CRITICAL_SECTION_EXIT()  __enable_irq()
 #endif
 
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
 #define ENUM_IN_RANGE(x, lowerbound_inclusive, upperbound_exclusive) \
 ((lowerbound_inclusive) <= (x) && (x) < (upperbound_exclusive))
 

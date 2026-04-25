@@ -372,10 +372,10 @@ TEST_F(PWMDriverTest, ChannelDutyCyclesAreIndependent)
     hal_pwm_set_duty_cycle(HAL_PWM_CH4, 80);
 
     // Assert: each CCR reflects its own duty cycle independently.
-    double ch1_ratio = (double)Sim_TIM1.CCR1 / (double)Sim_TIM1.ARR;
-    double ch2_ratio = (double)Sim_TIM1.CCR2 / (double)Sim_TIM1.ARR;
-    double ch3_ratio = (double)Sim_TIM1.CCR3 / (double)Sim_TIM1.ARR;
-    double ch4_ratio = (double)Sim_TIM1.CCR4 / (double)Sim_TIM1.ARR;
+    double ch1_ratio = (double)Sim_TIM1.CCR1 / ((double)Sim_TIM1.ARR + 1u);
+    double ch2_ratio = (double)Sim_TIM1.CCR2 / ((double)Sim_TIM1.ARR + 1u);
+    double ch3_ratio = (double)Sim_TIM1.CCR3 / ((double)Sim_TIM1.ARR + 1u);
+    double ch4_ratio = (double)Sim_TIM1.CCR4 / ((double)Sim_TIM1.ARR + 1u);
 
     ASSERT_TRUE(0.24 < ch1_ratio && ch1_ratio < 0.26);
     ASSERT_TRUE(0.49 < ch2_ratio && ch2_ratio < 0.51);

@@ -2,7 +2,7 @@
  * @file stm32f4_hal.h
  * @brief Common defines to the STM32F4 implementation of HAL.
  *
- * Copyright (c) 2025 Cory McKiel.
+ * Copyright (c) 2025 - 2026 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.
  */
 #ifndef _STM32F4_HAL_H
@@ -15,6 +15,8 @@
 #define CRITICAL_SECTION_ENTER() __disable_irq()
 #define CRITICAL_SECTION_EXIT()  __enable_irq()
 #endif
+
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 #define ENUM_IN_RANGE(x, lowerbound_inclusive, upperbound_exclusive) \
 ((lowerbound_inclusive) <= (x) && (x) < (upperbound_exclusive))

@@ -2,7 +2,7 @@
  * @file stm32f4_systick.c
  * @brief STM32F4 implementation of millisecond delay.
  *
- * Copyright (c) 2025 Cory McKiel.
+ * Copyright (c) 2025 - 2026 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.
  */
 #ifdef DESKTOP_BUILD

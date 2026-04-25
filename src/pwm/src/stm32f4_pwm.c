@@ -2,11 +2,13 @@
  * @file stm32f4_pwm.c
  * @brief STM32F4 implementation of PWM.
  *
- * Copyright (c) 2025 Cory McKiel.
+ * Copyright (c) 2025 - 2026 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.
  */
 #include "pwm.h"
 #include "stm32f4_hal.h"
+
+#include <assert.h>
 
 #ifdef DESKTOP_BUILD
 #include "registers.h"
@@ -21,20 +23,24 @@
 /*********************************************************************************************/
 // Common Output Compare Modes used to configure the pin's behavior when counting events occur.
 /*********************************************************************************************/
-/// @brief PWM Mode 1: In upcounting, channel 1 is active as long as TIM1_CNT<TIM1_CCR1 else inactive.
-/// Classic PWM.
+/// @brief PWM Mode 1: In upcounting, channel is active as long as CNT<CCR else inactive. Classic PWM.
 #define OC_MODE_PWM_1       0b110u
 /// @brief Forced low: Output pin forced low. (0% duty cycle)
 #define OC_MODE_FORCED_LOW  0b100u
 /// @brief Forced high: Output pin forced high (100% duty cycle)
 #define OC_MODE_FORCED_HIGH 0b101u
 
-static bool pwm_state_enabled = false;
+// Per-channel enabled state. Indexed by hal_pwm_channel_t (CH1=0 ... CH4=3).
+static bool pwm_channel_enabled[4] = { false, false, false, false };
+static_assert(ARRAY_SIZE(pwm_channel_enabled) == _HAL_PWM_CH_MAX, "The size of channels enabled does not match number of channels");
 
 /*********************************************************************************************/
 // Forward declarations
 /*********************************************************************************************/
-static void configure_gpios();
+static void configure_timer_clocks(void);
+static void configure_channel_gpio(hal_pwm_channel_t channel);
+static void configure_channel_preload(hal_pwm_channel_t channel);
+static void configure_channel_ccer(hal_pwm_channel_t channel);
 static void compute_psc_arr(uint32_t pwm_frequency_hz, uint16_t* psc_out, uint16_t* arr_out);
 
 /*********************************************************************************************/
@@ -51,17 +57,78 @@ static inline void tim1_force_update(void)
 }
 
 /**
- * @brief Sets the output compare mode for channel one.
- * @param ocm Output compare mode - The important modes of
- * operation are as follows:
- *   1. @ref OC_MODE_PWM_1 Classic PWM signal. Valid duty cycles of 1% - 99%.
- *   2. @ref OC_MODE_FORCED_LOW Output forced low. Duty cycle is 0%.
+ * @brief Sets the output compare mode for the given channel.
+ * @param ch  Target channel.
+ * @param ocm Output compare mode - The important modes of operation are:
+ *   1. @ref OC_MODE_PWM_1       Classic PWM signal. Valid duty cycles of 1% - 99%.
+ *   2. @ref OC_MODE_FORCED_LOW  Output forced low. Duty cycle is 0%.
  *   3. @ref OC_MODE_FORCED_HIGH Output forced high. Duty cycle is 100%.
  */
-static inline void tim1_ch1_set_ocmode(uint32_t ocm)
+static inline void tim1_ch_set_ocmode(hal_pwm_channel_t ch, uint32_t ocm)
 {
     // CCMR: Capture/Compare Mode Register
-    TIM1->CCMR1 = (TIM1->CCMR1 & ~TIM_CCMR1_OC1M) | (ocm << TIM_CCMR1_OC1M_Pos);
+    switch (ch)
+    {
+        case HAL_PWM_CH1:
+            TIM1->CCMR1 = (TIM1->CCMR1 & ~TIM_CCMR1_OC1M) | (ocm << TIM_CCMR1_OC1M_Pos);
+            break;
+        case HAL_PWM_CH2:
+            TIM1->CCMR1 = (TIM1->CCMR1 & ~TIM_CCMR1_OC2M) | (ocm << TIM_CCMR1_OC2M_Pos);
+            break;
+        case HAL_PWM_CH3:
+            TIM1->CCMR2 = (TIM1->CCMR2 & ~TIM_CCMR2_OC3M) | (ocm << TIM_CCMR2_OC3M_Pos);
+            break;
+        case HAL_PWM_CH4:
+            TIM1->CCMR2 = (TIM1->CCMR2 & ~TIM_CCMR2_OC4M) | (ocm << TIM_CCMR2_OC4M_Pos);
+            break;
+        default:
+            break;
+    }
+}
+
+/**
+ * @brief Returns the current capture/compare register value for the given channel.
+ */
+static inline uint32_t tim1_ch_get_ccr(hal_pwm_channel_t ch)
+{
+    switch (ch)
+    {
+        case HAL_PWM_CH1: return TIM1->CCR1;
+        case HAL_PWM_CH2: return TIM1->CCR2;
+        case HAL_PWM_CH3: return TIM1->CCR3;
+        case HAL_PWM_CH4: return TIM1->CCR4;
+        default:          return 0;
+    }
+}
+
+/**
+ * @brief Writes the capture/compare register for the given channel.
+ */
+static inline void tim1_ch_set_ccr(hal_pwm_channel_t ch, uint32_t ccr)
+{
+    switch (ch)
+    {
+        case HAL_PWM_CH1: TIM1->CCR1 = (uint16_t)ccr; break;
+        case HAL_PWM_CH2: TIM1->CCR2 = (uint16_t)ccr; break;
+        case HAL_PWM_CH3: TIM1->CCR3 = (uint16_t)ccr; break;
+        case HAL_PWM_CH4: TIM1->CCR4 = (uint16_t)ccr; break;
+        default:          break;
+    }
+}
+
+/**
+ * @brief Returns true if the channel is currently in PWM Mode 1.
+ */
+static inline bool tim1_ch_is_pwm_mode1(hal_pwm_channel_t ch)
+{
+    switch (ch)
+    {
+        case HAL_PWM_CH1: return (TIM1->CCMR1 & TIM_CCMR1_OC1M) == (OC_MODE_PWM_1 << TIM_CCMR1_OC1M_Pos);
+        case HAL_PWM_CH2: return (TIM1->CCMR1 & TIM_CCMR1_OC2M) == (OC_MODE_PWM_1 << TIM_CCMR1_OC2M_Pos);
+        case HAL_PWM_CH3: return (TIM1->CCMR2 & TIM_CCMR2_OC3M) == (OC_MODE_PWM_1 << TIM_CCMR2_OC3M_Pos);
+        case HAL_PWM_CH4: return (TIM1->CCMR2 & TIM_CCMR2_OC4M) == (OC_MODE_PWM_1 << TIM_CCMR2_OC4M_Pos);
+        default:          return false;
+    }
 }
 
 /**
@@ -78,29 +145,29 @@ static inline void apply_psc_arr(uint16_t psc, uint16_t arr)
 }
 
 /**
- * @brief Set PWM Duty Cycle to 0%. (Hold output low)
+ * @brief Set a channel's output to 0% (hold output low).
  */
-static inline void set_forced_inactive(void)
+static inline void set_forced_inactive(hal_pwm_channel_t ch)
 {
-    tim1_ch1_set_ocmode(OC_MODE_FORCED_LOW);
+    tim1_ch_set_ocmode(ch, OC_MODE_FORCED_LOW);
     tim1_force_update();
 }
 
 /**
- * @brief Set PWM Duty Cycle to 100%. (Hold output high)
+ * @brief Set a channel's output to 100% (hold output high).
  */
-static inline void set_forced_active(void)
+static inline void set_forced_active(hal_pwm_channel_t ch)
 {
-    tim1_ch1_set_ocmode(OC_MODE_FORCED_HIGH);
+    tim1_ch_set_ocmode(ch, OC_MODE_FORCED_HIGH);
     tim1_force_update();
 }
 
 /**
- * @brief Set PWM Mode to classic PWM mode (1%-99% duty cycle)
+ * @brief Set a channel to classic PWM Mode 1 (1%-99% duty cycle).
  */
-static inline void set_pwm_mode1(void)
+static inline void set_pwm_mode1(hal_pwm_channel_t ch)
 {
-    tim1_ch1_set_ocmode(OC_MODE_PWM_1);
+    tim1_ch_set_ocmode(ch, OC_MODE_PWM_1);
     tim1_force_update();
 }
 
@@ -108,91 +175,111 @@ static inline void set_pwm_mode1(void)
 // Public Interface
 /*********************************************************************************************/
 
-hal_status_t hal_pwm_init(uint32_t pwm_frequency_hz)
+hal_status_t hal_pwm_timer_init(uint32_t pwm_frequency_hz)
 {
-    // Safe default values for psc and arr.
     uint16_t psc = 0;
     uint16_t arr = 1;
 
-    configure_gpios();
+    configure_timer_clocks();
     compute_psc_arr(pwm_frequency_hz, &psc, &arr);
 
     TIM1->CR1 = 0;
     TIM1->PSC = psc;
     TIM1->ARR = arr;
+
+    // Enable preload for ARR so software updates latch on update events.
+    TIM1->CR1 |= TIM_CR1_ARPE;
     tim1_force_update();
 
-    // Enable preload for ARR and CCR1
-    TIM1->CCMR1 |= TIM_CCMR1_OC1PE;
-    TIM1->CR1 |= TIM_CR1_ARPE;
-
-    // Start in a safe state. (0% PWM)
-    set_forced_inactive();
-
-    // Set the polarity to be active high.
-    TIM1->CCER &= ~(TIM_CCER_CC1P | TIM_CCER_CC1NP);
-
-    // Enable output for channel 1
-    TIM1->CCER |= TIM_CCER_CC1E;
-
-    // MOE: Main output enable. Necessary to get the output out of the timer and
-    // to the configured output pin.
+    // MOE: Main output enable. Necessary to get output out of the timer and to the pins.
     TIM1->BDTR |= TIM_BDTR_MOE;
 
-    // Start the counter. Output is still forced low.
+    // Start the counter.
     TIM1->CR1 |= TIM_CR1_CEN;
-
-    pwm_state_enabled = false;
 
     return HAL_STATUS_OK;
 }
 
-void hal_pwm_enable(bool enable)
+hal_status_t hal_pwm_channel_init(hal_pwm_channel_t channel)
 {
+    if (!ENUM_IN_RANGE(channel, _HAL_PWM_CH_MIN, _HAL_PWM_CH_MAX))
+    {
+        return HAL_STATUS_ERROR;
+    }
+
+    configure_channel_gpio(channel);
+
+    // Enable CCR preload so compare register updates latch on update events.
+    configure_channel_preload(channel);
+
+    // Start in a safe state. (0% PWM)
+    set_forced_inactive(channel);
+
+    // Set polarity to active high and enable the channel output.
+    configure_channel_ccer(channel);
+
+    pwm_channel_enabled[(int)channel] = false;
+
+    return HAL_STATUS_OK;
+}
+
+hal_status_t hal_pwm_enable(hal_pwm_channel_t channel, bool enable)
+{
+    if (!ENUM_IN_RANGE(channel, _HAL_PWM_CH_MIN, _HAL_PWM_CH_MAX))
+    {
+        return HAL_STATUS_ERROR;
+    }
+
+    int idx = (int)channel;
     if (enable)
     {
-        pwm_state_enabled = true;
+        pwm_channel_enabled[idx] = true;
         // Resume the previous setting if there was one.
-        if (TIM1->CCR1 != 0)
+        if (tim1_ch_get_ccr(channel) != 0)
         {
-            set_pwm_mode1();
+            set_pwm_mode1(channel);
         }
     }
     else
     {
-        pwm_state_enabled = false;
-        set_forced_inactive();
+        pwm_channel_enabled[idx] = false;
+        set_forced_inactive(channel);
     }
+
+    return HAL_STATUS_OK;
 }
 
-void hal_pwm_set_duty_cycle(uint8_t percent)
+hal_status_t hal_pwm_set_duty_cycle(hal_pwm_channel_t channel, uint8_t percent)
 {
-    // Always set pwm low if called with 0%, regardless of pwm_state_enabled,
-    // for safety.
-    if (percent == 0)
+    if (!ENUM_IN_RANGE(channel, _HAL_PWM_CH_MIN, _HAL_PWM_CH_MAX))
     {
-        set_forced_inactive();
-        TIM1->CCR1 = 0;
-        return;
+        return HAL_STATUS_ERROR;
     }
 
-    if (pwm_state_enabled)
+    // Always set low if called with 0%, regardless of pwm_channel_enabled, for safety.
+    if (percent == 0)
+    {
+        set_forced_inactive(channel);
+        tim1_ch_set_ccr(channel, 0);
+        return HAL_STATUS_OK;
+    }
+
+    if (pwm_channel_enabled[(int)channel])
     {
         if (percent >= 100)
         {
-            set_forced_active();
-            return;
+            set_forced_active(channel);
+            return HAL_STATUS_OK;
         }
 
         // percent is something between 1%-99%.
-        set_pwm_mode1();
+        set_pwm_mode1(channel);
 
-        // Calculate CCR1
-        uint32_t arrp1 = (uint32_t)TIM1->ARR + 1u;
         // CCR = round(percent/100 * (ARR+1))
         // Common rounding trick for integers:
         // result = (numerator * scale + divisor/2) / divisor;
-        uint32_t ccr = ( (uint32_t)percent * arrp1 + 50u ) / 100u;
+        uint32_t arrp1 = (uint32_t)TIM1->ARR + 1u;
+        uint32_t ccr   = ((uint32_t)percent * arrp1 + 50u) / 100u;
 
         // Avoid accidental 0%.
         if (ccr == 0u)
@@ -206,32 +293,47 @@ void hal_pwm_set_duty_cycle(uint8_t percent)
             ccr = TIM1->ARR;
         }
 
-        // Apply to CCR1
-        TIM1->CCR1 = (uint16_t)ccr;
-        // With OC1PE=1, CCR update latches on next UG/overflow. Force UG to apply now:
+        tim1_ch_set_ccr(channel, ccr);
+        // With OCxPE=1, CCR update latches on next UG/overflow. Force UG to apply now:
         tim1_force_update();
     }
+
+    return HAL_STATUS_OK;
 }
 
 void hal_pwm_set_frequency(uint32_t pwm_frequency_hz)
 {
-    if (pwm_state_enabled)
-    {
-        // Compute new PSC/ARR and apply
-        uint16_t psc=0;
-        uint16_t arr=1;
-        compute_psc_arr(pwm_frequency_hz, &psc, &arr);
+    uint16_t psc = 0;
+    uint16_t arr = 1;
+    compute_psc_arr(pwm_frequency_hz, &psc, &arr);
 
-        // Capture current ratio before changing ARR
-        float ratio = 0.0f;
-        if ((TIM1->CCMR1 & TIM_CCMR1_OC1M) == (OC_MODE_PWM_1 << TIM_CCMR1_OC1M_Pos))
+    // Capture each enabled channel's duty-cycle ratio before ARR changes.
+    float ratios[4]   = { 0.0f, 0.0f, 0.0f, 0.0f };
+    bool  was_pwm_mode[4] = { false, false, false, false };
+
+    for (int i = 0; i < 4; i++)
+    {
+        hal_pwm_channel_t ch = (hal_pwm_channel_t)i;
+        if (pwm_channel_enabled[i] && tim1_ch_is_pwm_mode1(ch))
         {
-            ratio = (float)TIM1->CCR1 / (float)(TIM1->ARR + 1u);
+            was_pwm_mode[i] = true;
+            ratios[i]   = (float)tim1_ch_get_ccr(ch) / (float)(TIM1->ARR + 1u);
+        }
+    }
+
+    apply_psc_arr(psc, arr);
+
+    // Rescale CCR for any channel that was in PWM Mode 1 to preserve its duty-cycle ratio.
+    for (int i = 0; i < 4; i++)
+    {
+        if (!pwm_channel_enabled[i] || !was_pwm_mode[i])
+        {
+            continue;
         }
 
-        apply_psc_arr(psc, arr);
+        hal_pwm_channel_t ch    = (hal_pwm_channel_t)i;
+        float             ratio = ratios[i];
 
-        // Restore ratio if applicable
         if (ratio > 0.0f && ratio < 1.0f)
         {
             uint32_t arrp1 = (uint32_t)TIM1->ARR + 1u;
@@ -249,17 +351,17 @@ void hal_pwm_set_frequency(uint32_t pwm_frequency_hz)
                 ccr = TIM1->ARR;
             }
 
-            TIM1->CCR1 = (uint16_t)ccr;
-            set_pwm_mode1();
+            tim1_ch_set_ccr(ch, ccr);
+            set_pwm_mode1(ch);
             tim1_force_update();
         }
         else if (ratio >= 1.0f)
         {
-            set_forced_active();
+            set_forced_active(ch);
         }
         else
         { // ratio == 0.0f
-            set_forced_inactive();
+            set_forced_inactive(ch);
         }
     }
 }
@@ -268,28 +370,102 @@ void hal_pwm_set_frequency(uint32_t pwm_frequency_hz)
 // Private Functions
 /*********************************************************************************************/
 
-static void configure_gpios()
+static void configure_timer_clocks(void)
 {
-    // Clocks
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
     RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
+}
 
-    // Using PA8 as PWM pin. Set alternate function: 0b10.
-    GPIOA->MODER |= (BIT_17);
-    GPIOA->MODER &= ~(BIT_16);
+static void configure_channel_gpio(hal_pwm_channel_t channel)
+{
+    // TIM1 channels CH1-CH4 map to PA8-PA11 on alternate function AF1.
+    switch (channel)
+    {
+        case HAL_PWM_CH1:
+            // PA8: MODER bits [17:16] = 0b10 (alternate function)
+            GPIOA->MODER |=  BIT_17;
+            GPIOA->MODER &= ~BIT_16;
+            GPIOA->OTYPER &= ~BIT_8;                          // push-pull
+            GPIOA->PUPDR  &= ~(BIT_17 | BIT_16);             // no pull
+            GPIOA->AFR[1] &= ~(0xFu << 0);
+            GPIOA->AFR[1] |=  (1u   << 0);                   // AF1 (TIM1)
+            break;
 
-    // Set push-pull
-    GPIOA->OTYPER &= ~(BIT_8);
+        case HAL_PWM_CH2:
+            // PA9: MODER bits [19:18] = 0b10
+            GPIOA->MODER |=  BIT_19;
+            GPIOA->MODER &= ~BIT_18;
+            GPIOA->OTYPER &= ~BIT_9;
+            GPIOA->PUPDR  &= ~(BIT_19 | BIT_18);
+            GPIOA->AFR[1] &= ~(0xFu << 4);
+            GPIOA->AFR[1] |=  (1u   << 4);
+            break;
 
-    // No pull-up, no pull-down: 0b00
-    GPIOA->PUPDR &= ~(BIT_17);
-    GPIOA->PUPDR &= ~(BIT_16);
+        case HAL_PWM_CH3:
+            // PA10: MODER bits [21:20] = 0b10
+            GPIOA->MODER |=  BIT_21;
+            GPIOA->MODER &= ~BIT_20;
+            GPIOA->OTYPER &= ~BIT_10;
+            GPIOA->PUPDR  &= ~(BIT_21 | BIT_20);
+            GPIOA->AFR[1] &= ~(0xFu << 8);
+            GPIOA->AFR[1] |=  (1u   << 8);
+            break;
 
-    // Set to alternate function 1 (TIM1)
-    GPIOA->AFR[1] &= ~(0xFu);
-    GPIOA->AFR[1] |= 1;       // [3:0] = 0b0001 for AF1
+        case HAL_PWM_CH4:
+            // PA11: MODER bits [23:22] = 0b10
+            GPIOA->MODER |=  BIT_23;
+            GPIOA->MODER &= ~BIT_22;
+            GPIOA->OTYPER &= ~BIT_11;
+            GPIOA->PUPDR  &= ~(BIT_23 | BIT_22);
+            GPIOA->AFR[1] &= ~(0xFu << 12);
+            GPIOA->AFR[1] |=  (1u   << 12);
+            break;
+
+        default:
+            break;
+    }
 
     // Optional: Set high speed?
+}
+
+static void configure_channel_preload(hal_pwm_channel_t channel)
+{
+    // Enable CCR preload (OCxPE) so compare register updates latch on update events.
+    switch (channel)
+    {
+        case HAL_PWM_CH1: TIM1->CCMR1 |= TIM_CCMR1_OC1PE; break;
+        case HAL_PWM_CH2: TIM1->CCMR1 |= TIM_CCMR1_OC2PE; break;
+        case HAL_PWM_CH3: TIM1->CCMR2 |= TIM_CCMR2_OC3PE; break;
+        case HAL_PWM_CH4: TIM1->CCMR2 |= TIM_CCMR2_OC4PE; break;
+        default:          break;
+    }
+}
+
+static void configure_channel_ccer(hal_pwm_channel_t channel)
+{
+    // CCER: Capture/Compare Enable Register
+    // Set polarity to active high (CC1P=0, CC1NP=0) then enable the channel output.
+    switch (channel)
+    {
+        case HAL_PWM_CH1:
+            TIM1->CCER &= ~(TIM_CCER_CC1P | TIM_CCER_CC1NP);
+            TIM1->CCER |=   TIM_CCER_CC1E;
+            break;
+        case HAL_PWM_CH2:
+            TIM1->CCER &= ~(TIM_CCER_CC2P | TIM_CCER_CC2NP);
+            TIM1->CCER |=   TIM_CCER_CC2E;
+            break;
+        case HAL_PWM_CH3:
+            TIM1->CCER &= ~(TIM_CCER_CC3P | TIM_CCER_CC3NP);
+            TIM1->CCER |=   TIM_CCER_CC3E;
+            break;
+        case HAL_PWM_CH4:
+            TIM1->CCER &= ~(TIM_CCER_CC4P | TIM_CCER_CC4NP);
+            TIM1->CCER |=   TIM_CCER_CC4E;
+            break;
+        default:
+            break;
+    }
 }
 
 static void compute_psc_arr(uint32_t pwm_frequency_hz, uint16_t* psc_out, uint16_t* arr_out)

@@ -2,7 +2,7 @@
  * @file stm32f4_uart1.c
  * @brief Implements serial communication over UART1.
  *
- * Copyright (c) 2025 Cory McKiel.
+ * Copyright (c) 2025 - 2026 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.
  */
 #ifdef DESKTOP_BUILD
@@ -184,25 +184,25 @@ hal_status_t stm32f4_uart1_write(const uint8_t *data, size_t len, size_t *bytes_
 static void configure_gpio_pins()
 {
 	// Enable Bus.
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
 
-	// Set PA9 (usart1 tx pin) mode to alternate function.
-	GPIOA->MODER &= ~BIT_18;
-	GPIOA->MODER |= BIT_19;
+	// Set PB6 (usart1 tx pin) mode to alternate function.
+	GPIOB->MODER &= ~BIT_12;
+	GPIOB->MODER |= BIT_13;
 
-	// Set PA10 (usart1 rx pin) mode to alternate function.
-	GPIOA->MODER &= ~BIT_20;
-	GPIOA->MODER |= BIT_21;
+	// Set PB7 (usart1 rx pin) mode to alternate function.
+	GPIOB->MODER &= ~BIT_14;
+	GPIOB->MODER |= BIT_15;
 
-	// Set PA9 alternate function type to UART_TX (AF07)
-	// Pin number is misleading here, because AFR is divided into high and low regs.
-	GPIOA->AFR[1] &= ~(0xF << (PIN_1 * AF_SHIFT_WIDTH));
-	GPIOA->AFR[1] |=  (AF7_MASK << (PIN_1 * AF_SHIFT_WIDTH));
+	// Set PB6 alternate function type to UART_TX (AF07)
+	// PB6 is in AFR[0] (low register) at index PIN_6.
+	GPIOB->AFR[0] &= ~(0xF << (PIN_6 * AF_SHIFT_WIDTH));
+	GPIOB->AFR[0] |=  (AF7_MASK << (PIN_6 * AF_SHIFT_WIDTH));
 
-	// Set PA10 alternate function type to UART_RX (AF07)
-	// Pin number is misleading here, because AFR is divided into high and low regs.
-	GPIOA->AFR[1] &= ~(0xF << (PIN_2 * AF_SHIFT_WIDTH)); // clear bits 15-12
-	GPIOA->AFR[1] |= (AF7_MASK << (PIN_2 * AF_SHIFT_WIDTH)); // set bits 15-12 as 0111 aka AF07 for PA3.
+	// Set PB7 alternate function type to UART_RX (AF07)
+	// PB7 is in AFR[0] (low register) at index PIN_7.
+	GPIOB->AFR[0] &= ~(0xF << (PIN_7 * AF_SHIFT_WIDTH));
+	GPIOB->AFR[0] |= (AF7_MASK << (PIN_7 * AF_SHIFT_WIDTH));
 }
 
 static void configure_uart()

@@ -579,10 +579,10 @@ TEST_F(PWMDriverTest, SetFrequencyRescalesAllEnabledChannels)
     hal_pwm_set_frequency(20000);
 
     // Assert: All four channels preserved their duty-cycle ratios.
-    double ch1_ratio = (double)Sim_TIM1.CCR1 / (double)Sim_TIM1.ARR;
-    double ch2_ratio = (double)Sim_TIM1.CCR2 / (double)Sim_TIM1.ARR;
-    double ch3_ratio = (double)Sim_TIM1.CCR3 / (double)Sim_TIM1.ARR;
-    double ch4_ratio = (double)Sim_TIM1.CCR4 / (double)Sim_TIM1.ARR;
+    double ch1_ratio = (double)Sim_TIM1.CCR1 / ((double)Sim_TIM1.ARR + 1u);
+    double ch2_ratio = (double)Sim_TIM1.CCR2 / ((double)Sim_TIM1.ARR + 1u);
+    double ch3_ratio = (double)Sim_TIM1.CCR3 / ((double)Sim_TIM1.ARR + 1u);
+    double ch4_ratio = (double)Sim_TIM1.CCR4 / ((double)Sim_TIM1.ARR + 1u);
 
     ASSERT_TRUE(0.29 < ch1_ratio && ch1_ratio < 0.31);
     ASSERT_TRUE(0.59 < ch2_ratio && ch2_ratio < 0.61);

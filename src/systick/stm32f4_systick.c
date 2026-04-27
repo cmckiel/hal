@@ -14,7 +14,7 @@
 #include "systick.h"
 #include "stm32f4_hal.h"
 
-#define SYSTICK_LOAD_VAL 16000
+#define SYSTICK_LOAD_VAL 16000 - 1U
 #define CTRL_ENABLE      (1U << 0)
 #define CTRL_TICKINT     (1U << 1)
 #define CTRL_CLKSRC      (1U << 2)

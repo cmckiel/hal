@@ -67,12 +67,14 @@ To see detailed build instructions, troubleshooting steps, and instructions for 
 
 ### Example Application
 ```C
-#include "uart.h"
-#include "gpio.h"
-#include "systick.h"
+#include "hal/uart.h"
+#include "hal/gpio.h"
+#include "hal/systick.h"
+#include "hal/hal_system.h"
 
 int main(void)
 {
+    hal_system_init();
     hal_gpio_init();
     hal_uart_init(HAL_UART2);
 

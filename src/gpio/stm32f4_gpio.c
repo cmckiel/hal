@@ -12,7 +12,7 @@
 #include "stm32f4xx.h"
 #endif /* DESKTOP_BUILD */
 
-#include "gpio.h"
+#include "hal/gpio.h"
 
 #define GPIOAEN (1U << 0) /*!< Bit to enable GPIO port A. */
 #define PIN5    (1U << 5) /*!< Pin five for GPIO port A. */

@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 extern "C" {
-#include "i2c.h"
+#include "hal/i2c.h"
 #include "registers.h"
 #include "nvic.h"
 #include "stm32f4_hal.h"

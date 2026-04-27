@@ -13,7 +13,7 @@
 #include "stm32f4xx.h"
 #endif
 
-#include "i2c.h"
+#include "hal/i2c.h"
 #include "i2c_transaction_queue.h"
 #include "stm32f4_hal.h"
 

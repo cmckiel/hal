@@ -8,7 +8,7 @@
  * Copyright (c) 2025 - 2026 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.
  */
-#include "hal_system.h"
+#include "hal/hal_system.h"
 
 #define CP_FULL_ACCESS 3UL /*!< Coprocessor full access enables full use of the Floating Point Unit (FPU). */
 #define CP10 20 /*!< Bit location for coprocessor 10 in the CPACR register of the System Control Block (SCB) */

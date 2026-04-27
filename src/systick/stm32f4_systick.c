@@ -10,7 +10,7 @@
 #else
 #include "stm32f4xx.h"
 #endif
-#include "systick.h"
+#include "hal/systick.h"
 
 #define SYSTICK_LOAD_VAL 16000
 #define CTRL_ENABLE      (1U << 0)

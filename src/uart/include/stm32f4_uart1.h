@@ -8,7 +8,7 @@
 #ifndef _STM32F4_UART1_H
 #define _STM32F4_UART1_H
 
-#include "uart.h"
+#include "hal/uart.h"
 
 /**
  * @brief Initialize UART channel 1.

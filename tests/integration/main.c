@@ -1,7 +1,7 @@
 #include <string.h>
-#include "hal_system.h"
-#include "systick.h"
-#include "uart.h"
+#include "hal/hal_system.h"
+#include "hal/systick.h"
+#include "hal/uart.h"
 
 #define MAX_RX_BYTES 1024
 

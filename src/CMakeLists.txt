@@ -14,6 +14,8 @@ add_library(
     systick/stm32f4_systick.c
 )
 
+target_compile_features(stm32f4_hal PRIVATE cxx_std_14)
+
 # Include all the directories containing headers.
 target_include_directories(
     stm32f4_hal
@@ -21,7 +23,7 @@ target_include_directories(
     ${CMAKE_CURRENT_LIST_DIR}/include
     ${CMAKE_CURRENT_LIST_DIR}/i2c/include
     ${CMAKE_CURRENT_LIST_DIR}/uart/include
-    ${CMAKE_BINARY_DIR}/generated
+    ${HAL_GENERATED_DIR}
 )
 
 # Link to the common libraries.

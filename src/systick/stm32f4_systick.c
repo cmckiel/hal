@@ -11,7 +11,7 @@
 #include "stm32f4xx.h"
 #endif
 #include <stdbool.h>
-#include "systick.h"
+#include "hal/systick.h"
 #include "stm32f4_hal.h"
 
 #define SYSTICK_LOAD_VAL (16000 - 1U)

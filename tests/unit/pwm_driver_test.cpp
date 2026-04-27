@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 extern "C" {
-#include "pwm.h"
+#include "hal/pwm.h"
 #include "registers.h"
 #include "nvic.h"
 #include "stm32f4_hal.h"

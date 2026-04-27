@@ -5,7 +5,7 @@
  * Copyright (c) 2025 - 2026 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.
  */
-#include "uart.h"
+#include "hal/uart.h"
 #include "stm32f4_uart1.h"
 #include "stm32f4_uart2.h"
 

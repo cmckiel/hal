@@ -12,7 +12,7 @@
  * Copyright (c) 2025 - 2026 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.
  */
-#include "i2c.h"
+#include "hal/i2c.h"
 
 /// @brief Adjust to increase/decrease the queue size.
 #define I2C_TRANSACTION_QUEUE_SIZE 10

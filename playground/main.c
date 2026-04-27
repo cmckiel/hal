@@ -1,8 +1,8 @@
-#include "hal_system.h"
-#include "i2c.h"
-#include "pwm.h"
-#include "uart.h"
-#include "systick.h"
+#include "hal/hal_system.h"
+#include "hal/i2c.h"
+#include "hal/pwm.h"
+#include "hal/uart.h"
+#include "hal/systick.h"
 
 int main(void)
 {

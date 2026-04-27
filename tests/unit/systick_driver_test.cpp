@@ -1,5 +1,7 @@
 #include "gtest/gtest.h"
+#include <chrono>
 #include <climits>
+#include <thread>
 
 extern "C" {
 #include "systick.h"
@@ -354,4 +356,60 @@ TEST_F(SysTickDriverTest, OneShot_SurvivesTickCounterOverflow)
     /* Must not fire again. */
     tick(100);
     ASSERT_EQ(1, count_a);
+}
+
+/***********************************************************************/
+// hal_delay_ms
+/***********************************************************************/
+
+TEST_F(SysTickDriverTest, DelayMs_ZeroDelayReturnsImmediately)
+{
+    /* (tick_ms - start) < 0 is never true for uint32_t, so exits at once. */
+    hal_delay_ms(0);
+}
+
+TEST_F(SysTickDriverTest, DelayMs_ReturnsAfterRequestedTicks)
+{
+    std::thread ticker([] {
+        /* Give the main thread time to enter the busy-wait loop. */
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        tick(10);
+    });
+
+    hal_delay_ms(10);
+    ticker.join();
+
+    ASSERT_EQ(10u, hal_get_tick());
+}
+
+TEST_F(SysTickDriverTest, DelayMs_DoesNotReturnEarly)
+{
+    std::thread ticker([] {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        tick(4);   /* one tick short of the 5 ms requested */
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        tick(1);   /* complete the delay */
+    });
+
+    hal_delay_ms(5);
+    ticker.join();
+
+    ASSERT_EQ(5u, hal_get_tick());
+}
+
+TEST_F(SysTickDriverTest, DelayMs_SurvivesTickCounterRollover)
+{
+    /* Start 3 ticks before wrap so tick_ms rolls over mid-delay.
+     * Unsigned subtraction: (2 - (UINT32_MAX-2)) wraps back to 5, satisfying < 5. */
+    tick_ms = UINT32_MAX - 2;
+
+    std::thread ticker([] {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        tick(5);   /* UINT32_MAX-2 → UINT32_MAX-1 → UINT32_MAX → 0 → 1 → 2 */
+    });
+
+    hal_delay_ms(5);
+    ticker.join();
+
+    ASSERT_EQ(2u, hal_get_tick());
 }

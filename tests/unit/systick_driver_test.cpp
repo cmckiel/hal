@@ -50,10 +50,10 @@ protected:
 // hal_systick_init
 /***********************************************************************/
 
-TEST_F(SysTickDriverTest, Init_SetsLoadRegisterTo16000)
+TEST_F(SysTickDriverTest, Init_SetsLoadRegisterTo15999)
 {
     hal_systick_init();
-    ASSERT_EQ(Sim_SysTick.LOAD, 16000u);
+    ASSERT_EQ(Sim_SysTick.LOAD, 15999u);
 }
 
 TEST_F(SysTickDriverTest, Init_ClearsValueRegister)

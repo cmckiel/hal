@@ -27,7 +27,11 @@ typedef struct {
     bool active;
 } software_timer_t;
 
+#ifdef DESKTOP_BUILD
+uint32_t tick_ms;
+#else
 static volatile uint32_t tick_ms;
+#endif
 static software_timer_t timer_table[HAL_TIMER_MAX_CLIENTS];
 
 void SysTick_Handler(void)
@@ -115,3 +119,14 @@ void hal_systick_timer_deregister(hal_timer_handle_t handle)
     timer_table[handle].active = false;
     CRITICAL_SECTION_EXIT();
 }
+
+#ifdef DESKTOP_BUILD
+void hal_systick_reset_for_test(void)
+{
+    tick_ms = 0;
+    for (int i = 0; i < HAL_TIMER_MAX_CLIENTS; i++)
+    {
+        timer_table[i].active = false;
+    }
+}
+#endif

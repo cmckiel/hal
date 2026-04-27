@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 extern "C" {
-#include "uart.h"
+#include "hal/uart.h"
 #include "registers.h"
 #include "nvic.h"
 #include "circular_buffer.h"

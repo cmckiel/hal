@@ -5,7 +5,7 @@
  * Copyright (c) 2025 - 2026 Cory McKiel.
  * Licensed under the MIT License. See LICENSE file in the project root.
  */
-#include "hal_metadata.h"
+#include "hal/hal_metadata.h"
 #include "hal_version.h"
 
 static const hal_metadata_t META = {

@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 extern "C" {
-#include "gpio.h"
+#include "hal/gpio.h"
 #include "registers.h"
 }
 

@@ -1,8 +1,10 @@
 <map id="/__w/hal/hal/src/systick/stm32f4_systick.c" name="/__w/hal/hal/src/systick/stm32f4_systick.c">
-<area shape="rect" id="node1" title="STM32F4 implementation of millisecond delay." alt="" coords="35,5,207,47"/>
+<area shape="rect" id="node1" title="STM32F4 SysTick driver: tick counter, blocking delay, and software timers." alt="" coords="147,5,319,47"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,95,109,121"/>
-<area shape="rect" id="node3" href="$systick_8h.html" title="Provides millisecond delays." alt="" coords="133,95,237,121"/>
-<area shape="rect" id="node4" href="$hal__types_8h.html" title="Common types used across HAL modules." alt="" coords="137,169,234,196"/>
-<area shape="rect" id="node5" title=" " alt="" coords="103,244,174,271"/>
-<area shape="rect" id="node6" title=" " alt="" coords="198,244,269,271"/>
+<area shape="rect" id="node3" title=" " alt="" coords="133,95,216,121"/>
+<area shape="rect" id="node4" href="$systick_8h.html" title="SysTick driver: millisecond tick counter, blocking delay, and software timers." alt="" coords="240,95,344,121"/>
+<area shape="rect" id="node8" href="$stm32f4__hal_8h.html" title="Common defines to the STM32F4 implementation of HAL." alt="" coords="368,95,483,121"/>
+<area shape="rect" id="node5" title=" " alt="" coords="213,244,283,271"/>
+<area shape="rect" id="node6" href="$hal__types_8h.html" title="Common types used across HAL modules." alt="" coords="286,169,383,196"/>
+<area shape="rect" id="node7" title=" " alt="" coords="307,244,378,271"/>
 </map>

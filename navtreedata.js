@@ -69,7 +69,8 @@ var NAVTREE =
       [ "Representative Waveforms Captured on Target Hardware", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md33", [
         [ "UART", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md34", null ],
         [ "I2C", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md35", null ],
-        [ "PWM", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md36", null ]
+        [ "PWM", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md36", null ],
+        [ "LED Toggle on 100 ms Timer", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md37", null ]
       ] ]
     ] ],
     [ "Classes", "annotated.html", [
@@ -85,6 +86,7 @@ var NAVTREE =
       [ "File Members", "globals.html", [
         [ "All", "globals.html", null ],
         [ "Functions", "globals_func.html", null ],
+        [ "Typedefs", "globals_type.html", null ],
         [ "Enumerations", "globals_enum.html", null ],
         [ "Enumerator", "globals_eval.html", null ],
         [ "Macros", "globals_defs.html", null ]
@@ -96,7 +98,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"stm32f4__uart1_8h.html#a45181aa90329435c3c42886c0c14a16c"
+"stm32f4__uart1_8c.html#a701078568c3504cdc4bf89077bcb05b4"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -1,5 +1,9 @@
 <map id="/__w/hal/hal/src/system/stm32f4_hal_system.c" name="/__w/hal/hal/src/system/stm32f4_hal_system.c">
-<area shape="rect" id="node1" title="Handles target hardware initialization tasks prior to main application loop." alt="" coords="55,5,230,47"/>
+<area shape="rect" id="node1" title="Handles target hardware initialization tasks prior to main application loop." alt="" coords="127,5,302,47"/>
 <area shape="rect" id="node2" href="$hal__system_8h.html" title="Handles target hardware initialization tasks prior to main application loop." alt="" coords="5,95,139,121"/>
-<area shape="rect" id="node3" title=" " alt="" coords="163,95,267,121"/>
+<area shape="rect" id="node3" href="$systick_8h.html" title="SysTick driver: millisecond tick counter, blocking delay, and software timers." alt="" coords="163,95,267,121"/>
+<area shape="rect" id="node7" title=" " alt="" coords="291,95,395,121"/>
+<area shape="rect" id="node4" title=" " alt="" coords="135,244,206,271"/>
+<area shape="rect" id="node5" href="$hal__types_8h.html" title="Common types used across HAL modules." alt="" coords="209,169,306,196"/>
+<area shape="rect" id="node6" title=" " alt="" coords="230,244,301,271"/>
 </map>

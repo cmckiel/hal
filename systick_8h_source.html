@@ -92,13 +92,41 @@ $(document).ready(function(){initNavTree('systick_8h_source.html',''); initResiz
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#ifndef _SYSTICK_H</span></div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#define _SYSTICK_H</span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="hal__types_8h.html">hal_types.h</a>&quot;</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keywordtype">void</span> <a class="code" href="systick_8h.html#ac08957766e54c77bc4e11d1168395c2a">hal_delay_ms</a>(uint32_t delay_ms);</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="hal__types_8h.html">hal_types.h</a>&quot;</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#define HAL_TIMER_INVALID_HANDLE (-1)</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#define HAL_TIMER_MAX_CLIENTS    (8)</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">typedef</span> <span class="keyword">enum</span> {</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    HAL_TIMER_PERIODIC,</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    HAL_TIMER_ONE_SHOT,</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;} hal_timer_type_t;</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* _SYSTICK_H */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">typedef</span> void (*hal_timer_callback_t)(void);</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
+<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="systick_8h.html#a6c9e3d807dd220a44cca3dd6afcb269e">   27</a></span>&#160;<span class="keyword">typedef</span> int8_t <a class="code" href="systick_8h.html#a6c9e3d807dd220a44cca3dd6afcb269e">hal_timer_handle_t</a>;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<a class="code" href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a> <a class="code" href="systick_8h.html#ae9f6b79fcb1e5f04ff667e2f20f52a30">hal_systick_init</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;uint32_t <a class="code" href="systick_8h.html#a133677e9ec5ba5f712b18fc93cbfc33f">hal_get_tick</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keywordtype">void</span> <a class="code" href="systick_8h.html#ac08957766e54c77bc4e11d1168395c2a">hal_delay_ms</a>(uint32_t delay_ms);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<a class="code" href="systick_8h.html#a6c9e3d807dd220a44cca3dd6afcb269e">hal_timer_handle_t</a> <a class="code" href="systick_8h.html#aa158f61a956bcef689de513c3562c697">hal_systick_timer_register</a>(uint32_t period_ms, hal_timer_type_t type,</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;                                      hal_timer_callback_t callback);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keywordtype">void</span> <a class="code" href="systick_8h.html#a3227d0cb4ebd0ec009a045e6662b546d">hal_systick_timer_deregister</a>(<a class="code" href="systick_8h.html#a6c9e3d807dd220a44cca3dd6afcb269e">hal_timer_handle_t</a> handle);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* _SYSTICK_H */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="ahal__types_8h_html"><div class="ttname"><a href="hal__types_8h.html">hal_types.h</a></div><div class="ttdoc">Common types used across HAL modules.</div></div>
-<div class="ttc" id="asystick_8h_html_ac08957766e54c77bc4e11d1168395c2a"><div class="ttname"><a href="systick_8h.html#ac08957766e54c77bc4e11d1168395c2a">hal_delay_ms</a></div><div class="ttdeci">void hal_delay_ms(uint32_t delay_ms)</div><div class="ttdoc">Delay for a given number of milliseconds.</div><div class="ttdef"><b>Definition:</b> stm32f4_systick.c:20</div></div>
+<div class="ttc" id="ahal__types_8h_html_ac2231a7f3681886d9b35e08c23759e27"><div class="ttname"><a href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a></div><div class="ttdeci">hal_status_t</div><div class="ttdoc">Return type for HAL functions.</div><div class="ttdef"><b>Definition:</b> hal_types.h:17</div></div>
+<div class="ttc" id="asystick_8h_html_a133677e9ec5ba5f712b18fc93cbfc33f"><div class="ttname"><a href="systick_8h.html#a133677e9ec5ba5f712b18fc93cbfc33f">hal_get_tick</a></div><div class="ttdeci">uint32_t hal_get_tick(void)</div><div class="ttdoc">Return milliseconds elapsed since hal_systick_init was called.</div><div class="ttdef"><b>Definition:</b> stm32f4_systick.c:72</div></div>
+<div class="ttc" id="asystick_8h_html_a3227d0cb4ebd0ec009a045e6662b546d"><div class="ttname"><a href="systick_8h.html#a3227d0cb4ebd0ec009a045e6662b546d">hal_systick_timer_deregister</a></div><div class="ttdeci">void hal_systick_timer_deregister(hal_timer_handle_t handle)</div><div class="ttdoc">Deregister a previously registered software timer.</div><div class="ttdef"><b>Definition:</b> stm32f4_systick.c:111</div></div>
+<div class="ttc" id="asystick_8h_html_a6c9e3d807dd220a44cca3dd6afcb269e"><div class="ttname"><a href="systick_8h.html#a6c9e3d807dd220a44cca3dd6afcb269e">hal_timer_handle_t</a></div><div class="ttdeci">int8_t hal_timer_handle_t</div><div class="ttdoc">Opaque handle returned by hal_systick_timer_register. Negative value indicates invalid.</div><div class="ttdef"><b>Definition:</b> systick.h:27</div></div>
+<div class="ttc" id="asystick_8h_html_aa158f61a956bcef689de513c3562c697"><div class="ttname"><a href="systick_8h.html#aa158f61a956bcef689de513c3562c697">hal_systick_timer_register</a></div><div class="ttdeci">hal_timer_handle_t hal_systick_timer_register(uint32_t period_ms, hal_timer_type_t type, hal_timer_callback_t callback)</div><div class="ttdoc">Register a software timer that fires a callback at a fixed period.</div><div class="ttdef"><b>Definition:</b> stm32f4_systick.c:83</div></div>
+<div class="ttc" id="asystick_8h_html_ac08957766e54c77bc4e11d1168395c2a"><div class="ttname"><a href="systick_8h.html#ac08957766e54c77bc4e11d1168395c2a">hal_delay_ms</a></div><div class="ttdeci">void hal_delay_ms(uint32_t delay_ms)</div><div class="ttdoc">Block for the given number of milliseconds.</div><div class="ttdef"><b>Definition:</b> stm32f4_systick.c:77</div></div>
+<div class="ttc" id="asystick_8h_html_ae9f6b79fcb1e5f04ff667e2f20f52a30"><div class="ttname"><a href="systick_8h.html#ae9f6b79fcb1e5f04ff667e2f20f52a30">hal_systick_init</a></div><div class="ttdeci">hal_status_t hal_systick_init(void)</div><div class="ttdoc">Initialize and start the SysTick peripheral at 1 ms resolution.</div><div class="ttdef"><b>Definition:</b> stm32f4_systick.c:64</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

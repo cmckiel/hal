@@ -100,11 +100,15 @@ $(document).ready(function(){initNavTree('globals_func.html',''); initResizable(
 <h3><a id="index_h"></a>- h -</h3><ul>
 <li>hal_delay_ms()
 : <a class="el" href="systick_8h.html#ac08957766e54c77bc4e11d1168395c2a">systick.h</a>
-, <a class="el" href="stm32f4__systick_8c.html#adc23b8130e72a445f76c68d62e8c95c5">stm32f4_systick.c</a>
+, <a class="el" href="stm32f4__systick_8c.html#ac08957766e54c77bc4e11d1168395c2a">stm32f4_systick.c</a>
 </li>
 <li>hal_get_metadata()
-: <a class="el" href="hal__metadata_8c.html#a9dd94867827bb25d650511e2b5db5cae">hal_metadata.c</a>
-, <a class="el" href="hal__metadata_8h.html#a9dd94867827bb25d650511e2b5db5cae">hal_metadata.h</a>
+: <a class="el" href="hal__metadata_8h.html#a9dd94867827bb25d650511e2b5db5cae">hal_metadata.h</a>
+, <a class="el" href="hal__metadata_8c.html#a9dd94867827bb25d650511e2b5db5cae">hal_metadata.c</a>
+</li>
+<li>hal_get_tick()
+: <a class="el" href="stm32f4__systick_8c.html#a133677e9ec5ba5f712b18fc93cbfc33f">stm32f4_systick.c</a>
+, <a class="el" href="systick_8h.html#a133677e9ec5ba5f712b18fc93cbfc33f">systick.h</a>
 </li>
 <li>hal_gpio_init()
 : <a class="el" href="stm32f4__gpio_8c.html#a74329d6184725e22b277a55f70d38d29">stm32f4_gpio.c</a>
@@ -115,8 +119,8 @@ $(document).ready(function(){initNavTree('globals_func.html',''); initResizable(
 , <a class="el" href="gpio_8h.html#af12f986ae7fe8615ce4b076342b4c3de">gpio.h</a>
 </li>
 <li>hal_i2c_init()
-: <a class="el" href="stm32f4__i2c_8c.html#a84061c3f3bce491b1d3347716ca6d211">stm32f4_i2c.c</a>
-, <a class="el" href="i2c_8h.html#a84061c3f3bce491b1d3347716ca6d211">i2c.h</a>
+: <a class="el" href="i2c_8h.html#a84061c3f3bce491b1d3347716ca6d211">i2c.h</a>
+, <a class="el" href="stm32f4__i2c_8c.html#a84061c3f3bce491b1d3347716ca6d211">stm32f4_i2c.c</a>
 </li>
 <li>hal_i2c_submit_transaction()
 : <a class="el" href="stm32f4__i2c_8c.html#a5a7d3f9d0e0b8575989c65bbe023e514">stm32f4_i2c.c</a>
@@ -131,12 +135,12 @@ $(document).ready(function(){initNavTree('globals_func.html',''); initResizable(
 , <a class="el" href="pwm_8h.html#aa406f0572771305fd9b443a16fe0fef6">pwm.h</a>
 </li>
 <li>hal_pwm_enable()
-: <a class="el" href="pwm_8h.html#a332b7a5724dbcf8704a07cfa9bdaac48">pwm.h</a>
-, <a class="el" href="stm32f4__pwm_8c.html#a332b7a5724dbcf8704a07cfa9bdaac48">stm32f4_pwm.c</a>
+: <a class="el" href="stm32f4__pwm_8c.html#a332b7a5724dbcf8704a07cfa9bdaac48">stm32f4_pwm.c</a>
+, <a class="el" href="pwm_8h.html#a332b7a5724dbcf8704a07cfa9bdaac48">pwm.h</a>
 </li>
 <li>hal_pwm_set_duty_cycle()
-: <a class="el" href="stm32f4__pwm_8c.html#a99fe8ece9a13d19b3ef5a7a4b39278d3">stm32f4_pwm.c</a>
-, <a class="el" href="pwm_8h.html#a99fe8ece9a13d19b3ef5a7a4b39278d3">pwm.h</a>
+: <a class="el" href="pwm_8h.html#a99fe8ece9a13d19b3ef5a7a4b39278d3">pwm.h</a>
+, <a class="el" href="stm32f4__pwm_8c.html#a99fe8ece9a13d19b3ef5a7a4b39278d3">stm32f4_pwm.c</a>
 </li>
 <li>hal_pwm_set_frequency()
 : <a class="el" href="stm32f4__pwm_8c.html#a88fc8ee1d10e864b862f1db3c0ee0b6f">stm32f4_pwm.c</a>
@@ -147,8 +151,20 @@ $(document).ready(function(){initNavTree('globals_func.html',''); initResizable(
 , <a class="el" href="pwm_8h.html#a74262e31fa9b2dab39e6ba4b261fa7e1">pwm.h</a>
 </li>
 <li>hal_system_init()
-: <a class="el" href="hal__system_8h.html#ae084550fe9a5d6da18804a7b2ce9f5a7">hal_system.h</a>
-, <a class="el" href="stm32f4__hal__system_8c.html#ae084550fe9a5d6da18804a7b2ce9f5a7">stm32f4_hal_system.c</a>
+: <a class="el" href="stm32f4__hal__system_8c.html#ae084550fe9a5d6da18804a7b2ce9f5a7">stm32f4_hal_system.c</a>
+, <a class="el" href="hal__system_8h.html#ae084550fe9a5d6da18804a7b2ce9f5a7">hal_system.h</a>
+</li>
+<li>hal_systick_init()
+: <a class="el" href="stm32f4__systick_8c.html#ae9f6b79fcb1e5f04ff667e2f20f52a30">stm32f4_systick.c</a>
+, <a class="el" href="systick_8h.html#ae9f6b79fcb1e5f04ff667e2f20f52a30">systick.h</a>
+</li>
+<li>hal_systick_timer_deregister()
+: <a class="el" href="systick_8h.html#a3227d0cb4ebd0ec009a045e6662b546d">systick.h</a>
+, <a class="el" href="stm32f4__systick_8c.html#a3227d0cb4ebd0ec009a045e6662b546d">stm32f4_systick.c</a>
+</li>
+<li>hal_systick_timer_register()
+: <a class="el" href="stm32f4__systick_8c.html#aa158f61a956bcef689de513c3562c697">stm32f4_systick.c</a>
+, <a class="el" href="systick_8h.html#aa158f61a956bcef689de513c3562c697">systick.h</a>
 </li>
 <li>hal_uart_deinit()
 : <a class="el" href="stm32f4__uart_8c.html#a72d3ca825b6d09c87587bf9b3e52854f">stm32f4_uart.c</a>

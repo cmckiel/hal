@@ -133,12 +133,14 @@ Build</h2>
 </div><!-- fragment --><p>Target firmware should be visible in <code>build/embedded-debug/</code> as <code>.elf</code> and <code>.bin</code> files.</p>
 <h2><a class="anchor" id="example-application"></a>
 Example Application</h2>
-<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="uart_8h.html">uart.h</a>&quot;</span></div>
-<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="gpio_8h.html">gpio.h</a>&quot;</span></div>
-<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="systick_8h.html">systick.h</a>&quot;</span></div>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="uart_8h.html">hal/uart.h</a>&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="gpio_8h.html">hal/gpio.h</a>&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="systick_8h.html">hal/systick.h</a>&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="hal__system_8h.html">hal/hal_system.h</a>&quot;</span></div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">void</span>)</div>
 <div class="line">{</div>
+<div class="line">    <a class="code" href="stm32f4__hal__system_8c.html#ae084550fe9a5d6da18804a7b2ce9f5a7">hal_system_init</a>();</div>
 <div class="line">    <a class="code" href="stm32f4__gpio_8c.html#a74329d6184725e22b277a55f70d38d29">hal_gpio_init</a>();</div>
 <div class="line">    <a class="code" href="stm32f4__uart_8c.html#acf538d7f02b6373d22c886aaca664d8f">hal_uart_init</a>(<a class="code" href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b">HAL_UART2</a>);</div>
 <div class="line"> </div>
@@ -162,21 +164,23 @@ Example Application</h2>
 <div class="line"> </div>
 <div class="line">        <span class="comment">// Example application:</span></div>
 <div class="line">        <span class="comment">// Toggle onboard LED at 10 Hz.</span></div>
-<div class="line">        <a class="code" href="stm32f4__systick_8c.html#adc23b8130e72a445f76c68d62e8c95c5">hal_delay_ms</a>(100);</div>
+<div class="line">        <a class="code" href="stm32f4__systick_8c.html#ac08957766e54c77bc4e11d1168395c2a">hal_delay_ms</a>(100);</div>
 <div class="line">        <a class="code" href="stm32f4__gpio_8c.html#af12f986ae7fe8615ce4b076342b4c3de">hal_gpio_toggle_led</a>();</div>
 <div class="line">    }</div>
 <div class="line"> </div>
 <div class="line">    <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
 <div class="ttc" id="agpio_8h_html"><div class="ttname"><a href="gpio_8h.html">gpio.h</a></div><div class="ttdoc">Toggles the onboard LED.</div></div>
+<div class="ttc" id="ahal__system_8h_html"><div class="ttname"><a href="hal__system_8h.html">hal_system.h</a></div><div class="ttdoc">Handles target hardware initialization tasks prior to main application loop.</div></div>
 <div class="ttc" id="ahal__types_8h_html_ac2231a7f3681886d9b35e08c23759e27"><div class="ttname"><a href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27">hal_status_t</a></div><div class="ttdeci">hal_status_t</div><div class="ttdoc">Return type for HAL functions.</div><div class="ttdef"><b>Definition:</b> hal_types.h:17</div></div>
 <div class="ttc" id="ahal__types_8h_html_ac2231a7f3681886d9b35e08c23759e27aca9cb8926d38b93a5fc514af2a1627b0"><div class="ttname"><a href="hal__types_8h.html#ac2231a7f3681886d9b35e08c23759e27aca9cb8926d38b93a5fc514af2a1627b0">HAL_STATUS_OK</a></div><div class="ttdeci">@ HAL_STATUS_OK</div><div class="ttdef"><b>Definition:</b> hal_types.h:18</div></div>
 <div class="ttc" id="astm32f4__gpio_8c_html_a74329d6184725e22b277a55f70d38d29"><div class="ttname"><a href="stm32f4__gpio_8c.html#a74329d6184725e22b277a55f70d38d29">hal_gpio_init</a></div><div class="ttdeci">hal_status_t hal_gpio_init()</div><div class="ttdoc">Initialize the module. Must be called only once prior to using toggle.</div><div class="ttdef"><b>Definition:</b> stm32f4_gpio.c:21</div></div>
 <div class="ttc" id="astm32f4__gpio_8c_html_af12f986ae7fe8615ce4b076342b4c3de"><div class="ttname"><a href="stm32f4__gpio_8c.html#af12f986ae7fe8615ce4b076342b4c3de">hal_gpio_toggle_led</a></div><div class="ttdeci">hal_status_t hal_gpio_toggle_led()</div><div class="ttdoc">Toggle the onboard LED.</div><div class="ttdef"><b>Definition:</b> stm32f4_gpio.c:35</div></div>
-<div class="ttc" id="astm32f4__systick_8c_html_adc23b8130e72a445f76c68d62e8c95c5"><div class="ttname"><a href="stm32f4__systick_8c.html#adc23b8130e72a445f76c68d62e8c95c5">hal_delay_ms</a></div><div class="ttdeci">void hal_delay_ms(uint32_t delay)</div><div class="ttdoc">Delay for a given number of milliseconds.</div><div class="ttdef"><b>Definition:</b> stm32f4_systick.c:20</div></div>
+<div class="ttc" id="astm32f4__hal__system_8c_html_ae084550fe9a5d6da18804a7b2ce9f5a7"><div class="ttname"><a href="stm32f4__hal__system_8c.html#ae084550fe9a5d6da18804a7b2ce9f5a7">hal_system_init</a></div><div class="ttdeci">void hal_system_init()</div><div class="ttdoc">Initialize target hardware.</div><div class="ttdef"><b>Definition:</b> stm32f4_hal_system.c:35</div></div>
+<div class="ttc" id="astm32f4__systick_8c_html_ac08957766e54c77bc4e11d1168395c2a"><div class="ttname"><a href="stm32f4__systick_8c.html#ac08957766e54c77bc4e11d1168395c2a">hal_delay_ms</a></div><div class="ttdeci">void hal_delay_ms(uint32_t delay_ms)</div><div class="ttdoc">Block for the given number of milliseconds.</div><div class="ttdef"><b>Definition:</b> stm32f4_systick.c:77</div></div>
 <div class="ttc" id="astm32f4__uart_8c_html_a7db623b4fbcc73da22d807a65d692f0b"><div class="ttname"><a href="stm32f4__uart_8c.html#a7db623b4fbcc73da22d807a65d692f0b">hal_uart_write</a></div><div class="ttdeci">hal_status_t hal_uart_write(hal_uart_t uart, const uint8_t *data, size_t len, size_t *bytes_written)</div><div class="ttdoc">Write an outgoing byte stream.</div><div class="ttdef"><b>Definition:</b> stm32f4_uart.c:71</div></div>
 <div class="ttc" id="astm32f4__uart_8c_html_acf538d7f02b6373d22c886aaca664d8f"><div class="ttname"><a href="stm32f4__uart_8c.html#acf538d7f02b6373d22c886aaca664d8f">hal_uart_init</a></div><div class="ttdeci">hal_status_t hal_uart_init(hal_uart_t uart)</div><div class="ttdoc">Initialize the UART channel associated with the parameter uart. Must be called prior to using the cha...</div><div class="ttdef"><b>Definition:</b> stm32f4_uart.c:23</div></div>
-<div class="ttc" id="asystick_8h_html"><div class="ttname"><a href="systick_8h.html">systick.h</a></div><div class="ttdoc">Provides millisecond delays.</div></div>
+<div class="ttc" id="asystick_8h_html"><div class="ttname"><a href="systick_8h.html">systick.h</a></div><div class="ttdoc">SysTick driver: millisecond tick counter, blocking delay, and software timers.</div></div>
 <div class="ttc" id="auart_8h_html"><div class="ttname"><a href="uart_8h.html">uart.h</a></div><div class="ttdoc">Provides serial communication over UART1 and UART2.</div></div>
 <div class="ttc" id="auart_8h_html_a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b"><div class="ttname"><a href="uart_8h.html#a1eb2dbbb5cd864c8d0e19f71d7f168d1a239d2118b86cd506c2f41945c2e7980b">HAL_UART2</a></div><div class="ttdeci">@ HAL_UART2</div><div class="ttdef"><b>Definition:</b> uart.h:18</div></div>
 </div><!-- fragment --><h1><a class="anchor" id="autotoc_md7"></a>

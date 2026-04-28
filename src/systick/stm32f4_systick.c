@@ -28,7 +28,7 @@ typedef struct {
 } software_timer_t;
 
 #ifdef DESKTOP_BUILD
-uint32_t tick_ms;
+volatile uint32_t tick_ms;
 #else
 static volatile uint32_t tick_ms;
 #endif

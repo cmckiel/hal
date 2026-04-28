@@ -66,12 +66,14 @@ Target firmware should be visible in `build/embedded-debug/` as `.elf` and `.bin
 
 ### Example Application {#example-application}
 ```C
-#include "uart.h"
-#include "gpio.h"
-#include "systick.h"
+#include "hal/uart.h"
+#include "hal/gpio.h"
+#include "hal/systick.h"
+#include "hal/hal_system.h"
 
 int main(void)
 {
+    hal_system_init();
     hal_gpio_init();
     hal_uart_init(HAL_UART2);
 

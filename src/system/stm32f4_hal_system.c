@@ -9,6 +9,7 @@
  * Licensed under the MIT License. See LICENSE file in the project root.
  */
 #include "hal/hal_system.h"
+#include "hal/systick.h"
 
 #define CP_FULL_ACCESS 3UL /*!< Coprocessor full access enables full use of the Floating Point Unit (FPU). */
 #define CP10 20 /*!< Bit location for coprocessor 10 in the CPACR register of the System Control Block (SCB) */
@@ -34,4 +35,5 @@ void SystemInit(void)
 void hal_system_init()
 {
     SystemInit();
+    hal_systick_init();
 }

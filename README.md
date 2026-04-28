@@ -9,11 +9,11 @@ Designed for flight-control-class embedded systems and developed with modern too
 - **UART** - Two channels, UART1 and UART2.
 - **I2C** - One bus, I2C1.
 - **PWM** - Four channels, TIM1 (Advanced Timer).
-- **Timer** - delay_ms(), Systick.
+- **Timer** - delay_ms(), get_tick(), periodic timers, Systick.
 - **GPIO** - Toggle onboard LED, GPIOA.
 
 ### Test and Tooling
-- **Unit Tests** - 152 unit tests with 94% code coverage.
+- **Unit Tests** - 186 unit tests with 94% code coverage.
 - **Integration Test** - Hardware-in-the-Loop (HIL) integration test.
 - **Static Analysis** - Two static analyzers, clang-tidy and cppcheck.
 - **Containerized Build Environment** - Reproducible builds and platform independent development.
@@ -67,12 +67,14 @@ To see detailed build instructions, troubleshooting steps, and instructions for 
 
 ### Example Application
 ```C
-#include "uart.h"
-#include "gpio.h"
-#include "systick.h"
+#include "hal/uart.h"
+#include "hal/gpio.h"
+#include "hal/systick.h"
+#include "hal/hal_system.h"
 
 int main(void)
 {
+    hal_system_init();
     hal_gpio_init();
     hal_uart_init(HAL_UART2);
 

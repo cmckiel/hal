@@ -13,3 +13,7 @@
 ### PWM
 
 ![PWM Waveform Capture](pwm_capture_hal_v0.1.0.png)
+
+### LED Toggle on 100 ms Timer
+
+![LED Toggle Capture](gpio_led_timer_toggle_100hz_v0.2.0.png)

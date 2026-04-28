@@ -1,4 +1,5 @@
 #include <string.h>
+#include "hal/hal_system.h"
 #include "hal/systick.h"
 #include "hal/uart.h"
 
@@ -17,6 +18,9 @@ int main(void)
 
 	uint8_t rx_data_uart1[MAX_RX_BYTES] = { 0 };
 	uint8_t rx_data_uart2[MAX_RX_BYTES] = { 0 };
+
+	// Init system.
+	hal_system_init();
 
 	// Initialize drivers.
 	hal_uart_init(HAL_UART1);

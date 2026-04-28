@@ -4,6 +4,7 @@ add_executable(
     i2c_driver_test.cpp
     i2c_transaction_queue_test.cpp
     pwm_driver_test.cpp
+    systick_driver_test.cpp
     uart_driver_test.cpp
     uart1_driver_test.cpp
     uart2_driver_test.cpp

@@ -4,7 +4,7 @@
 #include <thread>
 
 extern "C" {
-#include "systick.h"
+#include "hal/systick.h"
 #include "registers.h"
 
 /* Exposed for overflow testing only — see systick.c DESKTOP_BUILD guard. */

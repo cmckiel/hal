@@ -113,6 +113,10 @@ To integrate a pre-built HAL release into a CMake project, see [Project Integrat
 
 See [Deployment](pages/deployment.md) for detailed instructions to deploy firmware to target hardware.
 
+## Debugging
+
+See [Debugging](pages/debugging.md) for instructions to live debug on target hardware.
+
 ## Coverage
 
 See the code coverage [here](coverage/index.html).

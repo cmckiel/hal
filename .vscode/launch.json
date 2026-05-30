@@ -23,5 +23,21 @@
             // Add LD_LIBRARY_PATH etc. here if your test exe needs it
             ]
         },
+        {
+            "name": "Debug STM32F4 (via Pi tunnel)",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceRoot}/build/embedded-debug/hal_integration_test.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "external",
+            "gdbTarget": "host.docker.internal:3333",
+            "gdbPath": "/usr/bin/gdb-multiarch",
+            "runToEntryPoint": "main",
+            "device": "STM32F446RE",
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 4
+            }
+        }
     ],
 }

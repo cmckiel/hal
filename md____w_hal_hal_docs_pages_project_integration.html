@@ -89,10 +89,10 @@ $(document).ready(function(){initNavTree('md____w_hal_hal_docs_pages_project_int
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p>This set of instructions details how to incorporate a HAL release into an embedded project. Assume the following steps take place in a project directory called <code>hal_consumer</code>.</p>
-<h1><a class="anchor" id="autotoc_md21"></a>
+<h1><a class="anchor" id="autotoc_md25"></a>
 Create a CMake Project</h1>
 <p>These instructions create a CMake project capable of building an application using HAL.</p>
-<h2><a class="anchor" id="autotoc_md22"></a>
+<h2><a class="anchor" id="autotoc_md26"></a>
 Create a Root-Level CMakeLists.txt</h2>
 <div class="fragment"><div class="line"># Project: Hal Consumer</div>
 <div class="line">cmake_minimum_required(VERSION 3.20)</div>
@@ -110,7 +110,7 @@ Create a Root-Level CMakeLists.txt</h2>
 <div class="line">    arm-none-eabi-objcopy -O binary hal_consumer hal_consumer.bin</div>
 <div class="line">    DEPENDS hal_consumer</div>
 <div class="line">)</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md23"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md27"></a>
 Create CMakePresets.json</h2>
 <p>Add the json below to <code>CMakePresets.json</code> and swap out <code>&lt;version&gt;</code> for a version number like <code>v0.1.0</code>.</p>
 <div class="fragment"><div class="line">{</div>
@@ -136,7 +136,7 @@ Create CMakePresets.json</h2>
 <div class="line">        }</div>
 <div class="line">    ]</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md24"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md28"></a>
 Create a CMake Toolchain File</h2>
 <div class="fragment"><div class="line">touch CMakeToolChain.stm32f446.cmake</div>
 </div><!-- fragment --><p>Put the following in <code>CMakeToolChain.stm32f446.cmake</code>:</p>
@@ -165,29 +165,29 @@ Create a CMake Toolchain File</h2>
 <div class="line">set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)</div>
 <div class="line">set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)</div>
 <div class="line">set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)</div>
-</div><!-- fragment --> <h1><a class="anchor" id="autotoc_md25"></a>
+</div><!-- fragment --> <h1><a class="anchor" id="autotoc_md29"></a>
 Download Release Artifacts</h1>
 <div class="fragment"><div class="line">curl -L -O https://github.com/cmckiel/hal/releases/download/&lt;tag&gt;/Hal-&lt;version&gt;-stm32f4-armv7e-m-Release.tar.gz</div>
 </div><!-- fragment --><p> In the above command, replace &lt;tag&gt; with the git tag associated with the version you're targeting. (e.g. <code>v0.1.0</code>) Replace &lt;verison&gt; with the version number which typically matches the tag, (e.g. <code>v0.1.0</code>) the only exceptions being release candidates. (e.g. tag = <code>v0.1.0-rc3</code> and version = <code>v0.1.0</code>) Note also that releases with debug symbols are available by replacing <code>Release</code> with <code>Debug</code> in the tarball name.</p>
 <p>Next, extract the tarball into the current directory.</p>
 <div class="fragment"><div class="line">tar -xzf Hal-&lt;version&gt;-stm32f4-armv7e-m-Release.tar.gz</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md26"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md30"></a>
 Place Linker Script in Project Directory</h1>
 <p>Define or acquire a linker script for your board. If using the stm32f446re dev board, a linker script can be pulled down from HAL using the following command.</p>
 <div class="fragment"><div class="line">curl -L -O https://raw.githubusercontent.com/cmckiel/hal/&lt;tag&gt;/device/linker/STM32F446RETX_FLASH.ld</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md27"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md31"></a>
 Create Application Main</h1>
 <div class="fragment"><div class="line">touch main.c</div>
 </div><!-- fragment --><p>An example can be found in <a class="el" href="index.html#example-application">Example Application</a>. Note that <code>#include</code>'s differ slightly from the provided example when bringing HAL in as a library. Just add the prefix <code>hal/</code> like so <code>#include "hal/uart.h"</code>.</p>
-<h1><a class="anchor" id="autotoc_md28"></a>
+<h1><a class="anchor" id="autotoc_md32"></a>
 HAL Build Environment</h1>
-<h2><a class="anchor" id="autotoc_md29"></a>
+<h2><a class="anchor" id="autotoc_md33"></a>
 Pull Down Build Environment</h2>
 <div class="fragment"><div class="line">docker pull cmckiel/hal-build-environment:latest</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md30"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md34"></a>
 Run the Image</h2>
 <div class="fragment"><div class="line">docker run --rm -it -v &quot;$PWD&quot;:/workspace -w /workspace cmckiel/hal-build-environment</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md31"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md35"></a>
 Build the Application</h1>
 <p>From inside the docker container run the following commands to build the target binary.</p>
 <div class="fragment"><div class="line">cmake --preset hal-consumer</div>

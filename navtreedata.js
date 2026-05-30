@@ -37,40 +37,45 @@ var NAVTREE =
     ] ],
     [ "Project Integration", "index.html#autotoc_md7", null ],
     [ "Deployment", "index.html#autotoc_md8", null ],
-    [ "Coverage", "index.html#autotoc_md9", null ],
-    [ "Waveforms", "index.html#autotoc_md10", null ],
-    [ "License", "index.html#autotoc_md11", null ],
+    [ "Debugging", "index.html#autotoc_md9", null ],
+    [ "Coverage", "index.html#autotoc_md10", null ],
+    [ "Waveforms", "index.html#autotoc_md11", null ],
+    [ "License", "index.html#autotoc_md12", null ],
+    [ "On-Target Debugging", "md____w_hal_hal_docs_pages_debugging.html", [
+      [ "Setup", "md____w_hal_hal_docs_pages_debugging.html#autotoc_md14", null ],
+      [ "Starting a Session", "md____w_hal_hal_docs_pages_debugging.html#autotoc_md15", null ]
+    ] ],
     [ "Firmware Deployment", "deployment.html", [
-      [ "Prerequisites", "deployment.html#autotoc_md12", null ],
-      [ "Verify Device Detection", "deployment.html#autotoc_md13", null ],
-      [ "Flash the Firmware", "deployment.html#autotoc_md14", null ],
-      [ "View Serial Output", "deployment.html#autotoc_md15", null ],
-      [ "Windows Notes", "deployment.html#autotoc_md16", null ]
+      [ "Prerequisites", "deployment.html#autotoc_md16", null ],
+      [ "Verify Device Detection", "deployment.html#autotoc_md17", null ],
+      [ "Flash the Firmware", "deployment.html#autotoc_md18", null ],
+      [ "View Serial Output", "deployment.html#autotoc_md19", null ],
+      [ "Windows Notes", "deployment.html#autotoc_md20", null ]
     ] ],
     [ "LICENSE", "md____w_hal_hal_docs_pages_license.html", null ],
     [ "Pinout", "md____w_hal_hal_docs_pages_pinout.html", null ],
     [ "Project Integration", "md____w_hal_hal_docs_pages_project_integration.html", [
-      [ "Create a CMake Project", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md21", [
-        [ "MIT License", "md____w_hal_hal_docs_pages_license.html#autotoc_md18", null ],
-        [ "Create a Root-Level CMakeLists.txt", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md22", null ],
-        [ "Create CMakePresets.json", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md23", null ],
-        [ "Create a CMake Toolchain File", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md24", null ]
+      [ "Create a CMake Project", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md25", [
+        [ "MIT License", "md____w_hal_hal_docs_pages_license.html#autotoc_md22", null ],
+        [ "Create a Root-Level CMakeLists.txt", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md26", null ],
+        [ "Create CMakePresets.json", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md27", null ],
+        [ "Create a CMake Toolchain File", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md28", null ]
       ] ],
-      [ "Download Release Artifacts", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md25", null ],
-      [ "Place Linker Script in Project Directory", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md26", null ],
-      [ "Create Application Main", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md27", null ],
-      [ "HAL Build Environment", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md28", [
-        [ "Pull Down Build Environment", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md29", null ],
-        [ "Run the Image", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md30", null ]
+      [ "Download Release Artifacts", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md29", null ],
+      [ "Place Linker Script in Project Directory", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md30", null ],
+      [ "Create Application Main", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md31", null ],
+      [ "HAL Build Environment", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md32", [
+        [ "Pull Down Build Environment", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md33", null ],
+        [ "Run the Image", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md34", null ]
       ] ],
-      [ "Build the Application", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md31", null ]
+      [ "Build the Application", "md____w_hal_hal_docs_pages_project_integration.html#autotoc_md35", null ]
     ] ],
     [ "Waveforms", "md____w_hal_hal_docs_pages_waveforms.html", [
-      [ "Representative Waveforms Captured on Target Hardware", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md33", [
-        [ "UART", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md34", null ],
-        [ "I2C", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md35", null ],
-        [ "PWM", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md36", null ],
-        [ "LED Toggle on 100 ms Timer", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md37", null ]
+      [ "Representative Waveforms Captured on Target Hardware", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md37", [
+        [ "UART", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md38", null ],
+        [ "I2C", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md39", null ],
+        [ "PWM", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md40", null ],
+        [ "LED Toggle on 100 ms Timer", "md____w_hal_hal_docs_pages_waveforms.html#autotoc_md41", null ]
       ] ]
     ] ],
     [ "Classes", "annotated.html", [
@@ -98,7 +103,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"stm32f4__uart1_8c.html#a701078568c3504cdc4bf89077bcb05b4"
+"stm32f4__systick_8c.html#ae9f6b79fcb1e5f04ff667e2f20f52a30"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

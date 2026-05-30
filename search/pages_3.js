@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['pinout_275',['Pinout',['../md____w_hal_hal_docs_pages_pinout.html',1,'']]],
-  ['project_20integration_276',['Project Integration',['../md____w_hal_hal_docs_pages_project_integration.html',1,'']]]
+  ['on_2dtarget_20debugging_276',['On-Target Debugging',['../md____w_hal_hal_docs_pages_debugging.html',1,'']]]
 ];

@@ -319,6 +319,59 @@ TEST_F(PWMDriverTest, SetPartialDutyCycleResultsInPWMMode)
     ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b110u);
 }
 
+TEST_F(PWMDriverTest, DutyCycleUpdatesDoNotForceUpdateInPWMMode)
+{
+    // Arrange: Init driver and channel, enable output
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_timer_init(400));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH1));
+    hal_pwm_enable(HAL_PWM_CH1, true);
+
+    // Arrange: Unset the update generate bit (typically done by hardware on mode change)
+    // Default mode on init is active-low
+    Sim_TIM1.EGR &= ~TIM_EGR_UG;
+
+    // Arrange: Set a nonzero duty cycle
+    hal_pwm_set_duty_cycle(HAL_PWM_CH1, 75);
+
+    // Verify: Update generate was set on mode change and mode is now PWM.
+    ASSERT_TRUE(Sim_TIM1.EGR & TIM_EGR_UG);
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b110u);
+
+    // Arrange: Unset the update generate bit (typically done by hardware on mode change)
+    Sim_TIM1.EGR &= ~TIM_EGR_UG;
+
+    // Act: Set a new, nonzero, nonmax, duty cycle while still in PWM mode
+    hal_pwm_set_duty_cycle(HAL_PWM_CH1, 80);
+
+    // Assert: Forced update was not requested.
+    ASSERT_FALSE(Sim_TIM1.EGR & TIM_EGR_UG);
+}
+
+TEST_F(PWMDriverTest, ModeChangeRequestsForcedUpdate)
+{
+    // Arrange: Init driver and channel, enable output
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_timer_init(400));
+    ASSERT_EQ(HAL_STATUS_OK, hal_pwm_channel_init(HAL_PWM_CH1));
+    hal_pwm_enable(HAL_PWM_CH1, true);
+
+    // Arrange: Set a nonzero duty cycle
+    hal_pwm_set_duty_cycle(HAL_PWM_CH1, 75);
+
+    // Verify: Update generate was set on mode change and mode is now PWM.
+    ASSERT_TRUE(Sim_TIM1.EGR & TIM_EGR_UG);
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b110u);
+
+    // Arrange: Unset the update generate bit (typically done by hardware on mode change)
+    Sim_TIM1.EGR &= ~TIM_EGR_UG;
+
+    // Act: Set the max duty cycle to trigger a mode change to active-high.
+    hal_pwm_set_duty_cycle(HAL_PWM_CH1, 100);
+
+    // Assert: Update generate was set on mode change and mode is now active-high.
+    ASSERT_TRUE(Sim_TIM1.EGR & TIM_EGR_UG);
+    ASSERT_EQ((Sim_TIM1.CCMR1 & TIM_CCMR1_OC1M) >> TIM_CCMR1_OC1M_Pos, 0b101u);
+}
+
 TEST_F(PWMDriverTest, SetsDutyCycleRegisterCorrectly)
 {
     // Arrange: Initialize driver, enable the output, and confirm default forced low mode.

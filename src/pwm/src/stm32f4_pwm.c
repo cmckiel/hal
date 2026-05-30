@@ -272,8 +272,11 @@ hal_status_t hal_pwm_set_duty_cycle(hal_pwm_channel_t channel, uint8_t percent)
             return HAL_STATUS_OK;
         }
 
-        // percent is something between 1%-99%.
-        set_pwm_mode1(channel);
+        if (!tim1_ch_is_pwm_mode1(channel))
+        {
+            // percent is something between 1%-99%.
+            set_pwm_mode1(channel);
+        }
 
         // CCR = round(percent/100 * (ARR+1))
         // Common rounding trick for integers:
@@ -294,8 +297,6 @@ hal_status_t hal_pwm_set_duty_cycle(hal_pwm_channel_t channel, uint8_t percent)
         }
 
         tim1_ch_set_ccr(channel, ccr);
-        // With OCxPE=1, CCR update latches on next UG/overflow. Force UG to apply now:
-        tim1_force_update();
     }
 
     return HAL_STATUS_OK;
